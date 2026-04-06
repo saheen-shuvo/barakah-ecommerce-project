@@ -10,12 +10,11 @@ app.use(cors());
 app.use(express.json());
 
 const productRoutes = require("./routes/product.routes");
+const orderRoutes = require("./routes/order.routes");
 
 app.get("/", (req, res) => {
   res.send("Barakah server running successfully");
 });
-
-app.use("/api/products", productRoutes);
 
 app.get("/api/test", async (req, res) => {
   try {
@@ -34,6 +33,9 @@ app.get("/api/test", async (req, res) => {
     });
   }
 });
+
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 8000;
 

@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import Container from "@/components/shared/Container";
 import SectionTitle from "@/components/shared/SectionTitle";
+import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
-  const { cartItems, totalPrice } = useCart();
-
+  const router = useRouter();
+  const { cartItems, totalPrice, clearCart } = useCart();
   const [shipping, setShipping] = useState("inside");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -33,7 +35,7 @@ export default function CheckoutPage() {
     }));
   };
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
 
     if (
@@ -46,17 +48,66 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (cartItems.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
     const orderData = {
-      customer: formData,
-      items: cartItems,
-      shipping,
+      customerName: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+      district: formData.district,
+      area: formData.area,
+      notes: formData.notes,
+      shippingType: shipping,
       shippingCost,
+      items: cartItems.map((item) => ({
+        productId: item._id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+      })),
       subtotal: totalPrice,
       total: finalTotal,
     };
 
-    console.log("Order placed:", orderData);
-    alert("Order placed successfully!");
+    try {
+      setLoading(true);
+
+      const res = await fetch("http://localhost:8000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.message || "Failed to place order");
+      }
+
+      alert("Order placed successfully!");
+      clearCart();
+
+      setFormData({
+        name: "",
+        phone: "",
+        address: "",
+        district: "",
+        area: "",
+        notes: "",
+      });
+
+      router.push("/order-success");
+    } catch (error) {
+      alert(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -270,9 +321,10 @@ export default function CheckoutPage() {
 
               <button
                 onClick={handlePlaceOrder}
-                className="mt-6 w-full rounded-2xl bg-[#0f2a44] px-6 py-4 font-semibold text-[#f2c94c] transition hover:opacity-95"
+                disabled={loading}
+                className="mt-6 w-full rounded-2xl bg-[#0f2a44] px-6 py-4 text-lg font-semibold text-[#f2c94c] transition hover:opacity-95 disabled:opacity-60"
               >
-                Place Order
+                {loading ? "Placing Order..." : "Place Order"}
               </button>
 
               <Link
