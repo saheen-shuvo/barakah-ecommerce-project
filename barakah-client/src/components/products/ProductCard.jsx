@@ -18,7 +18,7 @@ export default function ProductCard({ product }) {
       className="group block overflow-hidden rounded-2xl bg-white border border-[#0f2a44]/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-[#faf7f0]">
+      <div className="relative bg-[#faf7f0]">
         <img
           src={product.image}
           alt={product.name}

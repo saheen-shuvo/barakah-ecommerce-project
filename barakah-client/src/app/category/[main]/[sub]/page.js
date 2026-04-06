@@ -1,32 +1,46 @@
+import ProductCard from "@/components/products/ProductCard";
+import Link from "next/link";
 import { products } from "@/data/products";
-import SubCategoryTabs from "@/components/products/SubCategoryTabs";
+import ProductSearch from "@/components/products/ProductSearch";
 
-export default function CategoryPage({ params }) {
-  const { main, sub } = params;
+export default async function CategoryPage({ params }) {
+  const { main, sub } = await params;
 
-  const filtered = products.filter(
-    (p) =>
-      p.mainCategory === main &&
-      p.subCategory === sub
+  const filteredProducts = products.filter(
+    (p) => p.category === main && p.subcategory === sub,
   );
 
   return (
-    <div className="min-h-screen bg-[#faf7f0] px-4 py-10">
-      <h1 className="mb-6 text-3xl font-bold capitalize">
-        {main.replace("-", " ")} / {sub}
-      </h1>
+    <main className="bg-[#faf7f0] min-h-screen py-10">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Title */}
+        <h1 className="text-3xl font-bold mb-6 capitalize">
+          {main?.replace("-", " ")}
+        </h1>
 
-      {/* Tabs */}
-      <SubCategoryTabs main={main} currentSub={sub} />
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8">
+          <Link
+            href={`/category/${main}/natural`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "natural" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Natural
+          </Link>
 
-      {/* Products */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {filtered.map((product) => (
-          <div key={product.id} className="border p-4 bg-white">
-            {product.name}
-          </div>
-        ))}
+          <Link
+            href={`/category/${main}/islamic`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "islamic" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Islamic
+          </Link>
+        </div>
+
+        <ProductSearch products={filteredProducts} />
       </div>
-    </div>
+    </main>
   );
 }
