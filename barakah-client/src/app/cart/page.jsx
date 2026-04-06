@@ -158,9 +158,12 @@ export default function CartPage() {
                   <span>৳ {(totalPrice + shippingCost).toFixed(2)}</span>
                 </div>
 
-                <button className="w-full rounded-2xl bg-[#0f2a44] px-3 py-4 font-semibold text-[#f2c94c] transition hover:opacity-95">
+                <Link
+                  href="/checkout"
+                  className="block w-full rounded-2xl bg-[#0f2a44] px-6 py-4 text-center font-semibold text-[#f2c94c] transition hover:opacity-95"
+                >
                   Proceed to Checkout
-                </button>
+                </Link>
 
                 <Link
                   href="/"

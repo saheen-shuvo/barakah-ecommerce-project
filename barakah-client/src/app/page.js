@@ -1,8 +1,17 @@
 import Hero from "@/components/home/Hero";
 import ProductSection from "@/components/home/ProductSection";
-import { products } from "@/data/products";
 
-export default function HomePage() {
+async function getProducts() {
+  const res = await fetch("http://localhost:8000/api/products", {
+    cache: "no-store",
+  });
+
+  const result = await res.json();
+  return result.data || [];
+}
+
+export default async function HomePage() {
+  const products = await getProducts();
   const wallClockProducts = products.filter(
     (product) => product.category === "wall-clock",
   );
@@ -11,11 +20,11 @@ export default function HomePage() {
     (product) => product.category === "wall-canvas",
   );
 
-//   const islamicWallClockProducts = products.filter(
-//   (product) =>
-//     product.category === "wall-clock" &&
-//     product.subcategory === "islamic"
-// );
+  //   const islamicWallClockProducts = products.filter(
+  //   (product) =>
+  //     product.category === "wall-clock" &&
+  //     product.subcategory === "islamic"
+  // );
 
   return (
     <main className="min-h-screen bg-[#faf7f0] text-[#3d2f1f]">

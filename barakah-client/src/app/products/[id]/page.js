@@ -1,13 +1,21 @@
 import Link from "next/link";
-import { products } from "@/data/products";
 import ProductCard from "@/components/products/ProductCard";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 
+async function getProducts() {
+  const res = await fetch("http://localhost:8000/api/products", {
+    cache: "no-store",
+  });
+
+  const result = await res.json();
+  return result.data || [];
+}
+
 export default async function ProductDetails({ params }) {
   const { id } = await params;
-  const productId = Number(id);
+  const products = await getProducts();
 
-  const product = products.find((p) => p.id === productId);
+  const product = products.find((p) => p._id === id);
 
   if (!product) {
     return (
@@ -24,7 +32,7 @@ export default async function ProductDetails({ params }) {
 
   // related products
   const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
+    .filter((p) => p.category === product.category && p._id !== product._id)
     .slice(0, 4);
 
   return (
@@ -108,9 +116,9 @@ export default async function ProductDetails({ params }) {
               Related Products
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:lg-grid-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {relatedProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           </div>

@@ -13,7 +13,7 @@ export default function ProductCard({ product }) {
 
   return (
     <Link
-      href={`/products/${product.id}`}
+      href={`/products/${product._id}`}
       className="group block overflow-hidden rounded-2xl bg-white border border-[#0f2a44]/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     >
       {/* Image */}

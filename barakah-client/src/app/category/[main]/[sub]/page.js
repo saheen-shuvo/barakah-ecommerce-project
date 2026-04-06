@@ -1,9 +1,17 @@
-import ProductCard from "@/components/products/ProductCard";
 import Link from "next/link";
-import { products } from "@/data/products";
 import ProductSearch from "@/components/products/ProductSearch";
 
+async function getProducts() {
+  const res = await fetch("http://localhost:8000/api/products", {
+    cache: "no-store",
+  });
+
+  const result = await res.json();
+  return result.data || [];
+}
+
 export default async function CategoryPage({ params }) {
+  const products = await getProducts();
   const { main, sub } = await params;
 
   const filteredProducts = products.filter(
