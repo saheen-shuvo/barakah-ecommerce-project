@@ -31,7 +31,7 @@ export default function HomePage() {
         title="Elegant Wall Canvas"
         link="/category/wall-canvas/natural"
         products={wallCanvasProducts.slice(0, 8)}
-        bgClass="bg-white"
+        bgClass="bg-[#faf7f0]"
       />
     </main>
   );

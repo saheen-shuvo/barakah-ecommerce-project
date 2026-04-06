@@ -1,15 +1,14 @@
 "use client";
 
+import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
 
 export default function ProductCard({ product }) {
+  const { addToCart } = useCart();
   const handleAddToCart = (e) => {
-    e.preventDefault(); // prevent link navigation
-    e.stopPropagation(); // stop bubbling
-
-    console.log("Added:", product);
-    // later:
-    // addToCart(product)
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product);
   };
 
   return (
@@ -62,17 +61,17 @@ export default function ProductCard({ product }) {
         </div> */}
 
         {/* Price  */}
-          <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-[#0f2a44]">
-              ৳ {product.price}
-            </span>
+        <div className="flex items-center gap-2">
+          <span className="text-base font-bold text-[#0f2a44]">
+            ৳ {product.price}
+          </span>
 
-            {product.oldPrice && (
-              <span className="text-sm text-gray-400 line-through">
-                ৳ {product.oldPrice}
-              </span>
-            )}
-          </div>
+          {product.oldPrice && (
+            <span className="text-sm text-gray-400 line-through">
+              ৳ {product.oldPrice}
+            </span>
+          )}
+        </div>
 
         {/* add to cart + buy now */}
         <div className="flex justify-between py-2 gap-3">
@@ -82,7 +81,7 @@ export default function ProductCard({ product }) {
           >
             Add to Cart
           </button>
-          <button className="w-[50%] rounded-md  text-[#0f2a44] border border-[#0f2a44] text-xs font-medium hover:bg-[#d4af37] transition-all duration-200">
+          <button className="w-[50%] rounded-md  text-[#0f2a44] border border-[#0f2a44] text-xs font-medium hover:bg-[#d4af37] hover:border-[white] transition-all duration-200">
             Buy Now
           </button>
         </div>

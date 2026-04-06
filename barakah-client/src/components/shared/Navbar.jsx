@@ -8,11 +8,7 @@ import { FiShoppingCart } from "react-icons/fi";
 import { FaRegUser } from "react-icons/fa";
 import { IoMdMenu } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
-
-// dummy cart (replace later)
-const useCart = () => {
-  return { totalItems: 2 };
-};
+import { useCart } from "@/contexts/CartContext";
 
 export default function Navbar() {
   const { totalItems } = useCart();

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { products } from "@/data/products";
 import ProductCard from "@/components/products/ProductCard";
+import AddToCartButton from "@/components/cart/AddToCartButton";
 
 export default async function ProductDetails({ params }) {
   const { id } = await params;
@@ -88,11 +89,12 @@ export default async function ProductDetails({ params }) {
 
             {/* Buttons */}
             <div className="mt-6 flex gap-4">
-              <button className="px-6 py-3 bg-[#0f2a44] text-white rounded-lg hover:bg-[#d4af37] transition">
+              {/* <button className="px-6 py-3 bg-[#0f2a44] text-white rounded-lg hover:bg-[#d4af37] transition">
                 Add to Cart
-              </button>
+              </button> */}
+              <AddToCartButton product={product} />
 
-              <button className="px-6 py-3 border border-[#0f2a44] rounded-lg hover:bg-white transition">
+              <button className="px-6 py-3 border border-[#0f2a44] rounded-lg hover:bg-[#d4af37] hover:border-[#d4af37] transition">
                 Buy Now
               </button>
             </div>
