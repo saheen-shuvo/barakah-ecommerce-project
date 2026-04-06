@@ -1,8 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
 
-dotenv.config();
+const testRoutes = require("./routes/test.routes");
 
 const app = express();
 
@@ -10,17 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// test route
-app.get("/", (req, res) => {
-  res.send("Barakah server running successfully");
-});
-
-app.get("/api/test", (req, res) => {
-  res.json({
-    success: true,
-    message: "Backend working",
-  });
-});
+// routes
+app.use("/api", testRoutes);
 
 // server
 const PORT = process.env.PORT || 8000;

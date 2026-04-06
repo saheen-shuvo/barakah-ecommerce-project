@@ -7,11 +7,9 @@ export default function Navbar() {
         Barakah
       </h1>
 
-      <div className="space-x-6 text-sm">
-        <Link href="/">Home</Link>
-        <Link href="/category/watch">Watch</Link>
-        <Link href="/category/earphone">Earphone</Link>
-        <Link href="/category/phone">Phone</Link>
+      <div className="flex gap-6 text-sm">
+        <Link href="/category/wall-clock/natural">Wall Clock</Link>
+        <Link href="/category/wall-canvas/natural">Wall Canvas</Link>
       </div>
     </nav>
   );
