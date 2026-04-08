@@ -2,12 +2,21 @@ import Hero from "@/components/home/Hero";
 import ProductSection from "@/components/home/ProductSection";
 
 async function getProducts() {
-  const res = await fetch("http://localhost:8000/api/products", {
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch("http://localhost:8000/api/products", {
+      cache: "no-store",
+    });
 
-  const result = await res.json();
-  return result.data || [];
+    if (!res.ok) {
+      return [];
+    }
+
+    const result = await res.json();
+    return result.data || [];
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return [];
+  }
 }
 
 export default async function HomePage() {

@@ -46,7 +46,7 @@ export default function CartPage() {
               <div className="space-y-5">
                 {cartItems.map((item) => (
                   <div
-                    key={item.id}
+                    key={item._id}
                     className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex items-center gap-4">
@@ -75,7 +75,7 @@ export default function CartPage() {
 
                     <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item._id)}
                         className="text-[#0f2a44]/65 transition hover:text-red-500"
                         aria-label="Remove item"
                       >
@@ -84,7 +84,7 @@ export default function CartPage() {
 
                       <div className="flex items-center rounded-full border border-[#0f2a44]/15 bg-[#f8f6f1] px-2 py-1">
                         <button
-                          onClick={() => decreaseQuantity(item.id)}
+                          onClick={() => decreaseQuantity(item._id)}
                           className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-[#0f2a44] transition hover:bg-white"
                         >
                           -
@@ -95,7 +95,7 @@ export default function CartPage() {
                         </span>
 
                         <button
-                          onClick={() => increaseQuantity(item.id)}
+                          onClick={() => increaseQuantity(item._id)}
                           className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-[#0f2a44] transition hover:bg-white"
                         >
                           +

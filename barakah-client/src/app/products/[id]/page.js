@@ -3,12 +3,21 @@ import ProductCard from "@/components/products/ProductCard";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 
 async function getProducts() {
-  const res = await fetch("http://localhost:8000/api/products", {
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch("http://localhost:8000/api/products", {
+      cache: "no-store",
+    });
 
-  const result = await res.json();
-  return result.data || [];
+    if (!res.ok) {
+      return [];
+    }
+
+    const result = await res.json();
+    return result.data || [];
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return [];
+  }
 }
 
 export default async function ProductDetails({ params }) {
