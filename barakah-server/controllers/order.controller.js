@@ -1,4 +1,5 @@
 const connectDB = require("../config/db");
+const { ObjectId } = require("mongodb");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -79,6 +80,53 @@ exports.getOrders = async (req, res) => {
     res.json({
       success: true,
       data: orders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.markOrderDelivered = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+    const { id } = req.params;
+
+    const existingOrder = await ordersCollection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (existingOrder.status === "delivered") {
+      return res.status(400).json({
+        success: false,
+        message: "Order already delivered",
+      });
+    }
+
+    const result = await ordersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: "delivered",
+          deliveredAt: new Date(),
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Order marked as delivered",
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
