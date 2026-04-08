@@ -1,8 +1,29 @@
-export default function AllProductsPage() {
+import ProductTable from "@/components/admin/ProductTable";
+
+async function getProducts() {
+  try {
+    const res = await fetch("http://localhost:8000/api/products", {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const result = await res.json();
+    return result?.data || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+export default async function AllProductsPage() {
+  const products = await getProducts();
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm">
       <h2 className="text-2xl font-bold mb-6">All Products</h2>
-      <p>Product table will be here.</p>
+      <ProductTable initialProducts={products} />
     </div>
   );
 }

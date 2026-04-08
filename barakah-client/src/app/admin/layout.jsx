@@ -3,8 +3,15 @@
 import Link from "next/link";
 import { FiHome, FiBox, FiPlus, FiShoppingCart } from "react-icons/fi";
 import { IoMdMenu } from "react-icons/io";
+import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }) {
+  const pathname = usePathname();
+
+  const isExact = (path) => pathname === path;
+  const isProductsPage =
+    pathname === "/admin/products" ||
+    pathname.startsWith("/admin/products/edit");
   return (
     <div className="drawer lg:drawer-open min-h-screen">
       {/* Toggle checkbox */}
@@ -36,36 +43,51 @@ export default function AdminLayout({ children }) {
         <label htmlFor="admin-drawer" className="drawer-overlay"></label>
 
         <aside className="min-h-full w-64 bg-white border-r border-[#e5dccf] py-6 px-4">
+<ul className="menu text-[#3d2f1f] w-full gap-1">
+  {/* Dashboard */}
+  <li>
+    <Link
+      href="/admin"
+      className={isExact("/admin") ? "bg-[#d4af37] text-white" : ""}
+    >
+      <FiHome />
+      Dashboard
+    </Link>
+  </li>
 
-          <ul className="menu text-[#3d2f1f] w-full gap-1">
-            <li>
-              <Link href="/admin">
-                <FiHome />
-                Dashboard
-              </Link>
-            </li>
+  {/* All Products */}
+  <li>
+    <Link
+      href="/admin/products"
+      className={isProductsPage ? "bg-[#d4af37] text-white" : ""}
+    >
+      <FiBox />
+      All Products
+    </Link>
+  </li>
 
-            <li>
-              <Link href="/admin/products">
-                <FiBox />
-                All Products
-              </Link>
-            </li>
+  {/* Add Product */}
+  <li>
+    <Link
+      href="/admin/products/add"
+      className={isExact("/admin/products/add") ? "bg-[#d4af37] text-white" : ""}
+    >
+      <FiPlus />
+      Add Product
+    </Link>
+  </li>
 
-            <li>
-              <Link href="/admin/products/add">
-                <FiPlus />
-                Add Product
-              </Link>
-            </li>
-
-            <li>
-              <Link href="/admin/orders">
-                <FiShoppingCart />
-                Orders
-              </Link>
-            </li>
-          </ul>
+  {/* Orders */}
+  <li>
+    <Link
+      href="/admin/orders"
+      className={isExact("/admin/orders") ? "bg-[#d4af37] text-white" : ""}
+    >
+      <FiShoppingCart />
+      Orders
+    </Link>
+  </li>
+</ul>
         </aside>
       </div>
     </div>
