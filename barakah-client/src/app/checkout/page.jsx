@@ -6,60 +6,50 @@ import { useCart } from "@/contexts/CartContext";
 import Container from "@/components/shared/Container";
 import SectionTitle from "@/components/shared/SectionTitle";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, totalPrice, clearCart } = useCart();
   const [shipping, setShipping] = useState("inside");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    address: "",
-    district: "",
-    area: "",
-    notes: "",
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      phone: "",
+      address: "",
+      district: "",
+      area: "",
+      notes: "",
+    },
   });
 
   const shippingCost = shipping === "inside" ? 60 : 120;
+
   const finalTotal = useMemo(
     () => totalPrice + shippingCost,
-    [totalPrice, shippingCost],
+    [totalPrice, shippingCost]
   );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handlePlaceOrder = async (e) => {
-    e.preventDefault();
-
-    if (
-      !formData.name.trim() ||
-      !formData.phone.trim() ||
-      !formData.address.trim() ||
-      !formData.district.trim()
-    ) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-
+  const onSubmit = async (data) => {
     if (cartItems.length === 0) {
       alert("Your cart is empty.");
       return;
     }
 
     const orderData = {
-      customerName: formData.name,
-      phone: formData.phone,
-      address: formData.address,
-      district: formData.district,
-      area: formData.area,
-      notes: formData.notes,
+      customerName: data.name,
+      phone: data.phone,
+      address: data.address,
+      district: data.district,
+      area: data.area,
+      notes: data.notes,
       shippingType: shipping,
       shippingCost,
       items: cartItems.map((item) => ({
@@ -92,15 +82,7 @@ export default function CheckoutPage() {
 
       alert("Order placed successfully!");
       clearCart();
-
-      setFormData({
-        name: "",
-        phone: "",
-        address: "",
-        district: "",
-        area: "",
-        notes: "",
-      });
+      reset();
 
       router.push("/order-success");
     } catch (error) {
@@ -136,13 +118,13 @@ export default function CheckoutPage() {
   return (
     <main className="min-h-screen bg-[#f8f6f1] py-12">
       <Container>
-        <div className="">
+        <div>
           <SectionTitle title="Checkout" />
 
           <div className="grid gap-8 lg:grid-cols-[1.5fr_0.9fr]">
             {/* Left */}
             <form
-              onSubmit={handlePlaceOrder}
+              onSubmit={handleSubmit(onSubmit)}
               className="rounded-2xl bg-white p-6 shadow-sm"
             >
               <h2 className="mb-6 text-2xl font-bold text-[#0f2a44]">
@@ -156,12 +138,17 @@ export default function CheckoutPage() {
                   </label>
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    {...register("name", {
+                      required: "Full name is required",
+                    })}
                     className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
                     placeholder="Enter your full name"
                   />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.name.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="sm:col-span-2">
@@ -169,13 +156,22 @@ export default function CheckoutPage() {
                     Phone Number *
                   </label>
                   <input
-                    type="number"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
+                    type="tel"
+                    {...register("phone", {
+                      required: "Phone number is required",
+                      pattern: {
+                        value: /^(?:\+8801|01)[3-9]\d{8}$/,
+                        message: "Enter a valid Bangladeshi phone number",
+                      },
+                    })}
                     className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
                     placeholder="Enter your phone number"
                   />
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.phone.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="sm:col-span-2">
@@ -183,13 +179,22 @@ export default function CheckoutPage() {
                     Full Address *
                   </label>
                   <textarea
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
                     rows={4}
+                    {...register("address", {
+                      required: "Address is required",
+                      minLength: {
+                        value: 10,
+                        message: "Address should be at least 10 characters",
+                      },
+                    })}
                     className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
                     placeholder="House no, road, area, thana..."
                   />
+                  {errors.address && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.address.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -198,12 +203,17 @@ export default function CheckoutPage() {
                   </label>
                   <input
                     type="text"
-                    name="district"
-                    value={formData.district}
-                    onChange={handleChange}
+                    {...register("district", {
+                      required: "District is required",
+                    })}
                     className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
                     placeholder="Enter district"
                   />
+                  {errors.district && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.district.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -212,9 +222,7 @@ export default function CheckoutPage() {
                   </label>
                   <input
                     type="text"
-                    name="area"
-                    value={formData.area}
-                    onChange={handleChange}
+                    {...register("area")}
                     className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
                     placeholder="Enter area"
                   />
@@ -225,10 +233,8 @@ export default function CheckoutPage() {
                     Order Notes
                   </label>
                   <textarea
-                    name="notes"
-                    value={formData.notes}
-                    onChange={handleChange}
                     rows={3}
+                    {...register("notes")}
                     className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
                     placeholder="Any special note for delivery"
                   />
@@ -270,6 +276,14 @@ export default function CheckoutPage() {
                   </label>
                 </div>
               </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-6 w-full rounded-2xl bg-[#0f2a44] px-6 py-4 text-lg font-semibold text-[#f2c94c] transition hover:opacity-95 disabled:opacity-60"
+              >
+                {loading ? "Placing Order..." : "Place Order"}
+              </button>
             </form>
 
             {/* Right */}
@@ -318,14 +332,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
-
-              <button
-                onClick={handlePlaceOrder}
-                disabled={loading}
-                className="mt-6 w-full rounded-2xl bg-[#0f2a44] px-6 py-4 text-lg font-semibold text-[#f2c94c] transition hover:opacity-95 disabled:opacity-60"
-              >
-                {loading ? "Placing Order..." : "Place Order"}
-              </button>
 
               <Link
                 href="/cart"
