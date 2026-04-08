@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 
 export default function AddProductPage() {
   const [preview, setPreview] = useState(null);
@@ -40,12 +41,12 @@ export default function AddProductPage() {
         process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
       );
 
-      const res = await axios.post(
+      const cloudinaryRes = await axios.post(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
         formData,
       );
 
-      const imageUrl = res.data.secure_url;
+      const imageUrl = cloudinaryRes.data.secure_url;
 
       const productData = {
         ...data,
@@ -55,14 +56,29 @@ export default function AddProductPage() {
         image: imageUrl,
       };
 
+      const res = await fetch("http://localhost:8000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.message || "Failed to save product");
+      }
+
       console.log("FINAL PRODUCT:", productData);
+      console.log("DB RESULT:", result);
 
       alert("Product added successfully!");
       reset();
       setPreview(null);
     } catch (error) {
       console.error(error);
-      alert("Upload failed");
+      alert(error.message || "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -257,10 +273,12 @@ export default function AddProductPage() {
           )}
 
           {preview && (
-            <img
+            <Image
               src={preview}
               alt="Preview"
               className="mt-4 h-40 w-40 object-cover rounded-lg border"
+              width={160}
+              height={160}
             />
           )}
         </div>
