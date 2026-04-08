@@ -1,13 +1,15 @@
-const { ObjectId } = require("mongodb");
 const connectDB = require("../config/db");
+const { ObjectId } = require("mongodb");
 
-// GET all products
-exports.getProducts = async (req, res) => {
+exports.getAllProducts = async (req, res) => {
   try {
     const db = await connectDB();
     const productsCollection = db.collection("products");
 
-    const products = await productsCollection.find().toArray();
+    const products = await productsCollection
+      .find()
+      .sort({ createdAt: -1 })
+      .toArray();
 
     res.json({
       success: true,
@@ -21,13 +23,11 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// GET single product
 exports.getSingleProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-
     const db = await connectDB();
     const productsCollection = db.collection("products");
+    const { id } = req.params;
 
     const product = await productsCollection.findOne({
       _id: new ObjectId(id),
@@ -52,50 +52,57 @@ exports.getSingleProduct = async (req, res) => {
   }
 };
 
-// POST product
-exports.createProduct = async (req, res) => {
-  try {
-    const db = await connectDB();
-    const productsCollection = db.collection("products");
-
-    const result = await productsCollection.insertOne(req.body);
-
-    res.json({
-      success: true,
-      insertedId: result.insertedId,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// UPDATE product
 exports.updateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedData = req.body;
-
     const db = await connectDB();
     const productsCollection = db.collection("products");
+    const { id } = req.params;
 
-    const result = await productsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: updatedData }
-    );
+    const {
+      name,
+      category,
+      subcategory,
+      price,
+      oldPrice,
+      image,
+      badge,
+      inStock,
+      rating,
+    } = req.body;
 
-    if (result.matchedCount === 0) {
+    const existingProduct = await productsCollection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!existingProduct) {
       return res.status(404).json({
         success: false,
         message: "Product not found",
       });
     }
 
+    const updatedDoc = {
+      name: name?.trim() || existingProduct.name,
+      category: category?.trim() || existingProduct.category,
+      subcategory: subcategory?.trim() || existingProduct.subcategory || "",
+      price: Number(price) || 0,
+      oldPrice: Number(oldPrice) || 0,
+      image: image?.trim() || existingProduct.image,
+      badge: badge?.trim() || "",
+      inStock: typeof inStock === "boolean" ? inStock : existingProduct.inStock,
+      rating: Number(rating) || 0,
+      updatedAt: new Date(),
+    };
+
+    const result = await productsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updatedDoc },
+    );
+
     res.json({
       success: true,
       message: "Product updated successfully",
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
@@ -105,13 +112,11 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// DELETE product
 exports.deleteProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-
     const db = await connectDB();
     const productsCollection = db.collection("products");
+    const { id } = req.params;
 
     const result = await productsCollection.deleteOne({
       _id: new ObjectId(id),

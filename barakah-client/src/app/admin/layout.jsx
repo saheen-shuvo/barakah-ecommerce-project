@@ -43,51 +43,57 @@ export default function AdminLayout({ children }) {
         <label htmlFor="admin-drawer" className="drawer-overlay"></label>
 
         <aside className="min-h-full w-64 bg-white border-r border-[#e5dccf] py-6 px-4">
-<ul className="menu text-[#3d2f1f] w-full gap-1">
-  {/* Dashboard */}
-  <li>
-    <Link
-      href="/admin"
-      className={isExact("/admin") ? "bg-[#d4af37] text-white" : ""}
-    >
-      <FiHome />
-      Dashboard
-    </Link>
-  </li>
+          <ul className="pt-12 lg:pt-0 menu text-[#3d2f1f] w-full gap-1">
+            {/* Dashboard */}
+            <li>
+              <Link
+                href="/admin"
+                className={isExact("/admin") ? "bg-[#d4af37] text-white" : ""}
+              >
+                <FiHome />
+                Dashboard
+              </Link>
+            </li>
 
-  {/* All Products */}
-  <li>
-    <Link
-      href="/admin/products"
-      className={isProductsPage ? "bg-[#d4af37] text-white" : ""}
-    >
-      <FiBox />
-      All Products
-    </Link>
-  </li>
+            {/* All Products */}
+            <li>
+              <Link
+                href="/admin/products"
+                className={isProductsPage ? "bg-[#d4af37] text-white" : ""}
+              >
+                <FiBox />
+                All Products
+              </Link>
+            </li>
 
-  {/* Add Product */}
-  <li>
-    <Link
-      href="/admin/products/add"
-      className={isExact("/admin/products/add") ? "bg-[#d4af37] text-white" : ""}
-    >
-      <FiPlus />
-      Add Product
-    </Link>
-  </li>
+            {/* Add Product */}
+            <li>
+              <Link
+                href="/admin/products/add"
+                className={
+                  isExact("/admin/products/add")
+                    ? "bg-[#d4af37] text-white"
+                    : ""
+                }
+              >
+                <FiPlus />
+                Add Product
+              </Link>
+            </li>
 
-  {/* Orders */}
-  <li>
-    <Link
-      href="/admin/orders"
-      className={isExact("/admin/orders") ? "bg-[#d4af37] text-white" : ""}
-    >
-      <FiShoppingCart />
-      Orders
-    </Link>
-  </li>
-</ul>
+            {/* Orders */}
+            <li>
+              <Link
+                href="/admin/orders"
+                className={
+                  isExact("/admin/orders") ? "bg-[#d4af37] text-white" : ""
+                }
+              >
+                <FiShoppingCart />
+                Orders
+              </Link>
+            </li>
+          </ul>
         </aside>
       </div>
     </div>

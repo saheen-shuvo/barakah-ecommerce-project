@@ -34,7 +34,7 @@ export default function CheckoutPage() {
 
   const finalTotal = useMemo(
     () => totalPrice + shippingCost,
-    [totalPrice, shippingCost]
+    [totalPrice, shippingCost],
   );
 
   const onSubmit = async (data) => {
@@ -42,6 +42,10 @@ export default function CheckoutPage() {
       alert("Your cart is empty.");
       return;
     }
+
+    const roundedSubtotal = Number(totalPrice.toFixed(2));
+    const roundedShippingCost = Number(shippingCost.toFixed(2));
+    const roundedTotal = Number(finalTotal.toFixed(2));
 
     const orderData = {
       customerName: data.name,
@@ -51,16 +55,16 @@ export default function CheckoutPage() {
       area: data.area,
       notes: data.notes,
       shippingType: shipping,
-      shippingCost,
+      shippingCost: roundedShippingCost,
       items: cartItems.map((item) => ({
         productId: item._id,
         name: item.name,
-        price: item.price,
+        price: Number(item.price.toFixed(2)),
         quantity: item.quantity,
         image: item.image,
       })),
-      subtotal: totalPrice,
-      total: finalTotal,
+      subtotal: roundedSubtotal,
+      total: roundedTotal,
     };
 
     try {
