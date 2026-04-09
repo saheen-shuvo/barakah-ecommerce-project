@@ -3,8 +3,9 @@ import ProductCard from "@/components/products/ProductCard";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 
 async function getProducts() {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const res = await fetch("http://localhost:8000/api/products", {
+    const res = await fetch(`${baseUrl}/api/products`, {
       cache: "no-store",
     });
 

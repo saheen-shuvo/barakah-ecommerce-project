@@ -2,8 +2,9 @@ import Hero from "@/components/home/Hero";
 import ProductSection from "@/components/home/ProductSection";
 
 async function getProducts() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const res = await fetch("http://localhost:8000/api/products", {
+    const res = await fetch(`${baseUrl}/api/products`, {
       cache: "no-store",
     });
 

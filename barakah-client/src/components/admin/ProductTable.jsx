@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ProductTable({ initialProducts }) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const [products, setProducts] = useState(initialProducts);
   const [deletingId, setDeletingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,7 +27,7 @@ export default function ProductTable({ initialProducts }) {
     try {
       setDeletingId(id);
 
-      const res = await fetch(`http://localhost:8000/api/products/${id}`, {
+      const res = await fetch(`${baseUrl}/api/products/${id}`, {
         method: "DELETE",
       });
 

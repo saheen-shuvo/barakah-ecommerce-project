@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 export default function EditProductPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const params = useParams();
   const router = useRouter();
   const id = params.id;
@@ -28,7 +29,7 @@ export default function EditProductPage() {
       try {
         setLoading(true);
 
-        const res = await fetch(`http://localhost:8000/api/products/${id}`, {
+        const res = await fetch(`${baseUrl}/api/products/${id}`, {
           cache: "no-store",
         });
 
@@ -86,7 +87,7 @@ export default function EditProductPage() {
     try {
       setUpdating(true);
 
-      const res = await fetch(`http://localhost:8000/api/products/${id}`, {
+      const res = await fetch(`${baseUrl}/api/products/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

@@ -52,6 +52,52 @@ exports.getSingleProduct = async (req, res) => {
   }
 };
 
+// CREATE product
+exports.createProduct = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const productsCollection = db.collection("products");
+
+    const {
+      name,
+      category,
+      subcategory,
+      price,
+      oldPrice,
+      image,
+      badge,
+      inStock,
+      rating,
+    } = req.body;
+
+    const newProduct = {
+      name: name?.trim() || "",
+      category: category?.trim() || "",
+      subcategory: subcategory?.trim() || "",
+      price: Number(price) || 0,
+      oldPrice: Number(oldPrice) || 0,
+      image: image?.trim() || "",
+      badge: badge?.trim() || "",
+      inStock: typeof inStock === "boolean" ? inStock : true,
+      rating: Number(rating) || 0,
+      createdAt: new Date(),
+    };
+
+    const result = await productsCollection.insertOne(newProduct);
+
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      insertedId: result.insertedId,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 exports.updateProduct = async (req, res) => {
   try {
     const db = await connectDB();

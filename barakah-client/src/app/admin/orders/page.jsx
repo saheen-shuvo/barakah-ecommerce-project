@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function OrdersPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState(null);
@@ -16,7 +17,7 @@ export default function OrdersPage() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8000/api/orders", {
+      const res = await fetch(`${baseUrl}/api/orders`, {
         cache: "no-store",
       });
 
@@ -46,7 +47,7 @@ export default function OrdersPage() {
       setLoadingId(id);
 
       const res = await fetch(
-        `http://localhost:8000/api/orders/${id}/deliver`,
+        `${baseUrl}/api/orders/${id}/deliver`,
         {
           method: "PATCH",
         },
@@ -193,9 +194,7 @@ export default function OrdersPage() {
 
                       <td>
                         {order.status === "delivered" ? (
-                          <span className="badge badge-success">
-                            Delivered
-                          </span>
+                          <span className="badge badge-success">Delivered</span>
                         ) : (
                           <span className="badge badge-warning">Pending</span>
                         )}
@@ -248,9 +247,13 @@ export default function OrdersPage() {
 
                   <div>
                     {order.status === "delivered" ? (
-                      <span className="badge badge-success text-xs">Delivered</span>
+                      <span className="badge badge-success text-xs">
+                        Delivered
+                      </span>
                     ) : (
-                      <span className="badge badge-warning text-xs">Pending</span>
+                      <span className="badge badge-warning text-xs">
+                        Pending
+                      </span>
                     )}
                   </div>
                 </div>
@@ -273,7 +276,8 @@ export default function OrdersPage() {
                   </p>
 
                   <p>
-                    <span className="font-semibold">Total:</span> ৳ {order.total}
+                    <span className="font-semibold">Total:</span> ৳{" "}
+                    {order.total}
                   </p>
 
                   <p>
@@ -290,7 +294,8 @@ export default function OrdersPage() {
 
                   {order.notes && (
                     <p>
-                      <span className="font-semibold">Notes:</span> {order.notes}
+                      <span className="font-semibold">Notes:</span>{" "}
+                      {order.notes}
                     </p>
                   )}
                 </div>

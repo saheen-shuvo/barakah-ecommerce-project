@@ -6,6 +6,7 @@ import axios from "axios";
 import Image from "next/image";
 
 export default function AddProductPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const {
@@ -56,7 +57,7 @@ export default function AddProductPage() {
         image: imageUrl,
       };
 
-      const res = await fetch("http://localhost:8000/api/products", {
+      const res = await fetch(`${baseUrl}/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

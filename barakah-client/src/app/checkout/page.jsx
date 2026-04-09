@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function CheckoutPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
   const { cartItems, totalPrice, clearCart } = useCart();
   const [shipping, setShipping] = useState("inside");
@@ -70,7 +71,7 @@ export default function CheckoutPage() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8000/api/orders", {
+      const res = await fetch(`${baseUrl}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
