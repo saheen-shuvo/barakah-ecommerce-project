@@ -11,6 +11,7 @@ app.use(express.json());
 
 const productRoutes = require("./routes/product.routes");
 const orderRoutes = require("./routes/order.routes");
+const authRoutes = require("./routes/auth.routes");
 
 app.get("/", (req, res) => {
   res.send("Barakah server running successfully");
@@ -36,6 +37,7 @@ app.get("/api/test", async (req, res) => {
 
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 8000;
 
