@@ -25,8 +25,6 @@ export default function CheckoutPage() {
       name: "",
       phone: "",
       address: "",
-      district: "",
-      area: "",
       notes: "",
     },
   });
@@ -52,8 +50,6 @@ export default function CheckoutPage() {
       customerName: data.name,
       phone: data.phone,
       address: data.address,
-      district: data.district,
-      area: data.area,
       notes: data.notes,
       shippingType: shipping,
       shippingCost: roundedShippingCost,
@@ -200,37 +196,6 @@ export default function CheckoutPage() {
                       {errors.address.message}
                     </p>
                   )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-[#0f2a44]">
-                    District *
-                  </label>
-                  <input
-                    type="text"
-                    {...register("district", {
-                      required: "District is required",
-                    })}
-                    className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
-                    placeholder="Enter district"
-                  />
-                  {errors.district && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.district.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-[#0f2a44]">
-                    Area
-                  </label>
-                  <input
-                    type="text"
-                    {...register("area")}
-                    className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
-                    placeholder="Enter area"
-                  />
                 </div>
 
                 <div className="sm:col-span-2">

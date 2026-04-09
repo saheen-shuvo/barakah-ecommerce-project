@@ -10,8 +10,6 @@ exports.createOrder = async (req, res) => {
       customerName,
       phone,
       address,
-      district,
-      area,
       notes,
       shippingType,
       shippingCost,
@@ -24,7 +22,6 @@ exports.createOrder = async (req, res) => {
       !customerName ||
       !phone ||
       !address ||
-      !district ||
       !shippingType ||
       !items ||
       !Array.isArray(items) ||
@@ -40,8 +37,6 @@ exports.createOrder = async (req, res) => {
       customerName,
       phone,
       address,
-      district,
-      area: area || "",
       notes: notes || "",
       shippingType,
       shippingCost: Number(shippingCost) || 0,

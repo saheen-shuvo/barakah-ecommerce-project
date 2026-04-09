@@ -55,6 +55,16 @@ export default async function CategoryPage({ params }) {
           >
             Islamic
           </Link>
+
+          <Link
+            href={`/category/${main}/combo`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "combo" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Combo
+          </Link>
+
         </div>
 
         <ProductSearch products={filteredProducts} />

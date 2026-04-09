@@ -190,6 +190,7 @@ export default function EditProductPage() {
               <option value="">Select subcategory</option>
               <option value="natural">Natural</option>
               <option value="islamic">Islamic</option>
+              <option value="combo">Combo</option>
             </select>
           </div>
         </div>

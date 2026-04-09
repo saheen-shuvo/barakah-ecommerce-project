@@ -46,12 +46,9 @@ export default function OrdersPage() {
     try {
       setLoadingId(id);
 
-      const res = await fetch(
-        `${baseUrl}/api/orders/${id}/deliver`,
-        {
-          method: "PATCH",
-        },
-      );
+      const res = await fetch(`${baseUrl}/api/orders/${id}/deliver`, {
+        method: "PATCH",
+      });
 
       const data = await res.json();
 
@@ -156,11 +153,9 @@ export default function OrdersPage() {
                     <th>#</th>
                     <th>Customer</th>
                     <th>Phone</th>
-                    <th>District</th>
                     <th>Address</th>
                     <th>Total</th>
                     <th>Items</th>
-                    <th>Status</th>
                     <th>Order Date</th>
                     <th>Action</th>
                   </tr>
@@ -185,20 +180,11 @@ export default function OrdersPage() {
                       </td>
 
                       <td>{order.phone}</td>
-                      <td>{order.district}</td>
                       <td className="max-w-[220px] whitespace-normal">
                         {order.address}
                       </td>
                       <td>৳ {order.total}</td>
                       <td>{order.items?.length || 0}</td>
-
-                      <td>
-                        {order.status === "delivered" ? (
-                          <span className="badge badge-success">Delivered</span>
-                        ) : (
-                          <span className="badge badge-warning">Pending</span>
-                        )}
-                      </td>
 
                       <td>
                         {order.createdAt
@@ -244,26 +230,9 @@ export default function OrdersPage() {
                     </p>
                     <p className="text-sm text-[#7a6a58]">{order.phone}</p>
                   </div>
-
-                  <div>
-                    {order.status === "delivered" ? (
-                      <span className="badge badge-success text-xs">
-                        Delivered
-                      </span>
-                    ) : (
-                      <span className="badge badge-warning text-xs">
-                        Pending
-                      </span>
-                    )}
-                  </div>
                 </div>
 
                 <div className="mt-4 space-y-2 text-sm text-[#3d2f1f]">
-                  <p>
-                    <span className="font-semibold">District:</span>{" "}
-                    {order.district}
-                  </p>
-
                   {order.area && (
                     <p>
                       <span className="font-semibold">Area:</span> {order.area}
