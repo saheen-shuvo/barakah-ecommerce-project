@@ -71,9 +71,6 @@ export default function AddProductPage() {
         throw new Error(result.message || "Failed to save product");
       }
 
-      console.log("FINAL PRODUCT:", productData);
-      console.log("DB RESULT:", result);
-
       alert("Product added successfully!");
       reset();
       setPreview(null);

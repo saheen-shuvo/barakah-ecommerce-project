@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/contexts/CartContext";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function ProductCard({ product }) {
@@ -18,7 +19,9 @@ export default function ProductCard({ product }) {
     >
       {/* Image */}
       <div className="relative bg-[#faf7f0]">
-        <img
+        <Image
+        width={200}
+          height={200}
           src={product.image}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

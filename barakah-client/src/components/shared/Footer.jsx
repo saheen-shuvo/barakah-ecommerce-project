@@ -8,7 +8,7 @@ export default function Footer() {
     { label: "Home", href: "/" },
     { label: "Wall Clocks", href: "/category/wall-clock/natural" },
     { label: "Wall Canvas", href: "/category/wall-canvas/natural" },
-    { label: "About", href: "/about" },
+    { label: "Facebook Group", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
 

@@ -62,6 +62,7 @@ exports.createProduct = async (req, res) => {
       name,
       category,
       subcategory,
+      description,
       price,
       oldPrice,
       image,
@@ -74,6 +75,7 @@ exports.createProduct = async (req, res) => {
       name: name?.trim() || "",
       category: category?.trim() || "",
       subcategory: subcategory?.trim() || "",
+      description: description?.trim() || "",
       price: Number(price) || 0,
       oldPrice: Number(oldPrice) || 0,
       image: image?.trim() || "",
@@ -108,6 +110,7 @@ exports.updateProduct = async (req, res) => {
       name,
       category,
       subcategory,
+      description,
       price,
       oldPrice,
       image,
@@ -130,13 +133,15 @@ exports.updateProduct = async (req, res) => {
     const updatedDoc = {
       name: name?.trim() || existingProduct.name,
       category: category?.trim() || existingProduct.category,
+      description: description?.trim() || existingProduct.description || "",
       subcategory: subcategory?.trim() || existingProduct.subcategory || "",
-      price: Number(price) || 0,
-      oldPrice: Number(oldPrice) || 0,
+      price: price !== undefined ? Number(price) : existingProduct.price,
+      oldPrice:
+        oldPrice !== undefined ? Number(oldPrice) : existingProduct.oldPrice,
       image: image?.trim() || existingProduct.image,
       badge: badge?.trim() || "",
       inStock: typeof inStock === "boolean" ? inStock : existingProduct.inStock,
-      rating: Number(rating) || 0,
+      rating: rating !== undefined ? Number(rating) : existingProduct.rating,
       updatedAt: new Date(),
     };
 

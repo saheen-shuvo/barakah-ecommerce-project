@@ -11,6 +11,7 @@ export default function EditProductPage() {
 
   const [formData, setFormData] = useState({
     name: "",
+    description: "",
     category: "",
     subcategory: "",
     price: "",
@@ -40,6 +41,7 @@ export default function EditProductPage() {
 
           setFormData({
             name: product.name || "",
+            description: product.description || "",
             category: product.category || "",
             subcategory: product.subcategory || "",
             price: product.price || "",
@@ -140,6 +142,20 @@ export default function EditProductPage() {
             onChange={handleChange}
             className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
             required
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
+            Description
+          </label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows={4}
+            placeholder="পণ্যের বিবরণ লিখুন..."
+            className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
           />
         </div>
 
