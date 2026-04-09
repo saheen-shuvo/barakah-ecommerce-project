@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
   title: "Barakah",
@@ -13,11 +14,13 @@ export default function RootLayout({ children }) {
     <html lang="en" data-theme="light">
       <body className="flex min-h-screen flex-col">
         <CartProvider>
-          <Navbar />
+          <AuthProvider>
+            <Navbar />
 
-          <main className="flex-1">{children}</main>
+            <main className="flex-1">{children}</main>
 
-          <Footer />
+            <Footer />
+          </AuthProvider>
         </CartProvider>
       </body>
     </html>

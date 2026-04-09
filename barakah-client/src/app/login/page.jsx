@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
 
@@ -34,10 +36,9 @@ export default function LoginPage() {
       const result = await res.json();
 
       if (result.success) {
-        localStorage.setItem("barakahUser", JSON.stringify(result.user));
-        setServerMessage("Login successful");
+        login(result.user);
 
-        if (result.user.role === "barakahAdmin") {
+        if (result.user.role === "barakahAdmin1234") {
           router.push("/admin");
         } else {
           router.push("/");
