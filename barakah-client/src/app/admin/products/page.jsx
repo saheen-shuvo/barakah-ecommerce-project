@@ -1,4 +1,5 @@
 import ProductTable from "@/components/admin/ProductTable";
+export const dynamic = "force-dynamic";
 
 async function getProducts() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;

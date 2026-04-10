@@ -1,6 +1,7 @@
 import AdminRoute from "@/components/auth/AdminRoute";
 import Image from "next/image";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
 
 async function getDashboardData() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
