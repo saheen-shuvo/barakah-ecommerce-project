@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -36,6 +37,9 @@ export default function LoginPage() {
       const result = await res.json();
 
       if (result.success) {
+        toast.success("Login successful!", {
+          position: "top-right",
+        });
         login(result.user);
 
         if (result.user.role === "barakahAdmin1234") {
@@ -44,9 +48,15 @@ export default function LoginPage() {
           router.push("/");
         }
       } else {
+        toast.error(result.message || "Login failed!", {
+          position: "top-right",
+        });
         setServerMessage(result.message || "Login failed");
       }
     } catch (error) {
+      toast.error("Something went wrong", {
+        position: "top-right",
+      });
       setServerMessage("Something went wrong");
     } finally {
       setIsSubmittingForm(false);

@@ -68,7 +68,6 @@ exports.createProduct = async (req, res) => {
       image,
       badge,
       inStock,
-      rating,
     } = req.body;
 
     const newProduct = {
@@ -81,7 +80,6 @@ exports.createProduct = async (req, res) => {
       image: image?.trim() || "",
       badge: badge?.trim() || "",
       inStock: typeof inStock === "boolean" ? inStock : true,
-      rating: Number(rating) || 0,
       createdAt: new Date(),
     };
 
@@ -116,7 +114,6 @@ exports.updateProduct = async (req, res) => {
       image,
       badge,
       inStock,
-      rating,
     } = req.body;
 
     const existingProduct = await productsCollection.findOne({

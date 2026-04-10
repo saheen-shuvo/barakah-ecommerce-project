@@ -10,7 +10,6 @@ import { useState } from "react";
 
 export default function CartPage() {
   const [shipping, setShipping] = useState("inside");
-  const shippingCost = shipping === "inside" ? 60 : 120;
   const {
     cartItems,
     removeFromCart,
@@ -117,45 +116,13 @@ export default function CartPage() {
                     <span>Subtotal</span>
                     <span>৳ {totalPrice.toFixed(2)}</span>
                   </div>
-
-                  <div className="flex flex-col gap-3 text-[#0f2a44]/75">
-                    <span className="font-medium">Shipping</span>
-
-                    <label className="flex items-center justify-between cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="shipping"
-                          value="inside"
-                          checked={shipping === "inside"}
-                          onChange={() => setShipping("inside")}
-                        />
-                        <span>Inside Dhaka</span>
-                      </div>
-                      <span>৳ 60</span>
-                    </label>
-
-                    <label className="flex items-center justify-between cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="shipping"
-                          value="outside"
-                          checked={shipping === "outside"}
-                          onChange={() => setShipping("outside")}
-                        />
-                        <span>Outside Dhaka</span>
-                      </div>
-                      <span>৳ 120</span>
-                    </label>
-                  </div>
                 </div>
 
                 <div className="my-6 border-t border-[#0f2a44]/10" />
 
                 <div className="mb-6 flex items-center justify-between text-xl font-bold text-[#0f2a44]">
                   <span>Total</span>
-                  <span>৳ {(totalPrice + shippingCost).toFixed(2)}</span>
+                  <span>৳ {(totalPrice).toFixed(2)}</span>
                 </div>
 
                 <Link

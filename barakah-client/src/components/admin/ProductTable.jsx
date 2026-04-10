@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import Image from "next/image";
 
 export default function ProductTable({ initialProducts }) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -22,7 +24,17 @@ export default function ProductTable({ initialProducts }) {
   }, [products, currentPage]);
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this product?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This product will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d4af37", 
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       setDeletingId(id);
@@ -48,11 +60,19 @@ export default function ProductTable({ initialProducts }) {
         if (updatedProducts.length === 0) {
           setCurrentPage(1);
         }
+
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Product has been deleted.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       } else {
-        alert(result.message);
+        Swal.fire("Error", result.message, "error");
       }
     } catch (error) {
-      alert("Error deleting product");
+      Swal.fire("Error", "Something went wrong!", "error");
     } finally {
       setDeletingId(null);
       router.refresh();
@@ -88,7 +108,7 @@ export default function ProductTable({ initialProducts }) {
                   <div className="flex items-center gap-3">
                     <div className="avatar">
                       <div className="mask mask-squircle h-12 w-12">
-                        <img src={product.image} alt={product.name} />
+                        <Image src={product.image} alt={product.name} width={48} height={48} />
                       </div>
                     </div>
 
@@ -147,9 +167,11 @@ export default function ProductTable({ initialProducts }) {
             className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
           >
             <div className="flex gap-4">
-              <img
+              <Image
                 src={product.image}
                 alt={product.name}
+                width={64}
+                height={64}
                 className="w-16 h-16 object-cover rounded-lg"
               />
 

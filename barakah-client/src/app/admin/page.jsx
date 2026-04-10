@@ -1,4 +1,5 @@
 import AdminRoute from "@/components/auth/AdminRoute";
+import Image from "next/image";
 import Link from "next/link";
 
 async function getDashboardData() {
@@ -155,10 +156,12 @@ export default async function AdminHomePage() {
                     key={product._id}
                     className="flex items-center gap-3 border-b pb-3 last:border-b-0 border-gray-200"
                   >
-                    <img
+                    <Image
                       src={product.image || "/placeholder.png"}
                       alt={product.name || "Product"}
                       className="w-12 h-12 rounded-lg object-cover border"
+                      width={48}
+                      height={48}
                     />
 
                     <div className="flex-1 min-w-0">

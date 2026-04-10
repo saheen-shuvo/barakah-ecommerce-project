@@ -9,7 +9,6 @@ export default function Footer() {
     { label: "Wall Clocks", href: "/category/wall-clock/natural" },
     { label: "Wall Canvas", href: "/category/wall-canvas/natural" },
     { label: "Facebook Group", href: "/about" },
-    { label: "Contact", href: "/contact" },
   ];
 
   const socialLinks = [

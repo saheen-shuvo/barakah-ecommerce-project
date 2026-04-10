@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import Image from "next/image";
 
 export default function EditProductPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -52,11 +54,15 @@ export default function EditProductPage() {
             inStock: product.inStock ?? true,
           });
         } else {
-          alert(data.message || "Product not found");
+          toast.error(data.message || "Product not found", {
+            position: "top-right",
+          });
           router.push("/admin/products");
         }
       } catch (error) {
-        alert("Failed to load product");
+        toast.error(error.message || "Something went wrong", {
+          position: "top-right",
+        });
         router.push("/admin/products");
       } finally {
         setLoading(false);
@@ -108,11 +114,15 @@ export default function EditProductPage() {
         throw new Error(data.message || "Failed to update product");
       }
 
-      alert("Product updated successfully");
+      toast.success("Product updated successfully!", {
+        position: "top-right",
+      });
       router.push("/admin/products");
       router.refresh();
     } catch (error) {
-      alert(error.message || "Something went wrong");
+      toast.error(error.message || "Something went wrong", {
+        position: "top-right",
+      });
     } finally {
       setUpdating(false);
     }
@@ -281,9 +291,11 @@ export default function EditProductPage() {
         {formData.image && (
           <div>
             <p className="mb-2 text-sm font-medium text-[#3d2f1f]">Preview</p>
-            <img
+            <Image
               src={formData.image}
               alt={formData.name}
+              width={128}
+              height={128}
               className="h-32 w-32 rounded-xl object-cover border border-[#e5dccf]"
             />
           </div>

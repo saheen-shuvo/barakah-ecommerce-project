@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 export default function AddProductPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -21,7 +22,6 @@ export default function AddProductPage() {
       oldPrice: "",
       category: "",
       subcategory: "",
-      stock: "",
       description: "",
       badge: "",
       inStock: true,
@@ -53,7 +53,6 @@ export default function AddProductPage() {
         ...data,
         price: Number(data.price),
         oldPrice: data.oldPrice ? Number(data.oldPrice) : null,
-        stock: Number(data.stock),
         image: imageUrl,
       };
 
@@ -71,12 +70,16 @@ export default function AddProductPage() {
         throw new Error(result.message || "Failed to save product");
       }
 
-      alert("Product added successfully!");
+      toast.success("Product added successfully!", {
+        position: "top-right",
+      });
       reset();
       setPreview(null);
     } catch (error) {
       console.error(error);
-      alert(error.message || "Upload failed");
+      toast.error(error.message || "Failed to add product", {
+        position: "top-right",
+      });
     } finally {
       setUploading(false);
     }
@@ -186,29 +189,7 @@ export default function AddProductPage() {
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
-              Stock
-            </label>
-            <input
-              type="number"
-              placeholder="Enter stock quantity"
-              {...register("stock", {
-                required: "Stock is required",
-                min: {
-                  value: 0,
-                  message: "Stock cannot be negative",
-                },
-              })}
-              className="w-full rounded-lg border border-[#e5dccf] p-3 outline-none focus:border-[#d4af37]"
-            />
-            {errors.stock && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.stock.message}
-              </p>
-            )}
-          </div>
+        <div className="grid gap-5">
 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">

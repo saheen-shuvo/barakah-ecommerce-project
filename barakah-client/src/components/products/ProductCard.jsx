@@ -3,6 +3,7 @@
 import { useCart } from "@/contexts/CartContext";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -20,7 +21,7 @@ export default function ProductCard({ product }) {
       {/* Image */}
       <div className="relative bg-[#faf7f0]">
         <Image
-        width={200}
+          width={200}
           height={200}
           src={product.image}
           alt={product.name}

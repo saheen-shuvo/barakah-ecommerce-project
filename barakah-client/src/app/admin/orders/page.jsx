@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import Swal from "sweetalert2";
 
 export default function OrdersPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -8,6 +10,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -37,11 +40,17 @@ export default function OrdersPage() {
   };
 
   const handleMarkDelivered = async (id) => {
-    const confirmUpdate = window.confirm(
-      "Are you sure you want to mark this order as delivered?",
-    );
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Mark this order as delivered?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d4af37",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, mark it!",
+    });
 
-    if (!confirmUpdate) return;
+    if (!result.isConfirmed) return;
 
     try {
       setLoadingId(id);
@@ -64,12 +73,31 @@ export default function OrdersPage() {
               : order,
           ),
         );
+
+        Swal.fire({
+          icon: "success",
+          title: "Delivered!",
+          text: "Order marked as delivered.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        if (selectedOrder?._id === id) {
+          setSelectedOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "delivered",
+                  deliveredAt: new Date().toISOString(),
+                }
+              : null,
+          );
+        }
       } else {
-        alert(data.message || "Failed to update order");
+        Swal.fire("Error", "Failed to update order!", "error");
       }
     } catch (error) {
       console.error(error);
-      alert("Something went wrong while updating the order");
+      Swal.fire("Error", "Something went wrong!", "error");
     } finally {
       setLoadingId(null);
     }
@@ -171,9 +199,9 @@ export default function OrdersPage() {
                           <p className="font-semibold text-[#3d2f1f]">
                             {order.customerName}
                           </p>
-                          {order.area && (
+                          {order.notes && (
                             <p className="text-xs text-[#7a6a58]">
-                              Area: {order.area}
+                              Notes: {order.notes}
                             </p>
                           )}
                         </div>
@@ -184,7 +212,15 @@ export default function OrdersPage() {
                         {order.address}
                       </td>
                       <td>৳ {order.total}</td>
-                      <td>{order.items?.length || 0}</td>
+                      <td>
+                        <div className="space-y-1 text-sm">
+                          {order.items?.map((item, i) => (
+                            <p key={i}>
+                              {item.name} × {item.quantity}
+                            </p>
+                          ))}
+                        </div>
+                      </td>
 
                       <td>
                         {order.createdAt
@@ -193,21 +229,30 @@ export default function OrdersPage() {
                       </td>
 
                       <td>
-                        {order.status === "delivered" ? (
-                          <button className="btn btn-sm" disabled>
-                            Delivered
-                          </button>
-                        ) : (
+                        <div className="flex flex-col gap-2">
                           <button
-                            onClick={() => handleMarkDelivered(order._id)}
-                            className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
-                            disabled={loadingId === order._id}
+                            onClick={() => setSelectedOrder(order)}
+                            className="btn btn-sm bg-white text-[#3d2f1f] border border-[#d4af37] hover:bg-[#faf7f0]"
                           >
-                            {loadingId === order._id
-                              ? "Updating..."
-                              : "Mark Delivered"}
+                            View Order
                           </button>
-                        )}
+
+                          {order.status === "delivered" ? (
+                            <button className="btn btn-sm" disabled>
+                              Delivered
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleMarkDelivered(order._id)}
+                              className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
+                              disabled={loadingId === order._id}
+                            >
+                              {loadingId === order._id
+                                ? "Updating..."
+                                : "Mark Delivered"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -249,10 +294,16 @@ export default function OrdersPage() {
                     {order.total}
                   </p>
 
-                  <p>
-                    <span className="font-semibold">Items:</span>{" "}
-                    {order.items?.length || 0}
-                  </p>
+                  <div>
+                    <span className="font-semibold">Items:</span>
+                    <div className="mt-1 space-y-1 text-sm">
+                      {order.items?.map((item, i) => (
+                        <p key={i}>
+                          {item.name} × {item.quantity}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
 
                   <p>
                     <span className="font-semibold">Date:</span>{" "}
@@ -269,7 +320,14 @@ export default function OrdersPage() {
                   )}
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-4 flex flex-col gap-2">
+                  <button
+                    onClick={() => setSelectedOrder(order)}
+                    className="btn btn-sm w-full bg-white text-[#3d2f1f] border border-[#d4af37] hover:bg-[#faf7f0]"
+                  >
+                    View Order
+                  </button>
+
                   {order.status === "delivered" ? (
                     <button className="btn btn-sm w-full text-xs" disabled>
                       Delivered
@@ -290,6 +348,153 @@ export default function OrdersPage() {
             ))}
           </div>
         </>
+      )}
+      {selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#e5dccf] p-5">
+              <div>
+                <h2 className="text-xl font-bold text-[#3d2f1f]">
+                  Order Details
+                </h2>
+                <p className="text-sm text-[#7a6a58]">
+                  Customer: {selectedOrder.customerName}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="btn btn-sm bg-white border border-[#e5dccf] text-[#3d2f1f]"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="p-5 space-y-6">
+              {/* Customer Info */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-[#e5dccf] p-4">
+                  <h3 className="font-semibold text-[#3d2f1f] mb-3">
+                    Customer Info
+                  </h3>
+                  <div className="space-y-2 text-sm text-[#3d2f1f]">
+                    <p>
+                      <span className="font-semibold">Name:</span>{" "}
+                      {selectedOrder.customerName}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Phone:</span>{" "}
+                      {selectedOrder.phone}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Address:</span>{" "}
+                      {selectedOrder.address}
+                    </p>
+                    {selectedOrder.notes && (
+                      <p>
+                        <span className="font-semibold">Notes:</span>{" "}
+                        {selectedOrder.notes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-[#e5dccf] p-4">
+                  <h3 className="font-semibold text-[#3d2f1f] mb-3">
+                    Order Summary
+                  </h3>
+                  <div className="space-y-2 text-sm text-[#3d2f1f]">
+                    <p>
+                      <span className="font-semibold">Status:</span>{" "}
+                      {selectedOrder.status}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Date:</span>{" "}
+                      {selectedOrder.createdAt
+                        ? new Date(selectedOrder.createdAt).toLocaleDateString()
+                        : "—"}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Subtotal:</span> ৳{" "}
+                      {selectedOrder.subtotal || 0}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Shipping:</span> ৳{" "}
+                      {selectedOrder.shippingCost || 0}
+                    </p>
+                    <p className="text-base font-bold text-[#3d2f1f]">
+                      Total: ৳ {selectedOrder.total || 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ordered Items */}
+              <div className="rounded-xl border border-[#e5dccf] p-4">
+                <h3 className="font-semibold text-[#3d2f1f] mb-4">
+                  Ordered Items
+                </h3>
+
+                <div className="space-y-3">
+                  {selectedOrder.items?.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between gap-4 rounded-xl border border-[#f1eadf] p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        {item.image && (
+                          <Image
+                          
+                            src={item.image}
+                            alt={item.name}
+                            className="h-14 w-14 rounded-lg object-cover border border-[#e5dccf]"
+                            width={56}
+                            height={56}
+                          />
+                        )}
+
+                        <div>
+                          <p className="font-medium text-[#3d2f1f]">
+                            {item.name}
+                          </p>
+                          <p className="text-sm text-[#7a6a58]">
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right text-sm text-[#3d2f1f]">
+                        <p>৳ {item.price}</p>
+                        <p className="font-semibold">
+                          ৳ {(item.price || 0) * (item.quantity || 0)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer Action */}
+              <div className="flex justify-end">
+                {selectedOrder.status === "delivered" ? (
+                  <button className="btn btn-sm" disabled>
+                    Delivered
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleMarkDelivered(selectedOrder._id)}
+                    className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
+                    disabled={loadingId === selectedOrder._id}
+                  >
+                    {loadingId === selectedOrder._id
+                      ? "Updating..."
+                      : "Mark Delivered"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

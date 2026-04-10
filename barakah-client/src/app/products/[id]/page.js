@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ProductCard from "@/components/products/ProductCard";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import Image from "next/image";
 
 async function getProducts() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -59,9 +60,11 @@ export default async function ProductDetails({ params }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
           {/* Image */}
           <div className="bg-white rounded-2xl overflow-hidden">
-            <img
+            <Image
               src={product.image}
               alt={product.name}
+              width={500}
+              height={500}
               className="w-full h-full object-cover"
             />
           </div>
@@ -107,9 +110,6 @@ export default async function ProductDetails({ params }) {
 
             {/* Buttons */}
             <div className="mt-6 flex gap-4">
-              {/* <button className="px-6 py-3 bg-[#0f2a44] text-white rounded-lg hover:bg-[#d4af37] transition">
-                Add to Cart
-              </button> */}
               <AddToCartButton product={product} />
 
               <button className="px-6 py-3 border border-[#0f2a44] rounded-lg hover:bg-[#d4af37] hover:border-[#d4af37] transition">

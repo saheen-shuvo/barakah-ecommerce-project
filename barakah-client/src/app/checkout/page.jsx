@@ -7,6 +7,7 @@ import Container from "@/components/shared/Container";
 import SectionTitle from "@/components/shared/SectionTitle";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 export default function CheckoutPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -38,7 +39,9 @@ export default function CheckoutPage() {
 
   const onSubmit = async (data) => {
     if (cartItems.length === 0) {
-      alert("Your cart is empty.");
+      toast.warning("Your cart is empty!", {
+        position: "top-right",
+      });
       return;
     }
 
@@ -80,8 +83,6 @@ export default function CheckoutPage() {
       if (!res.ok) {
         throw new Error(result.message || "Failed to place order");
       }
-
-      alert("Order placed successfully!");
       clearCart();
       reset();
 

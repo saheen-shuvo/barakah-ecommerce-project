@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 export default function RegisterPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -34,12 +35,21 @@ export default function RegisterPage() {
       const result = await res.json();
 
       if (result.success) {
+        toast.success("Registration successful!", {
+          position: "top-right",
+        });
         setServerMessage("Registration successful");
         reset();
       } else {
+        toast.error(result.message || "Registration failed!", {
+          position: "top-right",
+        });
         setServerMessage(result.message || "Registration failed");
       }
     } catch (error) {
+      toast.error("Something went wrong", {
+        position: "top-right",
+      });
       setServerMessage("Something went wrong");
     } finally {
       setIsSubmittingForm(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -24,6 +25,9 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null);
+    toast.success("Logged out successfully!", {
+      position: "top-right",
+    });
     localStorage.removeItem("barakahUser");
   };
 

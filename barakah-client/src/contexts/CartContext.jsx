@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 
 const CartContext = createContext(null);
 
@@ -17,6 +18,9 @@ export function CartProvider({ children }) {
   }, [cartItems]);
 
   const addToCart = (product) => {
+    toast.success("Product added to cart!", {
+      position: "top-right",
+    });
     setCartItems((prev) => {
       const existingItem = prev.find((item) => item._id === product._id);
 
@@ -24,7 +28,7 @@ export function CartProvider({ children }) {
         return prev.map((item) =>
           item._id === product._id
             ? { ...item, quantity: item.quantity + 1 }
-            : item
+            : item,
         );
       }
 
@@ -33,6 +37,9 @@ export function CartProvider({ children }) {
   };
 
   const removeFromCart = (productId) => {
+    toast.success("Product removed from cart!", {
+      position: "top-right",
+    });
     setCartItems((prev) => prev.filter((item) => item._id !== productId));
   };
 
@@ -41,8 +48,8 @@ export function CartProvider({ children }) {
       prev.map((item) =>
         item._id === productId
           ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -52,9 +59,9 @@ export function CartProvider({ children }) {
         .map((item) =>
           item._id === productId
             ? { ...item, quantity: item.quantity - 1 }
-            : item
+            : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   };
 
@@ -69,7 +76,7 @@ export function CartProvider({ children }) {
   const totalPrice = useMemo(() => {
     return cartItems.reduce(
       (total, item) => total + item.price * item.quantity,
-      0
+      0,
     );
   }, [cartItems]);
 
