@@ -1,5 +1,6 @@
 import Hero from "@/components/home/Hero";
 import ProductSection from "@/components/home/ProductSection";
+import Reviews from "@/components/home/Reviews";
 
 async function getProducts() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -52,6 +53,8 @@ export default async function HomePage() {
         products={wallCanvasProducts.slice(0, 8)}
         bgClass="bg-[#faf7f0]"
       />
+
+      <Reviews></Reviews>
     </main>
   );
 }
