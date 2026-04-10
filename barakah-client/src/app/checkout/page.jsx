@@ -14,6 +14,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, totalPrice, clearCart } = useCart();
   const [shipping, setShipping] = useState("inside");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const [loading, setLoading] = useState(false);
 
   const {
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
       phone: "",
       address: "",
       notes: "",
+      accountLast4: "",
     },
   });
 
@@ -45,6 +47,16 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (
+      (paymentMethod === "bkash" || paymentMethod === "nagad") &&
+      !data.accountLast4
+    ) {
+      toast.warning("আপনার নাম্বারের শেষ ৪ সংখ্যা লিখুন", {
+        position: "top-right",
+      });
+      return;
+    }
+
     const roundedSubtotal = Number(totalPrice.toFixed(2));
     const roundedShippingCost = Number(shippingCost.toFixed(2));
     const roundedTotal = Number(finalTotal.toFixed(2));
@@ -56,6 +68,11 @@ export default function CheckoutPage() {
       notes: data.notes,
       shippingType: shipping,
       shippingCost: roundedShippingCost,
+      paymentMethod,
+      accountLast4:
+        paymentMethod === "bkash" || paymentMethod === "nagad"
+          ? data.accountLast4
+          : "",
       items: cartItems.map((item) => ({
         productId: item._id,
         name: item.name,
@@ -214,6 +231,82 @@ export default function CheckoutPage() {
 
               <div className="mt-8">
                 <h3 className="mb-4 text-xl font-semibold text-[#0f2a44]">
+                  পেমেন্ট পদ্ধতি
+                </h3>
+
+                <div className="space-y-3">
+                  <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#0f2a44]/10 px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="bkash"
+                        checked={paymentMethod === "bkash"}
+                        onChange={() => setPaymentMethod("bkash")}
+                      />
+                      <span className="text-[#0f2a44]">বিকাশ</span>
+                    </div>
+                  </label>
+
+                  <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#0f2a44]/10 px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="nagad"
+                        checked={paymentMethod === "nagad"}
+                        onChange={() => setPaymentMethod("nagad")}
+                      />
+                      <span className="text-[#0f2a44]">নগদ</span>
+                    </div>
+                  </label>
+
+                  <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#0f2a44]/10 px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={paymentMethod === "cod"}
+                        onChange={() => setPaymentMethod("cod")}
+                      />
+                      <span className="text-[#0f2a44]">ক্যাশ অন ডেলিভারি</span>
+                    </div>
+                  </label>
+                </div>
+
+                {(paymentMethod === "bkash" || paymentMethod === "nagad") && (
+                  <div className="mt-5">
+                    <label className="mb-2 block text-sm font-medium text-[#0f2a44]">
+                      আপনার নাম্বারের শেষ ৪ সংখ্যা *
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={4}
+                      {...register("accountLast4", {
+                        required:
+                          paymentMethod === "bkash" || paymentMethod === "nagad"
+                            ? "শেষ ৪ সংখ্যা আবশ্যক"
+                            : false,
+                        pattern: {
+                          value: /^\d{4}$/,
+                          message: "শুধু ৪ সংখ্যার শেষ ডিজিট দিন",
+                        },
+                      })}
+                      className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
+                      placeholder="যেমন: ১২৩৪"
+                    />
+                    {errors.accountLast4 && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.accountLast4.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8">
+                <h3 className="mb-4 text-xl font-semibold text-[#0f2a44]">
                   ডেলিভারি পদ্ধতি
                 </h3>
 
@@ -262,6 +355,17 @@ export default function CheckoutPage() {
               <h2 className="mb-6 text-2xl font-bold text-[#0f2a44]">
                 অর্ডার সারসংক্ষেপ
               </h2>
+
+              <div className="flex items-center justify-between">
+                <span className="text-[#0f2a44]/70">পেমেন্ট</span>
+                <span>
+                  {paymentMethod === "bkash"
+                    ? "বিকাশ"
+                    : paymentMethod === "nagad"
+                      ? "নগদ"
+                      : "ক্যাশ অন ডেলিভারি"}
+                </span>
+              </div>
 
               <div className="space-y-4">
                 {cartItems.map((item) => (

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -193,6 +194,13 @@ export default function RegisterPage() {
             {serverMessage}
           </p>
         )}
+
+        <p className="text-sm text-center mt-5 text-gray-600">
+          Already have an account?{" "}
+          <Link href="/login" className="text-[#d4af37] font-medium">
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );

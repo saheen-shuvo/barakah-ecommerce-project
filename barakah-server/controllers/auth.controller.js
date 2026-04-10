@@ -1,4 +1,5 @@
 const connectDB = require("../config/db");
+const bcrypt = require("bcrypt");
 
 exports.registerUser = async (req, res) => {
   try {
@@ -44,11 +45,13 @@ exports.registerUser = async (req, res) => {
       });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = {
       userName: userName.trim(),
       phone: phone.trim(),
       email: normalizedEmail,
-      password,
+      password: hashedPassword,
       role: "barakahUser",
       createdAt: new Date(),
     };
@@ -95,7 +98,9 @@ exports.loginUser = async (req, res) => {
       });
     }
 
-    if (user.password !== password) {
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: "Incorrect password",

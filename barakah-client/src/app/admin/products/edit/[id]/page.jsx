@@ -70,7 +70,7 @@ export default function EditProductPage() {
     };
 
     if (id) fetchProduct();
-  }, [id, router]);
+  }, [baseUrl, id, router]);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;

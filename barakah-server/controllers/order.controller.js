@@ -13,6 +13,8 @@ exports.createOrder = async (req, res) => {
       notes,
       shippingType,
       shippingCost,
+      paymentMethod,
+      accountLast4,
       items,
       subtotal,
       total,
@@ -24,6 +26,7 @@ exports.createOrder = async (req, res) => {
       !address ||
       !shippingType ||
       !items ||
+      !paymentMethod ||
       !Array.isArray(items) ||
       items.length === 0
     ) {
@@ -45,6 +48,8 @@ exports.createOrder = async (req, res) => {
       total: Number(total) || 0,
       status: "pending",
       createdAt: new Date(),
+      paymentMethod,
+      accountLast4,
     };
 
     const result = await ordersCollection.insertOne(orderData);
@@ -115,7 +120,7 @@ exports.markOrderDelivered = async (req, res) => {
           status: "delivered",
           deliveredAt: new Date(),
         },
-      }
+      },
     );
 
     res.json({

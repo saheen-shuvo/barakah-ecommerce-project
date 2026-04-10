@@ -208,7 +208,7 @@ export default function OrdersPage() {
                       </td>
 
                       <td>{order.phone}</td>
-                      <td className="max-w-[220px] whitespace-normal">
+                      <td className="max-w-55 whitespace-normal">
                         {order.address}
                       </td>
                       <td>৳ {order.total}</td>
@@ -372,24 +372,28 @@ export default function OrdersPage() {
 
             <div className="p-5 space-y-6">
               {/* Customer Info */}
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-[#e5dccf] p-4">
-                  <h3 className="font-semibold text-[#3d2f1f] mb-3">
+                  <h3 className="mb-3 font-semibold text-[#3d2f1f]">
                     Customer Info
                   </h3>
+
                   <div className="space-y-2 text-sm text-[#3d2f1f]">
                     <p>
                       <span className="font-semibold">Name:</span>{" "}
                       {selectedOrder.customerName}
                     </p>
+
                     <p>
                       <span className="font-semibold">Phone:</span>{" "}
                       {selectedOrder.phone}
                     </p>
+
                     <p>
                       <span className="font-semibold">Address:</span>{" "}
                       {selectedOrder.address}
                     </p>
+
                     {selectedOrder.notes && (
                       <p>
                         <span className="font-semibold">Notes:</span>{" "}
@@ -400,28 +404,63 @@ export default function OrdersPage() {
                 </div>
 
                 <div className="rounded-xl border border-[#e5dccf] p-4">
-                  <h3 className="font-semibold text-[#3d2f1f] mb-3">
+                  <h3 className="mb-3 font-semibold text-[#3d2f1f]">
                     Order Summary
                   </h3>
+
                   <div className="space-y-2 text-sm text-[#3d2f1f]">
                     <p>
                       <span className="font-semibold">Status:</span>{" "}
-                      {selectedOrder.status}
+                      {selectedOrder.status === "delivered"
+                        ? "Delivered"
+                        : "Pending"}
                     </p>
+
                     <p>
                       <span className="font-semibold">Date:</span>{" "}
                       {selectedOrder.createdAt
                         ? new Date(selectedOrder.createdAt).toLocaleDateString()
                         : "—"}
                     </p>
+
+                    <p>
+                      <span className="font-semibold">Delivery Method:</span>{" "}
+                      {selectedOrder.shippingType === "inside"
+                        ? "Inside Dhaka"
+                        : selectedOrder.shippingType === "outside"
+                          ? "Outside Dhaka"
+                          : "—"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Payment Method:</span>{" "}
+                      {selectedOrder.paymentMethod === "bkash"
+                        ? "Bkash"
+                        : selectedOrder.paymentMethod === "nagad"
+                          ? "Nagad"
+                          : selectedOrder.paymentMethod === "cod"
+                            ? "Cash on Delivery"
+                            : "—"}
+                    </p>
+
+                    {(selectedOrder.paymentMethod === "bkash" ||
+                      selectedOrder.paymentMethod === "nagad") && (
+                      <p>
+                        <span className="font-semibold">Last 4 Digits:</span>{" "}
+                        {selectedOrder.accountLast4 || "—"}
+                      </p>
+                    )}
+
                     <p>
                       <span className="font-semibold">Subtotal:</span> ৳{" "}
                       {selectedOrder.subtotal || 0}
                     </p>
+
                     <p>
                       <span className="font-semibold">Shipping:</span> ৳{" "}
                       {selectedOrder.shippingCost || 0}
                     </p>
+
                     <p className="text-base font-bold text-[#3d2f1f]">
                       Total: ৳ {selectedOrder.total || 0}
                     </p>
@@ -431,7 +470,7 @@ export default function OrdersPage() {
 
               {/* Ordered Items */}
               <div className="rounded-xl border border-[#e5dccf] p-4">
-                <h3 className="font-semibold text-[#3d2f1f] mb-4">
+                <h3 className="mb-4 font-semibold text-[#3d2f1f]">
                   Ordered Items
                 </h3>
 
@@ -444,10 +483,9 @@ export default function OrdersPage() {
                       <div className="flex items-center gap-3">
                         {item.image && (
                           <Image
-                          
                             src={item.image}
                             alt={item.name}
-                            className="h-14 w-14 rounded-lg object-cover border border-[#e5dccf]"
+                            className="h-14 w-14 rounded-lg border border-[#e5dccf] object-cover"
                             width={56}
                             height={56}
                           />
