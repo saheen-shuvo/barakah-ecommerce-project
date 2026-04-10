@@ -3,14 +3,24 @@
 import { useCart } from "@/contexts/CartContext";
 import Image from "next/image";
 import Link from "next/link";
-import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function ProductCard({ product }) {
-  const { addToCart } = useCart();
+  const { addToCart, clearCart } = useCart();
+  const router = useRouter();
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product);
+  };
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    clearCart();
+    addToCart({ ...product, quantity: 1 });
+    router.push("/checkout");
   };
 
   return (
@@ -57,13 +67,6 @@ export default function ProductCard({ product }) {
           {product.name}
         </h3>
 
-        {/* Rating */}
-        {/* <div className="mb-2 flex items-center gap-1">
-          <span className="text-xs text-[#0f2a44]/60">
-            {product.rating}
-          </span>
-        </div> */}
-
         {/* Price  */}
         <div className="flex items-center gap-2">
           <span className="text-base font-bold text-[#0f2a44]">
@@ -83,10 +86,13 @@ export default function ProductCard({ product }) {
             onClick={handleAddToCart}
             className="py-2 w-[50%] rounded-md bg-[#0f2a44] text-white text-xs font-medium hover:bg-[#d4af37] transition-all duration-200"
           >
-            Add to Cart
+            কার্টে যোগ করুন
           </button>
-          <button className="w-[50%] rounded-md  text-[#0f2a44] border border-[#0f2a44] text-xs font-medium hover:bg-[#d4af37] hover:border-[white] transition-all duration-200">
-            Buy Now
+          <button
+            onClick={handleBuyNow}
+            className="w-[50%] rounded-md text-[#0f2a44] border border-[#0f2a44] text-xs font-medium hover:bg-[#d4af37] hover:border-[white] transition-all duration-200"
+          >
+            এখনই কিনুন
           </button>
         </div>
       </div>

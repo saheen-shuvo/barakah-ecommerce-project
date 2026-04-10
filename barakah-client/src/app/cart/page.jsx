@@ -108,12 +108,12 @@ export default function CartPage() {
               {/* Right side */}
               <div className="h-fit rounded-2xl bg-white p-6 shadow-sm">
                 <h2 className="mb-6 text-xl md:text-2xl font-bold text-[#0f2a44]">
-                  Order Summary
+                  অর্ডার সারসংক্ষেপ
                 </h2>
 
                 <div className="space-y-4 ">
                   <div className="flex items-center justify-between text-[#0f2a44]/75">
-                    <span>Subtotal</span>
+                    <span>মোট মূল্য</span>
                     <span>৳ {totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
@@ -121,22 +121,22 @@ export default function CartPage() {
                 <div className="my-6 border-t border-[#0f2a44]/10" />
 
                 <div className="mb-6 flex items-center justify-between text-xl font-bold text-[#0f2a44]">
-                  <span>Total</span>
-                  <span>৳ {(totalPrice).toFixed(2)}</span>
+                  <span>সর্বমোট</span>
+                  <span>৳ {totalPrice.toFixed(2)}</span>
                 </div>
 
                 <Link
                   href="/checkout"
                   className="block w-full rounded-2xl bg-[#0f2a44] px-6 py-4 text-center font-semibold text-[#f2c94c] transition hover:opacity-95"
                 >
-                  Proceed to Checkout
+                  অর্ডার করতে এগিয়ে যান
                 </Link>
 
                 <Link
                   href="/"
                   className="mt-5 block text-center text-[#0f2a44] transition hover:text-[#d4af37]"
                 >
-                  Continue Shopping
+                  কেনাকাটা চালিয়ে যান
                 </Link>
               </div>
             </div>

@@ -2,9 +2,10 @@ import Link from "next/link";
 import ProductCard from "@/components/products/ProductCard";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import Image from "next/image";
+import BuyNowButton from "./BuyNowButton";
 
 async function getProducts() {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const res = await fetch(`${baseUrl}/api/products`, {
       cache: "no-store",
@@ -112,9 +113,7 @@ export default async function ProductDetails({ params }) {
             <div className="mt-6 flex gap-4">
               <AddToCartButton product={product} />
 
-              <button className="px-6 py-3 border border-[#0f2a44] rounded-lg hover:bg-[#d4af37] hover:border-[#d4af37] transition">
-                Buy Now
-              </button>
+              <BuyNowButton product={product} />
             </div>
           </div>
         </div>

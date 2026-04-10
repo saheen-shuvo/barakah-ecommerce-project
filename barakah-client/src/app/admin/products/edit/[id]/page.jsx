@@ -137,7 +137,7 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="max-w-3xl rounded-2xl border border-[#e5dccf] bg-white p-6 shadow-sm">
+    <div className="max-w-3xl rounded-2xl border border-[#e5dccf] bg-white p-6 shadow-sm mx-auto">
       <h1 className="mb-6 text-2xl font-bold text-[#3d2f1f]">Edit Product</h1>
 
       <form onSubmit={handleSubmit} className="grid gap-5">
@@ -248,7 +248,7 @@ export default function EditProductPage() {
           />
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5">
           <div>
             <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
               Badge
@@ -259,20 +259,6 @@ export default function EditProductPage() {
               value={formData.badge}
               onChange={handleChange}
               placeholder="New / Sale"
-              className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
-              Rating
-            </label>
-            <input
-              type="number"
-              step="0.1"
-              name="rating"
-              value={formData.rating}
-              onChange={handleChange}
               className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
             />
           </div>

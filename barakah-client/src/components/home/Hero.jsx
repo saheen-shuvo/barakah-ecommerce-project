@@ -19,7 +19,7 @@ export default function Hero() {
 
           {/* Badge */}
           <span className="mb-6 inline-block rounded-full bg-[#d4af37]/20 px-4 py-1.5 text-sm font-medium uppercase tracking-wider text-[#f5d76e]">
-            Premium Lifestyle Essentials
+            Blessings in every moment
           </span>
 
           {/* Heading */}

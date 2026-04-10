@@ -8,13 +8,13 @@ export default function Footer() {
     { label: "Home", href: "/" },
     { label: "Wall Clocks", href: "/category/wall-clock/natural" },
     { label: "Wall Canvas", href: "/category/wall-canvas/natural" },
-    { label: "Facebook Group", href: "/about" },
+    { label: "Facebook Group", href: "https://facebook.com/groups/893573157040880/" },
   ];
 
   const socialLinks = [
-    { label: "Facebook", href: "#", icon: <FaFacebookF size={14} /> },
-    { label: "Instagram", href: "#", icon: <FaInstagram size={16} /> },
-    { label: "Email", href: "#", icon: <FaEnvelope size={14} /> },
+    { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61575470920192", icon: <FaFacebookF size={14} /> },
+    { label: "Instagram", href: "https://www.instagram.com/saheen_shuvo/?hl=en", icon: <FaInstagram size={16} /> },
+    { label: "Email", href: "mailto:barakahislamicclock@gmail.com", icon: <FaEnvelope size={14} /> },
   ];
 
   return (
@@ -66,9 +66,9 @@ export default function Footer() {
             </h4>
 
             <div className="flex flex-col gap-2 text-sm text-white/60">
-              <p>info@barakah.com</p>
-              <p>+8801751967704</p>
-              <p>123 Islamic St, Dhaka, Bangladesh</p>
+              <p>barakahislamicclock@gmail.com</p>
+              <p>+8801601014782</p>
+              <p>Uttara, Dhaka, Bangladesh</p>
             </div>
           </div>
         </div>

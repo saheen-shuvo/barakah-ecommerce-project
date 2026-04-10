@@ -10,7 +10,7 @@ export default function AddToCartButton({ product }) {
       onClick={() => addToCart(product)}
       className="rounded-lg bg-[#0f2a44] px-6 py-3 text-white transition hover:bg-[#d4af37]"
     >
-      Add to Cart
+      কার্টে যোগ করুন
     </button>
   );
 }
