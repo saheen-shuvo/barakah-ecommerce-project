@@ -21,7 +21,7 @@ export default function OrdersPage() {
       setLoading(true);
 
       const res = await fetch(`${baseUrl}/api/orders`, {
-        next: { revalidate: 60 },
+        cache: "no-store",
       });
 
       const data = await res.json();

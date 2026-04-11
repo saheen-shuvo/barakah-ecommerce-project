@@ -103,6 +103,7 @@ exports.updateProduct = async (req, res) => {
     const db = await connectDB();
     const productsCollection = db.collection("products");
     const { id } = req.params;
+    console.log(id)
 
     const {
       name,
@@ -138,7 +139,6 @@ exports.updateProduct = async (req, res) => {
       image: image?.trim() || existingProduct.image,
       badge: badge?.trim() || "",
       inStock: typeof inStock === "boolean" ? inStock : existingProduct.inStock,
-      rating: rating !== undefined ? Number(rating) : existingProduct.rating,
       updatedAt: new Date(),
     };
 

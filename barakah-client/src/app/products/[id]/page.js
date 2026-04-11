@@ -8,7 +8,7 @@ async function getProducts() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const res = await fetch(`${baseUrl}/api/products`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!res.ok) {

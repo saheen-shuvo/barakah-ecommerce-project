@@ -9,10 +9,10 @@ async function getDashboardData() {
   try {
     const [productsRes, ordersRes] = await Promise.allSettled([
       fetch(`${baseUrl}/api/products`, {
-        next: { revalidate: 60 },
+        cache: "no-store",
       }),
       fetch(`${baseUrl}/api/orders`, {
-        next: { revalidate: 60 },
+        cache: "no-store",
       }),
     ]);
 

@@ -7,7 +7,7 @@ async function getReviews() {
 
   try {
     const res = await fetch(`${baseUrl}/api/reviews`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!res.ok) return [];

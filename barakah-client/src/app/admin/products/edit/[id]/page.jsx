@@ -20,7 +20,6 @@ export default function EditProductPage() {
     oldPrice: "",
     image: "",
     badge: "",
-    rating: "",
     inStock: true,
   });
 
@@ -33,7 +32,7 @@ export default function EditProductPage() {
         setLoading(true);
 
         const res = await fetch(`${baseUrl}/api/products/${id}`, {
-          next: { revalidate: 60 },
+          cache: "no-store",
         });
 
         const data = await res.json();
@@ -50,7 +49,6 @@ export default function EditProductPage() {
             oldPrice: product.oldPrice || "",
             image: product.image || "",
             badge: product.badge || "",
-            rating: product.rating || "",
             inStock: product.inStock ?? true,
           });
         } else {
@@ -104,7 +102,6 @@ export default function EditProductPage() {
           ...formData,
           price: Number(formData.price),
           oldPrice: Number(formData.oldPrice),
-          rating: Number(formData.rating),
         }),
       });
 
