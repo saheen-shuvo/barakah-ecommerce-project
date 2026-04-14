@@ -2,12 +2,18 @@ import Hero from "@/components/home/Hero";
 import ProductSection from "@/components/home/ProductSection";
 import Reviews from "@/components/home/Reviews";
 
-async function getProducts() {
+async function getProductsByCategory(category) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!baseUrl) return [];
+
   try {
-    const res = await fetch(`${baseUrl}/api/products`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${baseUrl}/api/products?category=${category}&limit=8`,
+      {
+        next: { revalidate: 300 },
+      },
+    );
 
     if (!res.ok) {
       return [];
@@ -16,72 +22,66 @@ async function getProducts() {
     const result = await res.json();
     return result.data || [];
   } catch (error) {
-    console.error("Failed to fetch products:", error);
+    console.error(`Failed to fetch ${category} products:`, error);
     return [];
   }
 }
 
 export default async function HomePage() {
-  const products = await getProducts();
-  const wallClockProducts = products.filter(
-    (product) => product.category === "wall-clock",
-  );
-
-  const wallCanvasProducts = products.filter(
-    (product) => product.category === "wall-canvas",
-  );
-
-  const wallArtProducts = products.filter(
-    (product) => product.category === "wall-art",
-  );
-
-  const roundClockProducts = products.filter(
-    (product) => product.category === "round-clock",
-  );
-
-  const otherProducts = products.filter(
-    (product) => product.category === "others",
-  );
+  const [
+    wallClockProducts,
+    wallCanvasProducts,
+    wallArtProducts,
+    roundClockProducts,
+    otherProducts,
+  ] = await Promise.all([
+    getProductsByCategory("wall-clock"),
+    getProductsByCategory("wall-canvas"),
+    getProductsByCategory("wall-art"),
+    getProductsByCategory("round-clock"),
+    getProductsByCategory("others"),
+  ]);
 
   return (
     <main className="min-h-screen bg-[#faf7f0] text-[#3d2f1f]">
-      <Hero></Hero>
+      <Hero />
+
       <ProductSection
         title="Premium Wall Clocks"
         link="/category/wall-clock/natural"
-        products={wallClockProducts.slice(0, 8)}
+        products={wallClockProducts}
         bgClass="bg-[#faf7f0]"
       />
 
       <ProductSection
         title="Elegant Wall Canvas"
         link="/category/wall-canvas/natural"
-        products={wallCanvasProducts.slice(0, 8)}
+        products={wallCanvasProducts}
         bgClass="bg-[#faf7f0]"
       />
 
       <ProductSection
         title="Timeless Wall Art"
         link="/category/wall-art/none"
-        products={wallArtProducts.slice(0, 8)}
+        products={wallArtProducts}
         bgClass="bg-[#faf7f0]"
       />
 
       <ProductSection
         title="Classic Round Clocks"
         link="/category/round-clock/natural"
-        products={roundClockProducts.slice(0, 8)}
+        products={roundClockProducts}
         bgClass="bg-[#faf7f0]"
       />
 
       <ProductSection
         title="Special Picks"
         link="/category/others/none"
-        products={otherProducts.slice(0, 8)}
+        products={otherProducts}
         bgClass="bg-[#faf7f0]"
       />
 
-      <Reviews></Reviews>
+      <Reviews />
     </main>
   );
 }

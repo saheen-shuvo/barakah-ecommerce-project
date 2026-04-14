@@ -1,7 +1,6 @@
 import AdminRoute from "@/components/auth/AdminRoute";
 import Image from "next/image";
 import Link from "next/link";
-export const dynamic = "force-dynamic";
 
 async function getDashboardData() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -9,10 +8,10 @@ async function getDashboardData() {
   try {
     const [productsRes, ordersRes] = await Promise.allSettled([
       fetch(`${baseUrl}/api/products`, {
-        cache: "no-store",
+        next: { revalidate: 60 },
       }),
       fetch(`${baseUrl}/api/orders`, {
-        cache: "no-store",
+        next: { revalidate: 60 },
       }),
     ]);
 

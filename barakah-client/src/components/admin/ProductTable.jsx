@@ -1,27 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Image from "next/image";
 
-export default function ProductTable({ initialProducts }) {
+export default function ProductTable({
+  initialProducts,
+  currentPage = 1,
+  totalPages = 1,
+  itemsPerPage = 20,
+  onPageChange,
+}) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
   const [deletingId, setDeletingId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
-
-  const ITEMS_PER_PAGE = 20;
-
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
-
-  const paginatedProducts = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    return products.slice(start, end);
-  }, [products, currentPage]);
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -29,7 +28,7 @@ export default function ProductTable({ initialProducts }) {
       text: "This product will be permanently deleted!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d4af37", 
+      confirmButtonColor: "#d4af37",
       cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, delete it!",
     });
@@ -46,20 +45,7 @@ export default function ProductTable({ initialProducts }) {
       const result = await res.json();
 
       if (result.success) {
-        const updatedProducts = products.filter((p) => p._id !== id);
-        setProducts(updatedProducts);
-
-        const newTotalPages = Math.ceil(
-          updatedProducts.length / ITEMS_PER_PAGE,
-        );
-
-        if (currentPage > newTotalPages && newTotalPages > 0) {
-          setCurrentPage(newTotalPages);
-        }
-
-        if (updatedProducts.length === 0) {
-          setCurrentPage(1);
-        }
+        setProducts((prev) => prev.filter((p) => p._id !== id));
 
         Swal.fire({
           icon: "success",
@@ -68,6 +54,8 @@ export default function ProductTable({ initialProducts }) {
           timer: 1500,
           showConfirmButton: false,
         });
+
+        router.refresh();
       } else {
         Swal.fire("Error", result.message, "error");
       }
@@ -75,7 +63,6 @@ export default function ProductTable({ initialProducts }) {
       Swal.fire("Error", "Something went wrong!", "error");
     } finally {
       setDeletingId(null);
-      router.refresh();
     }
   };
 
@@ -85,7 +72,6 @@ export default function ProductTable({ initialProducts }) {
 
   return (
     <div>
-      {/* Desktop Table */}
       <div className="overflow-x-auto hidden md:block">
         <table className="table">
           <thead>
@@ -100,15 +86,20 @@ export default function ProductTable({ initialProducts }) {
           </thead>
 
           <tbody>
-            {paginatedProducts.map((product, index) => (
+            {products.map((product, index) => (
               <tr key={product._id}>
-                <td>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
+                <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
 
                 <td>
                   <div className="flex items-center gap-3">
                     <div className="avatar">
                       <div className="mask mask-squircle h-12 w-12">
-                        <Image src={product.image} alt={product.name} width={48} height={48} />
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          width={48}
+                          height={48}
+                        />
                       </div>
                     </div>
 
@@ -159,9 +150,8 @@ export default function ProductTable({ initialProducts }) {
         </table>
       </div>
 
-      {/* Mobile Cards */}
       <div className="grid gap-4 md:hidden">
-        {paginatedProducts.map((product, index) => (
+        {products.map((product, index) => (
           <div
             key={product._id}
             className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
@@ -177,8 +167,7 @@ export default function ProductTable({ initialProducts }) {
 
               <div className="flex-1">
                 <p className="font-bold">
-                  {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}.{" "}
-                  {product.name}
+                  {(currentPage - 1) * itemsPerPage + index + 1}. {product.name}
                 </p>
 
                 <p className="text-sm text-gray-500">
@@ -220,13 +209,12 @@ export default function ProductTable({ initialProducts }) {
         ))}
       </div>
 
-      {/* Footer Pagination */}
       <div className="mt-8 flex justify-center">
         <div className="join">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              onClick={() => setCurrentPage(page)}
+              onClick={() => onPageChange(page)}
               className={`join-item btn btn-sm ${
                 currentPage === page
                   ? "bg-black text-white border-black"

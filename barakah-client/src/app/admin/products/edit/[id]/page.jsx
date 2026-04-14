@@ -32,7 +32,7 @@ export default function EditProductPage() {
         setLoading(true);
 
         const res = await fetch(`${baseUrl}/api/products/${id}`, {
-          cache: "no-store",
+          next: { revalidate: 60 },
         });
 
         const data = await res.json();

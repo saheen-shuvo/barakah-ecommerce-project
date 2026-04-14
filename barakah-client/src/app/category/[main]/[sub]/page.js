@@ -1,12 +1,16 @@
 import Link from "next/link";
 import ProductSearch from "@/components/products/ProductSearch";
 
-async function getProducts() {
+async function getProducts(main, sub) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const res = await fetch(`${baseUrl}/api/products`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${baseUrl}/api/products?category=${main}&subcategory=${sub}`,
+      {
+        next: { revalidate: 60 },
+      },
+    );
 
     if (!res.ok) {
       return [];
@@ -21,12 +25,8 @@ async function getProducts() {
 }
 
 export default async function CategoryPage({ params }) {
-  const products = await getProducts();
   const { main, sub } = await params;
-
-  const filteredProducts = products.filter(
-    (p) => p.category === main && p.subcategory === sub,
-  );
+  const filteredProducts = await getProducts(main, sub);
 
   return (
     <main className="bg-[#faf7f0] min-h-screen py-10">

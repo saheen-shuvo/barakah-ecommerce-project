@@ -6,14 +6,52 @@ exports.getAllProducts = async (req, res) => {
     const db = await connectDB();
     const productsCollection = db.collection("products");
 
-    const products = await productsCollection
-      .find()
-      .sort({ createdAt: -1 })
-      .toArray();
+    const { category, subcategory, page, limit } = req.query;
+
+    const query = {};
+
+    if (category) {
+      query.category = category;
+    }
+
+    if (subcategory && subcategory !== "none") {
+      query.subcategory = subcategory;
+    }
+
+    const total = await productsCollection.countDocuments(query);
+
+    let products;
+    let pagination = null;
+
+    if (page || limit) {
+      const pageNumber = Number(page) || 1;
+      const limitNumber = Number(limit) || 20;
+      const skip = (pageNumber - 1) * limitNumber;
+
+      products = await productsCollection
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNumber)
+        .toArray();
+
+      pagination = {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      };
+    } else {
+      products = await productsCollection
+        .find(query)
+        .sort({ createdAt: -1 })
+        .toArray();
+    }
 
     res.json({
       success: true,
       data: products,
+      pagination,
     });
   } catch (error) {
     res.status(500).json({
@@ -103,7 +141,7 @@ exports.updateProduct = async (req, res) => {
     const db = await connectDB();
     const productsCollection = db.collection("products");
     const { id } = req.params;
-    console.log(id)
+    console.log(id);
 
     const {
       name,
