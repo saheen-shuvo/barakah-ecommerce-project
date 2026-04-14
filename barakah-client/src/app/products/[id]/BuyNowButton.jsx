@@ -3,13 +3,13 @@
 import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 
-export default function BuyNowButton({ product }) {
+export default function BuyNowButton({ product, quantity = 1 }) {
   const { addToCart, clearCart } = useCart();
   const router = useRouter();
 
   const handleBuyNow = () => {
     clearCart();
-    addToCart({ ...product, quantity: 1 });
+    addToCart({ ...product, quantity });
 
     setTimeout(() => {
       router.push("/checkout");

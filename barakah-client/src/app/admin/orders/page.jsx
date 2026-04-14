@@ -485,9 +485,9 @@ export default function OrdersPage() {
                           <Image
                             src={item.image}
                             alt={item.name}
-                            className="h-14 w-14 rounded-lg border border-[#e5dccf] object-cover"
-                            width={56}
-                            height={56}
+                            className="h-24 w-24 rounded-lg border border-[#e5dccf] object-cover"
+                            width={64}
+                            height={64}
                           />
                         )}
 

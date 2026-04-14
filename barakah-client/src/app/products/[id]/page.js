@@ -1,8 +1,7 @@
 import Link from "next/link";
 import ProductCard from "@/components/products/ProductCard";
-import AddToCartButton from "@/components/cart/AddToCartButton";
+import ProductDetailsActions from "../../../components/products/ProductDetailsActions";
 import Image from "next/image";
-import BuyNowButton from "./BuyNowButton";
 
 async function getProducts() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -110,11 +109,7 @@ export default async function ProductDetails({ params }) {
             </p>
 
             {/* Buttons */}
-            <div className="mt-6 flex gap-4">
-              <AddToCartButton product={product} />
-
-              <BuyNowButton product={product} />
-            </div>
+            <ProductDetailsActions product={product} />
           </div>
         </div>
 

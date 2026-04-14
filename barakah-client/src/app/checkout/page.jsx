@@ -32,7 +32,7 @@ export default function CheckoutPage() {
     },
   });
 
-  const shippingCost = shipping === "inside" ? 60 : 120;
+  const shippingCost = shipping === "inside" ? 80 : 120;
 
   const finalTotal = useMemo(
     () => totalPrice + shippingCost,

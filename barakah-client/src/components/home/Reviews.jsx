@@ -40,7 +40,7 @@ export default async function Reviews() {
           </h2>
 
           {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             {reviews.map((review) => (
               <div
                 key={review._id}
@@ -51,9 +51,9 @@ export default async function Reviews() {
                   <Image
                     src={review.image}
                     alt={review.name}
-                    width={400}
+                    width={600}
                     height={450}
-                    className="rounded-xl object-cover border-2 border-[#d4af37] h-90"
+                    className="rounded-xl object-cover border-2 border-[#d4af37]"
                   />
                 </div>
 

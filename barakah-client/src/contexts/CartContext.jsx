@@ -18,23 +18,25 @@ export function CartProvider({ children }) {
   }, [cartItems]);
 
   const addToCart = (product) => {
-    toast.success("Product added to cart!", {
-      position: "top-right",
-    });
-    setCartItems((prev) => {
-      const existingItem = prev.find((item) => item._id === product._id);
+  toast.success("Product added to cart!", {
+    position: "top-right",
+  });
 
-      if (existingItem) {
-        return prev.map((item) =>
-          item._id === product._id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      }
+  setCartItems((prev) => {
+    const existingItem = prev.find((item) => item._id === product._id);
+    const selectedQuantity = product.quantity || 1;
 
-      return [...prev, { ...product, quantity: 1 }];
-    });
-  };
+    if (existingItem) {
+      return prev.map((item) =>
+        item._id === product._id
+          ? { ...item, quantity: item.quantity + selectedQuantity }
+          : item,
+      );
+    }
+
+    return [...prev, { ...product, quantity: selectedQuantity }];
+  });
+};
 
   const removeFromCart = (productId) => {
     toast.success("Product removed from cart!", {
