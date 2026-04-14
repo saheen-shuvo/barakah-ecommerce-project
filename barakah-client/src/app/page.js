@@ -31,6 +31,18 @@ export default async function HomePage() {
     (product) => product.category === "wall-canvas",
   );
 
+  const wallArtProducts = products.filter(
+    (product) => product.category === "wall-art",
+  );
+
+  const roundClockProducts = products.filter(
+    (product) => product.category === "round-clock",
+  );
+
+  const otherProducts = products.filter(
+    (product) => product.category === "others",
+  );
+
   return (
     <main className="min-h-screen bg-[#faf7f0] text-[#3d2f1f]">
       <Hero></Hero>
@@ -45,6 +57,27 @@ export default async function HomePage() {
         title="Elegant Wall Canvas"
         link="/category/wall-canvas/natural"
         products={wallCanvasProducts.slice(0, 8)}
+        bgClass="bg-[#faf7f0]"
+      />
+
+      <ProductSection
+        title="Timeless Wall Art"
+        link="/category/wall-art/none"
+        products={wallArtProducts.slice(0, 8)}
+        bgClass="bg-[#faf7f0]"
+      />
+
+      <ProductSection
+        title="Classic Round Clocks"
+        link="/category/round-clock/natural"
+        products={roundClockProducts.slice(0, 8)}
+        bgClass="bg-[#faf7f0]"
+      />
+
+      <ProductSection
+        title="Special Picks"
+        link="/category/others/none"
+        products={otherProducts.slice(0, 8)}
         bgClass="bg-[#faf7f0]"
       />
 

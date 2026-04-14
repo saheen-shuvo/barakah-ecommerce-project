@@ -10,7 +10,7 @@ const ProductSection = ({
   bgClass = "bg-[#faf7f0]",
 }) => {
   return (
-    <section className={`${bgClass} py-14 lg:py-20`}>
+    <section className={`${bgClass} py-14 lg:py-16`}>
       <Container>
         <SectionTitle
           title={title}

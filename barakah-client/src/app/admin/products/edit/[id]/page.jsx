@@ -181,6 +181,9 @@ export default function EditProductPage() {
               <option value="">Select category</option>
               <option value="wall-clock">Wall Clock</option>
               <option value="wall-canvas">Wall Canvas</option>
+              <option value="wall-art">Wall Art</option>
+              <option value="round-clock">Round Clock</option>
+              <option value="others">Others</option>
             </select>
           </div>
 
@@ -197,7 +200,8 @@ export default function EditProductPage() {
               <option value="">Select subcategory</option>
               <option value="natural">Natural</option>
               <option value="islamic">Islamic</option>
-              <option value="combo">Combo</option>
+              <option value="others">Others</option>
+              <option value="none">None</option>
             </select>
           </div>
         </div>

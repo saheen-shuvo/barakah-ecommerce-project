@@ -46,10 +46,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(event.target)
-      ) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
       }
     };
@@ -88,6 +85,27 @@ export default function Navbar() {
               className={navLinkClass(isActive("/category/wall-canvas"))}
             >
               Wall Canvas
+            </Link>
+
+            <Link
+              href="/category/wall-art/none"
+              className={navLinkClass(isActive("/category/wall-art"))}
+            >
+              Wall Art
+            </Link>
+
+            <Link
+              href="/category/round-clock/natural"
+              className={navLinkClass(isActive("/category/round-clock"))}
+            >
+              Round Clock
+            </Link>
+
+            <Link
+              href="/category/others/none"
+              className={navLinkClass(isActive("/category/others"))}
+            >
+              Others
             </Link>
           </div>
 
@@ -203,6 +221,30 @@ export default function Navbar() {
               className={mobileLinkClass(isActive("/category/wall-canvas"))}
             >
               Wall Canvas
+            </Link>
+
+            <Link
+              href="/category/wall-art/natural"
+              onClick={closeMobileMenu}
+              className={mobileLinkClass(isActive("/category/wall-art"))}
+            >
+              Wall Art
+            </Link>
+
+            <Link
+              href="/category/round-clock/natural"
+              onClick={closeMobileMenu}
+              className={mobileLinkClass(isActive("/category/round-clock"))}
+            >
+              Round Clock
+            </Link>
+
+            <Link
+              href="/category/others/natural"
+              onClick={closeMobileMenu}
+              className={mobileLinkClass(isActive("/category/others"))}
+            >
+              Others
             </Link>
 
             {user && (

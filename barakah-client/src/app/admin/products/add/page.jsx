@@ -158,6 +158,9 @@ export default function AddProductPage() {
               <option value="">Select Category</option>
               <option value="wall-clock">Wall Clock</option>
               <option value="wall-canvas">Wall Canvas</option>
+              <option value="wall-art">Wall Art</option>
+              <option value="round-clock">Round Clock</option>
+              <option value="others">Others</option>
             </select>
             {errors.category && (
               <p className="mt-1 text-sm text-red-500">
@@ -179,7 +182,8 @@ export default function AddProductPage() {
               <option value="">Select Subcategory</option>
               <option value="natural">Natural</option>
               <option value="islamic">Islamic</option>
-              <option value="combo">Combo</option>
+              <option value="others">Others</option>
+              <option value="none">None</option>
             </select>
             {errors.subcategory && (
               <p className="mt-1 text-sm text-red-500">
@@ -190,7 +194,6 @@ export default function AddProductPage() {
         </div>
 
         <div className="grid gap-5">
-
           <div>
             <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
               Badge

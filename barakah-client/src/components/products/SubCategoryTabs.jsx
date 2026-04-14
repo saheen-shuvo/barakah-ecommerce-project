@@ -29,16 +29,16 @@ export default function SubCategoryTabs({ main, currentSub }) {
         Islamic
       </Link>
 
-      {/* Combo */}
+      {/* Others */}
       <Link
-        href={`/category/${main}/combo`}
+        href={`/category/${main}/others`}
         className={`rounded-full px-4 py-2 text-sm transition-all duration-200 ${
-          currentSub === "combo"
+          currentSub === "others"
             ? "bg-[#d4af37] text-white shadow-md scale-105"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105"
         }`}
       >
-        Combo
+        Others
       </Link>
     </div>
   );

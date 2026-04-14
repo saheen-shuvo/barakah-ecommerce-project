@@ -36,35 +36,36 @@ export default async function CategoryPage({ params }) {
           {main?.replace("-", " ")}
         </h1>
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-8">
-          <Link
-            href={`/category/${main}/natural`}
-            className={`px-4 py-2 rounded-lg ${
-              sub === "natural" ? "bg-[#0f2a44] text-white" : "bg-white"
-            }`}
-          >
-            Natural
-          </Link>
+        {sub !== "none" && (
+          <div className="flex gap-4 mb-8">
+            <Link
+              href={`/category/${main}/natural`}
+              className={`px-4 py-2 rounded-lg ${
+                sub === "natural" ? "bg-[#0f2a44] text-white" : "bg-white"
+              }`}
+            >
+              Natural
+            </Link>
 
-          <Link
-            href={`/category/${main}/islamic`}
-            className={`px-4 py-2 rounded-lg ${
-              sub === "islamic" ? "bg-[#0f2a44] text-white" : "bg-white"
-            }`}
-          >
-            Islamic
-          </Link>
+            <Link
+              href={`/category/${main}/islamic`}
+              className={`px-4 py-2 rounded-lg ${
+                sub === "islamic" ? "bg-[#0f2a44] text-white" : "bg-white"
+              }`}
+            >
+              Islamic
+            </Link>
 
-          <Link
-            href={`/category/${main}/combo`}
-            className={`px-4 py-2 rounded-lg ${
-              sub === "combo" ? "bg-[#0f2a44] text-white" : "bg-white"
-            }`}
-          >
-            Combo
-          </Link>
-        </div>
+            <Link
+              href={`/category/${main}/others`}
+              className={`px-4 py-2 rounded-lg ${
+                sub === "others" ? "bg-[#0f2a44] text-white" : "bg-white"
+              }`}
+            >
+              Others
+            </Link>
+          </div>
+        )}
 
         <ProductSearch products={filteredProducts} />
       </div>
