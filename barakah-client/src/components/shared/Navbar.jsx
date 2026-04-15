@@ -224,7 +224,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/category/wall-art/natural"
+              href="/category/wall-art/none"
               onClick={closeMobileMenu}
               className={mobileLinkClass(isActive("/category/wall-art"))}
             >
@@ -240,7 +240,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/category/others/natural"
+              href="/category/others/none"
               onClick={closeMobileMenu}
               className={mobileLinkClass(isActive("/category/others"))}
             >

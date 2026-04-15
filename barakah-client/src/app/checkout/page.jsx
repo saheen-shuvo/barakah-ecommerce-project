@@ -322,7 +322,7 @@ export default function CheckoutPage() {
                       />
                       <span className="text-[#0f2a44]">ঢাকার ভিতরে</span>
                     </div>
-                    <span className="font-medium text-[#0f2a44]">৳ 60</span>
+                    <span className="font-medium text-[#0f2a44]">৳ 80</span>
                   </label>
 
                   <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#0f2a44]/10 px-4 py-4">

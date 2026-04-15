@@ -33,49 +33,44 @@ export default async function Reviews() {
   return (
     <section className="bg-[#faf7f0] py-16">
       <Container>
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          {/* Title */}
-          <h2 className="text-3xl md:text-4xl font-bold text-[#3d2f1f] mb-12">
+        <div className="mx-auto max-w-7xl px-4 text-center">
+          <h2 className="mb-12 text-3xl font-bold text-[#3d2f1f] md:text-4xl">
             What Our Customers Say
           </h2>
 
-          {/* Cards */}
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="carousel carousel-center w-full gap-6 rounded-box p-2">
             {reviews.map((review) => (
-              <div
-                key={review._id}
-                className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition"
-              >
-                {/* Image */}
-                <div className="flex justify-center mb-4">
-                  <Image
-                    src={review.image}
-                    alt={review.name}
-                    width={600}
-                    height={450}
-                    className="rounded-xl object-cover border-2 border-[#d4af37]"
-                  />
-                </div>
-
-                {/* Stars */}
-                <div className="flex justify-center mb-3 gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar
-                      key={i}
-                      className={`text-lg ${
-                        i < review.rating ? "text-[#d4af37]" : "text-gray-300"
-                      }`}
+              <div key={review._id} className="carousel-item w-[320px]">
+                <div className="w-full rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl">
+                  <div className="mb-4 flex justify-center">
+                    <Image
+                      src={review.image}
+                      alt={review.name}
+                      width={300}
+                      height={200}
+                      className="h-[180px] w-full rounded-xl border-2 border-[#d4af37] object-cover"
                     />
-                  ))}
+                  </div>
+
+                  <div className="mb-3 flex justify-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar
+                        key={i}
+                        className={`text-lg ${
+                          i < review.rating ? "text-[#d4af37]" : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="mb-4 text-sm leading-relaxed text-gray-600">
+                    {review.description}
+                  </p>
+
+                  <h4 className="text-center font-semibold text-[#3d2f1f]">
+                    {review.name}
+                  </h4>
                 </div>
-
-                {/* Description */}
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                  {review.description}
-                </p>
-
-                {/* Name */}
-                <h4 className="font-semibold text-[#3d2f1f]">{review.name}</h4>
               </div>
             ))}
           </div>
