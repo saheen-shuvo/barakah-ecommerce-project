@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import Container from "@/components/shared/Container";
@@ -8,6 +8,7 @@ import SectionTitle from "@/components/shared/SectionTitle";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { pushToDataLayer } from "@/lib/gtm";
 
 export default function CheckoutPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -38,6 +39,29 @@ export default function CheckoutPage() {
     () => totalPrice + shippingCost,
     [totalPrice, shippingCost],
   );
+
+  useEffect(() => {
+    if (cartItems.length === 0) return;
+
+    const alreadyTracked = sessionStorage.getItem("barakah_begin_checkout");
+    if (alreadyTracked) return;
+
+    pushToDataLayer({
+      event: "begin_checkout",
+      ecommerce: {
+        currency: "BDT",
+        value: Number(finalTotal.toFixed(2)),
+        items: cartItems.map((item) => ({
+          item_id: item._id || item.productId || "",
+          item_name: item.name || "",
+          price: Number(item.price || 0),
+          quantity: Number(item.quantity || 1),
+        })),
+      },
+    });
+
+    sessionStorage.setItem("barakah_begin_checkout", "true");
+  }, []);
 
   const onSubmit = async (data) => {
     if (cartItems.length === 0) {
@@ -100,6 +124,13 @@ export default function CheckoutPage() {
       if (!res.ok) {
         throw new Error(result.message || "Failed to place order");
       }
+
+      const orderForTracking = result.data || orderData;
+      localStorage.setItem(
+        "barakah_last_order",
+        JSON.stringify(orderForTracking),
+      );
+
       clearCart();
       reset();
 

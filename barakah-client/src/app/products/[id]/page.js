@@ -2,6 +2,7 @@ import Link from "next/link";
 import ProductCard from "@/components/products/ProductCard";
 import ProductDetailsActions from "../../../components/products/ProductDetailsActions";
 import Image from "next/image";
+import ViewItemTracker from "@/components/tracking/ViewItemTracker";
 
 async function getProducts() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -48,6 +49,7 @@ export default async function ProductDetails({ params }) {
 
   return (
     <main className="bg-[#faf7f0] min-h-screen py-10">
+      <ViewItemTracker product={product} />
       <div className="max-w-7xl mx-auto px-4">
         {/* Breadcrumb */}
         <div className="text-sm text-[#0f2a44]/60 mb-6">

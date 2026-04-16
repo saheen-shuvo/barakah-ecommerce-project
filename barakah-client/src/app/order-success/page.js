@@ -1,7 +1,40 @@
+"use client";
+
 import Link from "next/link";
 import { FaCircleCheck } from "react-icons/fa6";
+import { useEffect } from "react";
+import { pushToDataLayer } from "@/lib/gtm";
 
 export default function OrderSuccessPage() {
+  useEffect(() => {
+    const savedOrder = localStorage.getItem("barakah_last_order");
+    if (!savedOrder || savedOrder === "undefined") return;
+
+    let order;
+    try {
+      order = JSON.parse(savedOrder);
+    } catch (error) {
+      return;
+    }
+
+    pushToDataLayer({
+      event: "purchase",
+      ecommerce: {
+        transaction_id: order._id || order.orderId || "BARAKAH_ORDER",
+        value: Number(order.total || 0),
+        currency: "BDT",
+        items: (order.items || []).map((item) => ({
+          item_id: item.productId || item._id || "",
+          item_name: item.name || "",
+          price: Number(item.price || 0),
+          quantity: Number(item.quantity || 1),
+        })),
+      },
+    });
+
+    localStorage.removeItem("barakah_last_order");
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#f8f6f1] py-16">
       <div className="mx-auto max-w-3xl px-4">
@@ -15,7 +48,8 @@ export default function OrderSuccessPage() {
           </h1>
 
           <p className="mx-auto mt-4 max-w-xl text-lg leading-8 text-[#0f2a44]/70">
-            আপনার অর্ডারের জন্য ধন্যবাদ। আমরা আপনার অর্ডারটি গ্রহণ করেছি এবং শীঘ্রই নিশ্চিত করার জন্য আপনার সাথে যোগাযোগ করব।
+            আপনার অর্ডারের জন্য ধন্যবাদ। আমরা আপনার অর্ডারটি গ্রহণ করেছি এবং
+            শীঘ্রই নিশ্চিত করার জন্য আপনার সাথে যোগাযোগ করব।
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">

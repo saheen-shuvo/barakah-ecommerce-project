@@ -48,7 +48,7 @@ export default async function Reviews() {
                       alt={review.name}
                       width={300}
                       height={200}
-                      className="h-[180px] w-full rounded-xl border-2 border-[#d4af37] object-cover"
+                      className="h-45 w-full rounded-xl border-2 border-[#d4af37] object-cover"
                     />
                   </div>
 

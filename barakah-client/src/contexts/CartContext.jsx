@@ -1,5 +1,6 @@
 "use client";
 
+import { pushToDataLayer } from "@/lib/gtm";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -18,25 +19,42 @@ export function CartProvider({ children }) {
   }, [cartItems]);
 
   const addToCart = (product) => {
-  toast.success("Product added to cart!", {
-    position: "top-right",
-  });
-
-  setCartItems((prev) => {
-    const existingItem = prev.find((item) => item._id === product._id);
     const selectedQuantity = product.quantity || 1;
 
-    if (existingItem) {
-      return prev.map((item) =>
-        item._id === product._id
-          ? { ...item, quantity: item.quantity + selectedQuantity }
-          : item,
-      );
-    }
+    toast.success("Product added to cart!", {
+      position: "top-right",
+    });
 
-    return [...prev, { ...product, quantity: selectedQuantity }];
-  });
-};
+    pushToDataLayer({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "BDT",
+        value: Number(product.price || 0) * Number(selectedQuantity),
+        items: [
+          {
+            item_id: product._id || "",
+            item_name: product.name || "",
+            price: Number(product.price || 0),
+            quantity: Number(selectedQuantity),
+          },
+        ],
+      },
+    });
+
+    setCartItems((prev) => {
+      const existingItem = prev.find((item) => item._id === product._id);
+
+      if (existingItem) {
+        return prev.map((item) =>
+          item._id === product._id
+            ? { ...item, quantity: item.quantity + selectedQuantity }
+            : item,
+        );
+      }
+
+      return [...prev, { ...product, quantity: selectedQuantity }];
+    });
+  };
 
   const removeFromCart = (productId) => {
     toast.success("Product removed from cart!", {

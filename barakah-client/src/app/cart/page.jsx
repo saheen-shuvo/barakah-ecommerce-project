@@ -6,7 +6,8 @@ import { FaTrashAlt } from "react-icons/fa";
 import { useCart } from "@/contexts/CartContext";
 import Container from "@/components/shared/Container";
 import SectionTitle from "@/components/shared/SectionTitle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { pushToDataLayer } from "@/lib/gtm";
 
 export default function CartPage() {
   const [shipping, setShipping] = useState("inside");
@@ -17,6 +18,36 @@ export default function CartPage() {
     decreaseQuantity,
     totalPrice,
   } = useCart();
+
+  useEffect(() => {
+    if (cartItems.length === 0) return;
+
+    const cartSignature = JSON.stringify(
+      cartItems.map((item) => ({
+        id: item._id || item.productId,
+        q: item.quantity,
+      })),
+    );
+
+    const lastTracked = sessionStorage.getItem("barakah_view_cart_signature");
+    if (lastTracked === cartSignature) return;
+
+    pushToDataLayer({
+      event: "view_cart",
+      ecommerce: {
+        currency: "BDT",
+        value: Number(totalPrice || 0),
+        items: cartItems.map((item) => ({
+          item_id: item._id || item.productId || "",
+          item_name: item.name || "",
+          price: Number(item.price || 0),
+          quantity: Number(item.quantity || 1),
+        })),
+      },
+    });
+
+    sessionStorage.setItem("barakah_view_cart_signature", cartSignature);
+  }, [cartItems, totalPrice]);
 
   return (
     <main className="min-h-screen bg-[#f8f6f1] py-12">
