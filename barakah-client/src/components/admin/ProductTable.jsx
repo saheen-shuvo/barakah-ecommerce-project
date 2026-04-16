@@ -209,21 +209,47 @@ export default function ProductTable({
         ))}
       </div>
 
-      <div className="mt-8 flex justify-center">
-        <div className="join">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => onPageChange(page)}
-              className={`join-item btn btn-sm ${
-                currentPage === page
-                  ? "bg-black text-white border-black"
-                  : "btn-ghost"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
+      <div className="mt-8">
+        {/* Mobile pagination */}
+        <div className="flex items-center justify-center gap-2 md:hidden">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="btn btn-sm"
+          >
+            Prev
+          </button>
+
+          <span className="rounded-lg border px-4 py-2 text-sm font-medium">
+            {currentPage} / {totalPages}
+          </span>
+
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="btn btn-sm"
+          >
+            Next
+          </button>
+        </div>
+
+        {/* Desktop pagination */}
+        <div className="hidden justify-center md:flex">
+          <div className="join">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => onPageChange(page)}
+                className={`join-item btn btn-sm ${
+                  currentPage === page
+                    ? "bg-black text-white border-black"
+                    : "btn-ghost"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

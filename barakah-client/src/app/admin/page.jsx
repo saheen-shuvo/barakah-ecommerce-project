@@ -8,10 +8,10 @@ async function getDashboardData() {
   try {
     const [productsRes, ordersRes] = await Promise.allSettled([
       fetch(`${baseUrl}/api/products`, {
-        next: { revalidate: 60 },
+        next: { revalidate: 20 },
       }),
       fetch(`${baseUrl}/api/orders`, {
-        next: { revalidate: 60 },
+        next: { revalidate: 20 },
       }),
     ]);
 
@@ -35,15 +35,17 @@ async function getDashboardData() {
 
     // revenue calculation
     // tries: order.total, order.totalAmount, order.price
-    const totalRevenue = orders.reduce((sum, order) => {
-      const amount =
-        Number(order?.total) ||
-        Number(order?.totalAmount) ||
-        Number(order?.price) ||
-        0;
+    const totalRevenue = orders
+      .filter((order) => order.status === "delivered")
+      .reduce((sum, order) => {
+        const amount =
+          Number(order?.total) ||
+          Number(order?.totalAmount) ||
+          Number(order?.price) ||
+          0;
 
-      return sum + amount;
-    }, 0);
+        return sum + amount;
+      }, 0);
 
     const recentProducts = [...products].slice(0, 5);
     const recentOrders = [...orders].slice(0, 5);
