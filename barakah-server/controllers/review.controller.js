@@ -8,7 +8,6 @@ exports.getAllReviews = async (req, res) => {
     const reviews = await reviewsCollection
       .find({})
       .sort({ createdAt: -1 })
-      .limit(3)
       .toArray();
 
     res.status(200).json({

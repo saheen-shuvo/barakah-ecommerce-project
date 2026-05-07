@@ -17,48 +17,29 @@ export default function ReviewsCarousel({ reviews }) {
       spaceBetween={24}
       slidesPerView={1}
       loop={true}
-      pagination={{ clickable: true }}
+      pagination={{
+        type: "fraction",
+        clickable: true,
+      }}
       breakpoints={{
         640: { slidesPerView: 1 },
         768: { slidesPerView: 2 },
-        1024: { slidesPerView: 3 },
+        1024: { slidesPerView: 4 },
       }}
       className="px-2 md:px-12"
     >
       {reviews.map((review) => (
         <SwiperSlide key={review._id}>
-          <div className="mx-auto max-w-[320px] rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl">
-            
-            <div className="mb-4 flex justify-center">
+          <div className="mx-auto rounded-2xl bg-white  p-6 shadow-md transition hover:shadow-xl">
+            <div className="flex justify-center pb-2">
               <Image
                 src={review.image}
                 alt={review.name}
                 width={300}
                 height={200}
-                className="h-45 w-full rounded-xl border-2 border-[#d4af37] object-cover"
+                className="w-full rounded-xl border-2 border-[#d4af37] object-cover"
               />
             </div>
-
-            <div className="mb-3 flex justify-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={`text-lg ${
-                    i < review.rating
-                      ? "text-[#d4af37]"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-
-            <p className="mb-4 text-sm leading-relaxed text-gray-600">
-              {review.description}
-            </p>
-
-            <h4 className="text-center font-semibold text-[#3d2f1f]">
-              {review.name}
-            </h4>
           </div>
         </SwiperSlide>
       ))}
