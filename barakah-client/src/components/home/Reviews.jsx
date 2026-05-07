@@ -34,9 +34,10 @@ export default async function Reviews() {
     <section className="bg-[#faf7f0] py-16">
       <Container>
         <div className="mx-auto max-w-7xl px-4 text-center">
-          <h2 className="mb-10 text-3xl font-bold text-[#3d2f1f] md:text-4xl">
+          <h2 className="mb-2 text-3xl font-bold text-[#3d2f1f] md:text-4xl">
             What Our Customers Say
           </h2>
+          <p className="text-gray-500 mb-10">Swipe to view all reviews</p>
 
           <ReviewsCarousel reviews={reviews} />
         </div>
