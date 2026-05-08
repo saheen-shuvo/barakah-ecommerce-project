@@ -89,7 +89,7 @@ Base URL is set from client using `NEXT_PUBLIC_API_URL`.
 ### 1) Backend
 
 ```bash
-cd /home/runner/work/barakah-ecommerce-project/barakah-ecommerce-project/barakah-server
+cd barakah-server
 npm install
 npm run dev
 ```
@@ -99,7 +99,7 @@ Backend runs on `http://localhost:8000` by default.
 ### 2) Frontend
 
 ```bash
-cd /home/runner/work/barakah-ecommerce-project/barakah-ecommerce-project/barakah-client
+cd barakah-client
 npm install
 npm run dev
 ```
