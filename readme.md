@@ -1,6 +1,8 @@
 # Barakah E-commerce Project
 
-Barakah is a full-stack e-commerce project for Islamic wall décor products (wall clocks, canvas, wall art, and related items).
+Barakah is a full-stack e-commerce project for Islamic wall decor products (wall clocks, canvas, wall art, and related items).
+
+## Live Link: https://barakahislamic.me
 
 ## Tech Stack
 
@@ -69,50 +71,3 @@ Base URL is set from client using `NEXT_PUBLIC_API_URL`.
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET /api/reviews`
-
-## Environment Variables
-
-### Server (`barakah-server/.env`)
-
-- `MONGODB_URI` (required)
-- `DB_NAME` (optional, default: `Barakah`)
-- `PORT` (optional, default: `8000`)
-
-### Client (`barakah-client/.env.local`)
-
-- `NEXT_PUBLIC_API_URL` (required)
-- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` (required for admin image upload)
-- `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` (required for admin image upload)
-
-## Run Locally
-
-### 1) Backend
-
-```bash
-cd barakah-server
-npm install
-npm run dev
-```
-
-Backend runs on `http://localhost:8000` by default.
-
-### 2) Frontend
-
-```bash
-cd barakah-client
-npm install
-npm run dev
-```
-
-Frontend runs on `http://localhost:3000` by default.
-
-## Build / Lint
-
-From `barakah-client`:
-
-```bash
-npm run lint
-npm run build
-```
-
-> Note: Build can fail in restricted environments if Google Fonts cannot be fetched.
