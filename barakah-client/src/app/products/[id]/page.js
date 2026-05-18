@@ -76,7 +76,7 @@ export default async function ProductDetails({ params }) {
           {/* Info */}
           <div>
             {product.badge && (
-              <span className="inline-block mb-3 px-3 py-1 text-xs bg-[#d4af37] text-white rounded">
+              <span className="inline-block mb-3 px-3 py-1 bg-[#d4af37] text-white rounded">
                 {product.badge}
               </span>
             )}
@@ -99,7 +99,7 @@ export default async function ProductDetails({ params }) {
             </div>
 
             {/* Description */}
-            <p className="mt-6 text-[#0f2a44]/80 leading-relaxed">
+            <p className="mt-6 text-lg text-[#0f2a44]/80 leading-relaxed">
               {product.description}
             </p>
 

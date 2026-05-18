@@ -156,6 +156,8 @@ export default function CartPage() {
                   <span>৳ {totalPrice.toFixed(2)}</span>
                 </div>
 
+                <p className="text-green-600 text-center pb-2">সারা বাংলাদেশে ফ্রি ডেলিভারি !</p>
+
                 <Link
                   href="/checkout"
                   className="block w-full rounded-2xl bg-[#0f2a44] px-6 py-4 text-center font-semibold text-[#f2c94c] transition hover:opacity-95"
