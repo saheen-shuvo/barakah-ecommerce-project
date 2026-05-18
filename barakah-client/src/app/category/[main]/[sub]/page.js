@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProductSearch from "@/components/products/ProductSearch";
+import OfferCountdown from "@/components/products/OfferCountdown";
 
 async function getProducts(main, sub) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -29,8 +30,9 @@ export default async function CategoryPage({ params }) {
   const filteredProducts = await getProducts(main, sub);
 
   return (
-    <main className="bg-[#faf7f0] min-h-screen py-10">
-      <div className="max-w-7xl mx-auto px-4">
+    <main className="bg-[#faf7f0] min-h-screen pb-10">
+      <OfferCountdown></OfferCountdown>
+      <div className="max-w-7xl mx-auto px-4 pt-8">
         {/* Title */}
         <h1 className="text-3xl font-bold mb-6 capitalize">
           {main?.replace("-", " ")}

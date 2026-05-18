@@ -3,6 +3,7 @@ import ProductCard from "@/components/products/ProductCard";
 import ProductDetailsActions from "../../../components/products/ProductDetailsActions";
 import Image from "next/image";
 import ViewItemTracker from "@/components/tracking/ViewItemTracker";
+import OfferCountdown from "@/components/products/OfferCountdown";
 
 async function getProducts() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -48,7 +49,8 @@ export default async function ProductDetails({ params }) {
     .slice(0, 4);
 
   return (
-    <main className="bg-[#faf7f0] min-h-screen py-10">
+    <main className="bg-[#faf7f0] min-h-screen pb-10">
+      <OfferCountdown product={product}/>;
       <ViewItemTracker product={product} />
       <div className="max-w-7xl mx-auto px-4">
         {/* Breadcrumb */}
