@@ -7,6 +7,9 @@ import { pushToDataLayer } from "@/lib/gtm";
 
 export default function OrderSuccessPage() {
   useEffect(() => {
+    const tracking = JSON.parse(
+      localStorage.getItem("barakah_tracking") || "{}",
+    );
     const savedOrder = localStorage.getItem("barakah_last_order");
     if (!savedOrder || savedOrder === "undefined") return;
 
@@ -19,6 +22,17 @@ export default function OrderSuccessPage() {
 
     pushToDataLayer({
       event: "purchase",
+      traffic_source: tracking.utm_source || "direct",
+      traffic_medium: tracking.utm_medium || "",
+      traffic_campaign: tracking.utm_campaign || "",
+      fbclid: tracking.fbclid || "",
+      ttclid: tracking.ttclid || "",
+      gclid: tracking.gclid || "",
+      customer_name: order.customerName,
+      customer_phone: order.phone,
+      customer_address: order.address,
+      shipping_type: order.shippingType,
+      payment_method: order.paymentMethod,
       ecommerce: {
         transaction_id: order._id || order.orderId || "BARAKAH_ORDER",
         value: Number(order.total || 0),

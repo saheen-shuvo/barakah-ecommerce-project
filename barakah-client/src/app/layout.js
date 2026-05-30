@@ -7,6 +7,7 @@ import { Hind_Siliguri } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import Script from "next/script";
 import "react-toastify/dist/ReactToastify.css";
+import UTMTracker from "@/components/tracking/UTMTracker";
 
 export const metadata = {
   title: "Barakah | Islamic Wall Clock & Canvas",
@@ -94,6 +95,7 @@ export default function RootLayout({ children }) {
           theme="light"
         />
 
+        <UTMTracker />
         <CartProvider>
           <AuthProvider>
             <Navbar />
