@@ -86,6 +86,10 @@ export default function CheckoutPage() {
     const roundedShippingCost = Number(shippingCost.toFixed(2));
     const roundedTotal = Number(finalTotal.toFixed(2));
 
+    const tracking = JSON.parse(
+      localStorage.getItem("barakah_tracking") || "{}",
+    );
+
     const orderData = {
       customerName: data.name,
       phone: data.phone,
@@ -107,6 +111,11 @@ export default function CheckoutPage() {
       })),
       subtotal: roundedSubtotal,
       total: roundedTotal,
+      source: {
+        traffic_source: tracking.utm_source || "direct",
+        traffic_medium: tracking.utm_medium || "",
+        traffic_campaign: tracking.utm_campaign || "",
+      },
     };
 
     try {
@@ -171,7 +180,7 @@ export default function CheckoutPage() {
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="rounded-2xl bg-white p-8">
-            <LoadingAnimation width={100} height={100} message="আপনার অর্ডার প্রক্রিয়া করা হচ্ছে..." />
+            <LoadingAnimation width={300} height={300}/>
           </div>
         </div>
       )}

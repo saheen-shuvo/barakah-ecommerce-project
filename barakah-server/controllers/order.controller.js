@@ -18,6 +18,7 @@ exports.createOrder = async (req, res) => {
       items,
       subtotal,
       total,
+      source,
     } = req.body;
 
     if (
@@ -50,6 +51,11 @@ exports.createOrder = async (req, res) => {
       createdAt: new Date(),
       paymentMethod,
       accountLast4,
+      source: source || {
+        traffic_source: "direct",
+        traffic_medium: "",
+        traffic_campaign: "",
+      },
     };
 
     const result = await ordersCollection.insertOne(orderData);

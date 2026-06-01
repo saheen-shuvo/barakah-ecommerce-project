@@ -112,7 +112,11 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-[#e5dccf] p-6 flex justify-center py-12">
-        <LoadingAnimation width={300} height={300} message="Loading orders..." />
+        <LoadingAnimation
+          width={300}
+          height={300}
+          message="Loading orders..."
+        />
       </div>
     );
   }
@@ -225,8 +229,15 @@ export default function OrdersPage() {
 
                       <td>
                         {order.createdAt
-                          ? new Date(order.createdAt).toLocaleDateString()
-                          : "—"}
+                          ? new Date(order.createdAt).toLocaleString("en-BD", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })
+                          : "--"}
                       </td>
 
                       <td>
@@ -309,7 +320,14 @@ export default function OrdersPage() {
                   <p>
                     <span className="font-semibold">Date:</span>{" "}
                     {order.createdAt
-                      ? new Date(order.createdAt).toLocaleDateString()
+                      ? new Date(order.createdAt).toLocaleString("en-BD", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
                       : "—"}
                   </p>
 
@@ -400,6 +418,30 @@ export default function OrdersPage() {
                         <span className="font-semibold">Notes:</span>{" "}
                         {selectedOrder.notes}
                       </p>
+                    )}
+
+                    {selectedOrder.source && (
+                      <>
+                        <div className="border-t border-[#e5dccf] pt-2 mt-2">
+                          <p className="font-semibold mb-2">Order Source:</p>
+                          <p>
+                            <span className="font-medium">Source:</span>{" "}
+                            {selectedOrder.source.traffic_source || "direct"}
+                          </p>
+                          {selectedOrder.source.traffic_medium && (
+                            <p>
+                              <span className="font-medium">Medium:</span>{" "}
+                              {selectedOrder.source.traffic_medium}
+                            </p>
+                          )}
+                          {selectedOrder.source.traffic_campaign && (
+                            <p>
+                              <span className="font-medium">Campaign:</span>{" "}
+                              {selectedOrder.source.traffic_campaign}
+                            </p>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>
