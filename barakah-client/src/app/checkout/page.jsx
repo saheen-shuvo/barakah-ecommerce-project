@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { pushToDataLayer } from "@/lib/gtm";
+import LoadingAnimation from "@/components/shared/LoadingAnimation";
 
 export default function CheckoutPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -167,6 +168,13 @@ export default function CheckoutPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f6f1] py-12">
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="rounded-2xl bg-white p-8">
+            <LoadingAnimation width={100} height={100} message="আপনার অর্ডার প্রক্রিয়া করা হচ্ছে..." />
+          </div>
+        </div>
+      )}
       <Container>
         <div>
           <SectionTitle title="Checkout" />

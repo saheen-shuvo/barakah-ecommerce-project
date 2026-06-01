@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ProductTable from "@/components/admin/ProductTable";
+import LoadingAnimation from "@/components/shared/LoadingAnimation";
 
 export default function AllProductsPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -63,7 +64,9 @@ export default function AllProductsPage() {
       <h2 className="text-2xl font-bold mb-6">All Products</h2>
 
       {loading ? (
-        <p className="text-gray-500">Loading...</p>
+        <div className="flex justify-center py-12 ">
+          <LoadingAnimation width={300} height={300}/>
+        </div>
       ) : (
         <ProductTable
           initialProducts={products}

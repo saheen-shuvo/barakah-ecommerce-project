@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
+import LoadingAnimation from "@/components/shared/LoadingAnimation";
 
 export default function OrdersPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -110,8 +111,8 @@ export default function OrdersPage() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-[#e5dccf] p-6">
-        <p className="text-[#3d2f1f]">Loading orders...</p>
+      <div className="bg-white rounded-2xl border border-[#e5dccf] p-6 flex justify-center py-12">
+        <LoadingAnimation width={300} height={300} message="Loading orders..." />
       </div>
     );
   }
