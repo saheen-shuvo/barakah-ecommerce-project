@@ -146,6 +146,53 @@ exports.getOrders = async (req, res) => {
   }
 };
 
+exports.getOrderStats = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const now = new Date();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const last7Days = new Date();
+    last7Days.setDate(now.getDate() - 7);
+
+    const last30Days = new Date();
+    last30Days.setDate(now.getDate() - 30);
+
+    const [totalOrders, todayOrders, last7DaysOrders, last30DaysOrders] =
+      await Promise.all([
+        ordersCollection.countDocuments(),
+        ordersCollection.countDocuments({
+          createdAt: { $gte: today },
+        }),
+        ordersCollection.countDocuments({
+          createdAt: { $gte: last7Days },
+        }),
+        ordersCollection.countDocuments({
+          createdAt: { $gte: last30Days },
+        }),
+      ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalOrders,
+        todayOrders,
+        last7DaysOrders,
+        last30DaysOrders,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 exports.markOrderDelivered = async (req, res) => {
   try {
     const db = await connectDB();

@@ -6,17 +6,31 @@ async function getDashboardData() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   try {
-    const [productsRes, ordersRes] = await Promise.allSettled([
+    const [productsRes, ordersRes, statsRes] = await Promise.allSettled([
       fetch(`${baseUrl}/api/products`, {
         next: { revalidate: 20 },
       }),
       fetch(`${baseUrl}/api/orders`, {
         next: { revalidate: 20 },
       }),
+      fetch(`${baseUrl}/api/orders/stats`, {
+        next: { revalidate: 20 },
+      }),
     ]);
 
     let products = [];
     let orders = [];
+    let stats = {
+      totalOrders: 0,
+      todayOrders: 0,
+      last7DaysOrders: 0,
+      last30DaysOrders: 0,
+    };
+
+    if (statsRes.status === "fulfilled" && statsRes.value.ok) {
+      const statsJson = await statsRes.value.json();
+      stats = statsJson.data;
+    }
 
     // products
     if (productsRes.status === "fulfilled" && productsRes.value.ok) {
@@ -31,29 +45,16 @@ async function getDashboardData() {
     }
 
     const totalProducts = products.length;
-    const totalOrders = orders.length;
-
-    // revenue calculation
-    // tries: order.total, order.totalAmount, order.price
-    const totalRevenue = orders
-      .filter((order) => order.status === "delivered")
-      .reduce((sum, order) => {
-        const amount =
-          Number(order?.total) ||
-          Number(order?.totalAmount) ||
-          Number(order?.price) ||
-          0;
-
-        return sum + amount;
-      }, 0);
 
     const recentProducts = [...products].slice(0, 5);
     const recentOrders = [...orders].slice(0, 5);
 
     return {
       totalProducts,
-      totalOrders,
-      totalRevenue,
+      totalOrders: stats.totalOrders,
+      todayOrders: stats.todayOrders,
+      last7DaysOrders: stats.last7DaysOrders,
+      last30DaysOrders: stats.last30DaysOrders,
       recentProducts,
       recentOrders,
     };
@@ -61,7 +62,6 @@ async function getDashboardData() {
     return {
       totalProducts: 0,
       totalOrders: 0,
-      totalRevenue: 0,
       recentProducts: [],
       recentOrders: [],
     };
@@ -72,7 +72,9 @@ export default async function AdminHomePage() {
   const {
     totalProducts,
     totalOrders,
-    totalRevenue,
+    todayOrders,
+    last7DaysOrders,
+    last30DaysOrders,
     recentProducts,
     recentOrders,
   } = await getDashboardData();
@@ -103,10 +105,25 @@ export default async function AdminHomePage() {
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-500">Revenue</p>
-            <h3 className="text-3xl font-bold mt-2">
-              ৳ {totalRevenue.toLocaleString()}
-            </h3>
+            <p className="text-sm text-gray-500">Order Analytics</p>
+
+            <div className="mt-3 space-y-2">
+
+              <div className="flex justify-between">
+                <span>Today</span>
+                <span className="font-semibold">{todayOrders}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Last 7 Days</span>
+                <span className="font-semibold">{last7DaysOrders}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Last 30 Days</span>
+                <span className="font-semibold">{last30DaysOrders}</span>
+              </div>
+            </div>
           </div>
         </div>
 
