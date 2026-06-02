@@ -70,6 +70,24 @@ export default function ProductTable({
     return <p className="text-gray-500">No products found.</p>;
   }
 
+  const getPageNumbers = (currentPage, totalPages) => {
+    const delta = 2;
+    const range = [];
+
+    const left = Math.max(1, currentPage - delta);
+    const right = Math.min(totalPages, currentPage + delta);
+
+    for (let i = left; i <= right; i++) range.push(i);
+
+    if (left > 2) range.unshift("...");
+    if (left > 1) range.unshift(1);
+
+    if (right < totalPages - 1) range.push("...");
+    if (right < totalPages) range.push(totalPages);
+
+    return range;
+  };
+
   return (
     <div>
       <div className="overflow-x-auto hidden md:block">
@@ -236,19 +254,44 @@ export default function ProductTable({
         {/* Desktop pagination */}
         <div className="hidden justify-center md:flex">
           <div className="join">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => onPageChange(page)}
-                className={`join-item btn btn-sm ${
-                  currentPage === page
-                    ? "bg-black text-white border-black"
-                    : "btn-ghost"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            <button
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="join-item btn btn-sm"
+            >
+              «
+            </button>
+
+            {getPageNumbers(currentPage, totalPages).map((page, i) =>
+              page === "..." ? (
+                <button
+                  key={`ellipsis-${i}`}
+                  className="join-item btn btn-sm btn-disabled"
+                >
+                  ...
+                </button>
+              ) : (
+                <button
+                  key={page}
+                  onClick={() => onPageChange(page)}
+                  className={`join-item btn btn-sm ${
+                    currentPage === page
+                      ? "bg-black text-white border-black"
+                      : "btn-ghost"
+                  }`}
+                >
+                  {page}
+                </button>
+              ),
+            )}
+
+            <button
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="join-item btn btn-sm"
+            >
+              »
+            </button>
           </div>
         </div>
       </div>
