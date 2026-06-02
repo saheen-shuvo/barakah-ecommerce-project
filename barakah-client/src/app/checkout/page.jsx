@@ -180,7 +180,7 @@ export default function CheckoutPage() {
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="rounded-2xl bg-white p-8">
-            <LoadingAnimation width={300} height={300}/>
+            <LoadingAnimation width={300} height={300} />
           </div>
         </div>
       )}
@@ -445,7 +445,9 @@ export default function CheckoutPage() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-[#0f2a44]/70">ডেলিভারি</span>
-                  <span className="text-green-600">৳ {shippingCost.toFixed(2)}</span>
+                  <span className="text-green-600">
+                    ৳ {shippingCost.toFixed(2)}
+                  </span>
                 </div>
 
                 <div className="border-t border-[#0f2a44]/10 pt-4">

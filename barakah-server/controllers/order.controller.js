@@ -1,5 +1,33 @@
 const connectDB = require("../config/db");
 const { ObjectId } = require("mongodb");
+const {
+  transformOrderToSteadfast,
+  callSteadfast,
+} = require("../utils/steadfast");
+
+const extractSteadfastShipmentDetails = (steadfastResponse) => {
+  const shipment = steadfastResponse?.consignment || steadfastResponse || {};
+
+  const consignmentId =
+    shipment.consignment_id ||
+    shipment.consignmentId ||
+    shipment.id ||
+    shipment.tracking_code ||
+    shipment.trackingCode ||
+    null;
+
+  const trackingUrl =
+    shipment.tracking_link ||
+    shipment.tracking_url ||
+    shipment.trackingUrl ||
+    (consignmentId ? `https://portal.packzy.com/api/v1/${consignmentId}` : null);
+
+  return {
+    consignmentId,
+    trackingUrl,
+    shipment,
+  };
+};
 
 exports.createOrder = async (req, res) => {
   try {
@@ -141,3 +169,88 @@ exports.markOrderDelivered = async (req, res) => {
     });
   }
 };
+
+exports.sendToSteadfast = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+    const { id } = req.params;
+
+    const order = await ordersCollection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.steadfast && order.steadfast.consignmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "This order has already been sent to Steadfast",
+      });
+    }
+
+    if (
+      !order.customerName ||
+      !order.phone ||
+      !order.address ||
+      order.total == null ||
+      !order.items ||
+      order.items.length === 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required order information. Ensure customer details and items are present.",
+      });
+    }
+
+    const payload = transformOrderToSteadfast(order);
+    const steadfastResponse = await callSteadfast(payload);
+
+    const { consignmentId, trackingUrl, shipment } =
+      extractSteadfastShipmentDetails(steadfastResponse);
+
+    if (!consignmentId) {
+      throw new Error(
+        "Steadfast shipment was created but no consignment ID was returned."
+      );
+    }
+
+    const updateResult = await ordersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          steadfast: {
+            consignmentId: consignmentId,
+            status: "sent",
+            trackingUrl: trackingUrl,
+            sentAt: new Date(),
+            courierName: "Steadfast",
+            response: shipment,
+          },
+        },
+      },
+    );
+
+    const updatedOrder = await ordersCollection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    res.json({
+      success: true,
+      message: "Order sent to Steadfast successfully",
+      data: updatedOrder.steadfast,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+

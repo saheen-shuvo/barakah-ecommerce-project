@@ -10,6 +10,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState(null);
+  const [steadfastLoadingId, setStedastLoadingId] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -101,6 +102,83 @@ export default function OrdersPage() {
       Swal.fire("Error", "Something went wrong!", "error");
     } finally {
       setLoadingId(null);
+    }
+  };
+
+  const handleSendToSteadfast = async (id) => {
+    if (steadfastLoadingId === id) return;
+    const result = await Swal.fire({
+      title: "Send to Steadfast?",
+      text: "This will create a shipment in Steadfast. You cannot undo this action.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d4af37",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, send it!",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setStedastLoadingId(id);
+
+      const res = await fetch(`${baseUrl}/api/orders/${id}/steadfast`, {
+        method: "PATCH",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Request failed");
+      }
+
+      if (data.success) {
+        const updatedOrders = orders.map((order) =>
+          order._id === id
+            ? {
+                ...order,
+                steadfast: data.data,
+              }
+            : order,
+        );
+        setOrders(updatedOrders);
+
+        Swal.fire({
+          icon: "success",
+          title: "Sent to Steadfast!",
+          html: `<div class="text-left">
+            <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
+            ${
+              data.data.trackingUrl
+                ? `<p><a href="${data.data.trackingUrl}" target="_blank" class="text-[#d4af37] underline">View Tracking</a></p>`
+                : ""
+            }
+          </div>`,
+          confirmButtonColor: "#d4af37",
+        });
+
+        if (selectedOrder?._id === id) {
+          setSelectedOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  steadfast: data.data,
+                }
+              : null,
+          );
+        }
+      } else {
+        Swal.fire(
+          "Error",
+          data.message || "Failed to send to Steadfast!",
+          "error",
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", error.message || "Something went wrong!", "error");
+    } finally {
+      setStedastLoadingId(null);
     }
   };
 
@@ -507,6 +585,49 @@ export default function OrdersPage() {
                     <p className="text-base font-bold text-[#3d2f1f]">
                       Total: ৳ {selectedOrder.total || 0}
                     </p>
+
+                    {selectedOrder.steadfast && (
+                      <div className="border-t border-[#e5dccf] pt-3 mt-3">
+                        <p className="font-semibold mb-2">
+                          Steadfast Tracking:
+                        </p>
+                        <p>
+                          <span className="font-medium">Status:</span>{" "}
+                          <span className="text-[#d4af37]">Sent</span>
+                        </p>
+                        <p>
+                          <span className="font-medium">Consignment ID:</span>{" "}
+                          {selectedOrder.steadfast.consignmentId}
+                        </p>
+                        {selectedOrder.steadfast.trackingUrl && (
+                          <p>
+                            <a
+                              href={selectedOrder.steadfast.trackingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-[#d4af37] underline hover:text-[#c39d2f]"
+                            >
+                              View Tracking
+                            </a>
+                          </p>
+                        )}
+                        {selectedOrder.steadfast.sentAt && (
+                          <p>
+                            <span className="font-medium">Sent at:</span>{" "}
+                            {new Date(
+                              selectedOrder.steadfast.sentAt,
+                            ).toLocaleString("en-BD", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -556,7 +677,27 @@ export default function OrdersPage() {
               </div>
 
               {/* Footer Action */}
-              <div className="flex justify-end">
+              <div className="flex gap-2 justify-end">
+                {selectedOrder.steadfast &&
+                selectedOrder.steadfast.consignmentId ? (
+                  <button
+                    className="btn btn-sm cursor-not-allowed"
+                    disabled
+                  >
+                    Sent to Steadfast
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleSendToSteadfast(selectedOrder._id)}
+                    className="btn btn-sm bg-[#01B795] text-white border-none hover:bg-[#01B795]"
+                    disabled={steadfastLoadingId === selectedOrder._id}
+                  >
+                    {steadfastLoadingId === selectedOrder._id
+                      ? "Sending..."
+                      : "Send To Steadfast"}
+                  </button>
+                )}
+
                 {selectedOrder.status === "delivered" ? (
                   <button className="btn btn-sm" disabled>
                     Delivered
