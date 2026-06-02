@@ -185,6 +185,51 @@ export default function OrdersPage() {
     }
   };
 
+  const handleCancelOrder = async (id) => {
+    const result = await Swal.fire({
+      title: "Cancel Order?",
+      text: "This order will be marked as cancelled.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, cancel it",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await fetch(`${baseUrl}/api/orders/${id}/cancel`, {
+        method: "PATCH",
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setOrders((prev) =>
+          prev.map((order) =>
+            order._id === id ? { ...order, status: "cancelled" } : order,
+          ),
+        );
+
+        if (selectedOrder?._id === id) {
+          setSelectedOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "cancelled",
+                }
+              : null,
+          );
+        }
+
+        Swal.fire("Cancelled!", "Order marked as cancelled.", "success");
+      }
+    } catch (error) {
+      Swal.fire("Error", "Failed to cancel order.", "error");
+    }
+  };
+
   const handleSendToSteadfast = async (id) => {
     if (steadfastLoadingId === id) return;
     const result = await Swal.fire({
@@ -343,6 +388,19 @@ export default function OrdersPage() {
             >
               Delivered
             </button>
+
+            <button
+              onClick={() => {
+                handleFilterChange("cancelled");
+              }}
+              className={`btn btn-sm ${
+                statusFilter === "cancelled"
+                  ? "bg-[#d4af37] text-white border-[#d4af37]"
+                  : "bg-white text-[#3d2f1f] border-[#e5dccf]"
+              }`}
+            >
+              Cancelled
+            </button>
           </div>
         </div>
       </div>
@@ -423,12 +481,16 @@ export default function OrdersPage() {
                             onClick={() => setSelectedOrder(order)}
                             className="btn btn-sm bg-white text-[#3d2f1f] border border-[#d4af37] hover:bg-[#faf7f0]"
                           >
-                            View Order
+                            View
                           </button>
 
                           {order.status === "delivered" ? (
                             <button className="btn btn-sm" disabled>
                               Delivered
+                            </button>
+                          ) : order.status === "cancelled" ? (
+                            <button className="btn btn-sm" disabled>
+                              Cancelled
                             </button>
                           ) : (
                             <button
@@ -438,7 +500,7 @@ export default function OrdersPage() {
                             >
                               {loadingId === order._id
                                 ? "Updating..."
-                                : "Mark Delivered"}
+                                : "Deliver"}
                             </button>
                           )}
                         </div>
@@ -525,13 +587,17 @@ export default function OrdersPage() {
                   </button>
 
                   {order.status === "delivered" ? (
-                    <button className="btn btn-sm w-full text-xs" disabled>
+                    <button className="btn btn-sm" disabled>
                       Delivered
+                    </button>
+                  ) : order.status === "cancelled" ? (
+                    <button className="btn btn-sm" disabled>
+                      Cancelled
                     </button>
                   ) : (
                     <button
                       onClick={() => handleMarkDelivered(order._id)}
-                      className="btn btn-sm w-full bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
+                      className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
                       disabled={loadingId === order._id}
                     >
                       {loadingId === order._id
@@ -614,8 +680,14 @@ export default function OrdersPage() {
         </>
       )}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <div
+            className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-[#e5dccf] p-5">
               <div>
                 <h2 className="text-xl font-bold text-[#3d2f1f]">
@@ -701,7 +773,9 @@ export default function OrdersPage() {
                       <span className="font-semibold">Status:</span>{" "}
                       {selectedOrder.status === "delivered"
                         ? "Delivered"
-                        : "Pending"}
+                        : selectedOrder.status === "cancelled"
+                          ? "Cancelled"
+                          : "Pending"}
                     </p>
 
                     <p>
@@ -845,36 +919,38 @@ export default function OrdersPage() {
 
               {/* Footer Action */}
               <div className="flex gap-2 justify-end">
-                {selectedOrder.steadfast &&
-                selectedOrder.steadfast.consignmentId ? (
-                  <button className="btn btn-sm cursor-not-allowed" disabled>
-                    Sent to Steadfast
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleSendToSteadfast(selectedOrder._id)}
-                    className="btn btn-sm bg-[#01B795] text-white border-none hover:bg-[#01B795]"
-                    disabled={steadfastLoadingId === selectedOrder._id}
-                  >
-                    {steadfastLoadingId === selectedOrder._id
-                      ? "Sending..."
-                      : "Send To Steadfast"}
-                  </button>
-                )}
+                {selectedOrder.status !== "delivered" &&
+                  selectedOrder.status !== "cancelled" &&
+                  (selectedOrder.steadfast?.consignmentId ? (
+                    <button className="btn btn-sm cursor-not-allowed" disabled>
+                      Sent to Steadfast
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleSendToSteadfast(selectedOrder._id)}
+                      className="btn btn-sm bg-[#01B795] text-white border-none hover:bg-[#01B795]"
+                      disabled={steadfastLoadingId === selectedOrder._id}
+                    >
+                      {steadfastLoadingId === selectedOrder._id
+                        ? "Sending..."
+                        : "Send To Steadfast"}
+                    </button>
+                  ))}
 
-                {selectedOrder.status === "delivered" ? (
+                {selectedOrder.status === "cancelled" ? (
+                  <button className="btn btn-sm" disabled>
+                    Cancelled
+                  </button>
+                ) : selectedOrder.status === "delivered" ? (
                   <button className="btn btn-sm" disabled>
                     Delivered
                   </button>
                 ) : (
                   <button
-                    onClick={() => handleMarkDelivered(selectedOrder._id)}
-                    className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
-                    disabled={loadingId === selectedOrder._id}
+                    onClick={() => handleCancelOrder(selectedOrder._id)}
+                    className="btn btn-sm bg-red-600 text-white border-none hover:bg-red-700"
                   >
-                    {loadingId === selectedOrder._id
-                      ? "Updating..."
-                      : "Mark Delivered"}
+                    Cancel Order
                   </button>
                 )}
               </div>
