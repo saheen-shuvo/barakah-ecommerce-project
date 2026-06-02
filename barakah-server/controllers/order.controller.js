@@ -20,7 +20,9 @@ const extractSteadfastShipmentDetails = (steadfastResponse) => {
     shipment.tracking_link ||
     shipment.tracking_url ||
     shipment.trackingUrl ||
-    (consignmentId ? `https://portal.packzy.com/api/v1/${consignmentId}` : null);
+    (consignmentId
+      ? `https://portal.packzy.com/api/v1/${consignmentId}`
+      : null);
 
   return {
     consignmentId,
@@ -106,14 +108,35 @@ exports.getOrders = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
 
+    const { page, limit, status } = req.query;
+    const query = {};
+
+    if (status && status !== "all") {
+      query.status = status;
+    }
+
+    const pageNumber = Math.max(Number(page) || 1, 1);
+    const limitNumber = Math.min(Number(limit) || 50, 100);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const total = await ordersCollection.countDocuments(query);
+
     const orders = await ordersCollection
-      .find()
+      .find(query)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber)
       .toArray();
 
     res.json({
       success: true,
       data: orders,
+      pagination: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -217,7 +240,7 @@ exports.sendToSteadfast = async (req, res) => {
 
     if (!consignmentId) {
       throw new Error(
-        "Steadfast shipment was created but no consignment ID was returned."
+        "Steadfast shipment was created but no consignment ID was returned.",
       );
     }
 
@@ -253,4 +276,3 @@ exports.sendToSteadfast = async (req, res) => {
     });
   }
 };
-

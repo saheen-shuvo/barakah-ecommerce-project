@@ -10,14 +10,14 @@ export default function AllProductsPage() {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [loading, setLoading] = useState(true);
 
   const getProducts = async (page = 1) => {
     try {
       setLoading(true);
 
-      const res = await fetch(`${baseUrl}/api/products?page=${page}&limit=20`, {
+      const res = await fetch(`${baseUrl}/api/products?page=${page}&limit=50`, {
         cache: "no-store",
       });
 
@@ -25,7 +25,7 @@ export default function AllProductsPage() {
         setProducts([]);
         setCurrentPage(1);
         setTotalPages(1);
-        setItemsPerPage(20);
+        setItemsPerPage(50);
         return;
       }
 
@@ -34,12 +34,12 @@ export default function AllProductsPage() {
       setProducts(result?.data || []);
       setCurrentPage(result?.pagination?.page || page);
       setTotalPages(result?.pagination?.totalPages || 1);
-      setItemsPerPage(result?.pagination?.limit || 20);
+      setItemsPerPage(result?.pagination?.limit || 50);
     } catch (error) {
       setProducts([]);
       setCurrentPage(1);
       setTotalPages(1);
-      setItemsPerPage(20);
+      setItemsPerPage(50);
     } finally {
       setLoading(false);
     }

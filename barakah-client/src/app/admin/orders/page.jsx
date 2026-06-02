@@ -1,44 +1,128 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import LoadingAnimation from "@/components/shared/LoadingAnimation";
 
 export default function OrdersPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const [orders, setOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState(null);
   const [steadfastLoadingId, setStedastLoadingId] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    fetchOrders();
+    const params = new URLSearchParams(window.location.search);
+    const page = Number(params.get("page")) || 1;
+    const status = params.get("status") || "all";
+
+    setCurrentPage(page);
+    setStatusFilter(status);
+    setIsReady(true);
   }, []);
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
+  useEffect(() => {
+    if (!isReady) return;
 
-      const res = await fetch(`${baseUrl}/api/orders`, {
-        next: { revalidate: 60 },
-      });
+    const controller = new AbortController();
 
-      const data = await res.json();
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
 
-      if (data.success) {
-        setOrders(data.data || []);
-      } else {
-        setOrders([]);
+        const params = new URLSearchParams({
+          page: String(currentPage),
+          limit: String(itemsPerPage),
+        });
+
+        if (statusFilter !== "all") {
+          params.set("status", statusFilter);
+        }
+
+        const res = await fetch(`${baseUrl}/api/orders?${params.toString()}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          setOrders([]);
+          setTotalPages(1);
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          setOrders(data.data || []);
+          setCurrentPage(data?.pagination?.page || currentPage);
+          setTotalPages(data?.pagination?.totalPages || 1);
+          setItemsPerPage(data?.pagination?.limit || 50);
+        } else {
+          setOrders([]);
+          setTotalPages(1);
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error(error);
+          setOrders([]);
+          setTotalPages(1);
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-      setOrders([]);
-    } finally {
-      setLoading(false);
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const page = Number(params.get("page")) || 1;
+    const status = params.get("status") || "all";
+
+    if (page !== currentPage) {
+      setCurrentPage(page);
+      return;
     }
+
+    if (status !== statusFilter) {
+      setStatusFilter(status);
+      return;
+    }
+
+    fetchOrders();
+
+    return () => controller.abort();
+  }, [baseUrl, currentPage, itemsPerPage, isReady, statusFilter]);
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page);
+
+    if (statusFilter !== "all") {
+      params.set("status", statusFilter);
+    }
+
+    window.history.pushState({}, "", `?${params.toString()}`);
+    setCurrentPage(page);
+  };
+
+  const handleFilterChange = (nextStatus) => {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+
+    if (nextStatus !== "all") {
+      params.set("status", nextStatus);
+    }
+
+    window.history.pushState({}, "", `?${params.toString()}`);
+    setStatusFilter(nextStatus);
+    setCurrentPage(1);
   };
 
   const handleMarkDelivered = async (id) => {
@@ -65,15 +149,7 @@ export default function OrdersPage() {
 
       if (data.success) {
         setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order._id === id
-              ? {
-                  ...order,
-                  status: "delivered",
-                  deliveredAt: new Date().toISOString(),
-                }
-              : order,
-          ),
+          prevOrders.filter((order) => order._id !== id),
         );
 
         Swal.fire({
@@ -93,6 +169,10 @@ export default function OrdersPage() {
                 }
               : null,
           );
+        }
+
+        if (statusFilter === "pending") {
+          setTotalPages((prev) => Math.max(prev, 1));
         }
       } else {
         Swal.fire("Error", "Failed to update order!", "error");
@@ -182,11 +262,6 @@ export default function OrdersPage() {
     }
   };
 
-  const filteredOrders = useMemo(() => {
-    if (statusFilter === "all") return orders;
-    return orders.filter((order) => order.status === statusFilter);
-  }, [orders, statusFilter]);
-
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-[#e5dccf] p-6 flex justify-center py-12">
@@ -198,6 +273,24 @@ export default function OrdersPage() {
       </div>
     );
   }
+
+  const getPageNumbers = (currentPage, totalPages) => {
+    const delta = 2;
+    const range = [];
+
+    const left = Math.max(1, currentPage - delta);
+    const right = Math.min(totalPages, currentPage + delta);
+
+    for (let i = left; i <= right; i++) range.push(i);
+
+    if (left > 2) range.unshift("...");
+    if (left > 1) range.unshift(1);
+
+    if (right < totalPages - 1) range.push("...");
+    if (right < totalPages) range.push(totalPages);
+
+    return range;
+  };
 
   return (
     <div className="space-y-6">
@@ -213,7 +306,9 @@ export default function OrdersPage() {
 
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setStatusFilter("all")}
+              onClick={() => {
+                handleFilterChange("all");
+              }}
               className={`btn btn-sm ${
                 statusFilter === "all"
                   ? "bg-[#d4af37] text-white border-[#d4af37]"
@@ -224,7 +319,9 @@ export default function OrdersPage() {
             </button>
 
             <button
-              onClick={() => setStatusFilter("pending")}
+              onClick={() => {
+                handleFilterChange("pending");
+              }}
               className={`btn btn-sm ${
                 statusFilter === "pending"
                   ? "bg-[#d4af37] text-white border-[#d4af37]"
@@ -235,7 +332,9 @@ export default function OrdersPage() {
             </button>
 
             <button
-              onClick={() => setStatusFilter("delivered")}
+              onClick={() => {
+                handleFilterChange("delivered");
+              }}
               className={`btn btn-sm ${
                 statusFilter === "delivered"
                   ? "bg-[#d4af37] text-white border-[#d4af37]"
@@ -249,7 +348,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Empty State */}
-      {filteredOrders.length === 0 ? (
+      {orders.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#e5dccf] p-6">
           <p className="text-[#7a6a58]">No orders found.</p>
         </div>
@@ -273,7 +372,7 @@ export default function OrdersPage() {
                 </thead>
 
                 <tbody>
-                  {filteredOrders.map((order, index) => (
+                  {orders.map((order, index) => (
                     <tr key={order._id}>
                       <td>{index + 1}</td>
 
@@ -353,7 +452,7 @@ export default function OrdersPage() {
 
           {/* Mobile Cards */}
           <div className="grid gap-4 lg:hidden">
-            {filteredOrders.map((order, index) => (
+            {orders.map((order, index) => (
               <div
                 key={order._id}
                 className="bg-white rounded-2xl border border-[#e5dccf] p-4 shadow-sm"
@@ -443,6 +542,74 @@ export default function OrdersPage() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="mt-8">
+            {/* Mobile pagination */}
+            <div className="flex items-center justify-center gap-2 md:hidden">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="btn btn-sm"
+              >
+                Prev
+              </button>
+
+              <span className="rounded-lg border px-4 py-2 text-sm font-medium">
+                {currentPage} / {totalPages}
+              </span>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="btn btn-sm"
+              >
+                Next
+              </button>
+            </div>
+
+            {/* Desktop pagination */}
+            <div className="hidden justify-center md:flex">
+              <div className="join">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="join-item btn btn-sm"
+                >
+                  «
+                </button>
+
+                {getPageNumbers(currentPage, totalPages).map((page, i) =>
+                  page === "..." ? (
+                    <button
+                      key={`ellipsis-${i}`}
+                      className="join-item btn btn-sm btn-disabled"
+                    >
+                      ...
+                    </button>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`join-item btn btn-sm ${
+                        currentPage === page
+                          ? "bg-black text-white border-black"
+                          : "btn-ghost"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="join-item btn btn-sm"
+                >
+                  »
+                </button>
+              </div>
+            </div>
           </div>
         </>
       )}
@@ -680,10 +847,7 @@ export default function OrdersPage() {
               <div className="flex gap-2 justify-end">
                 {selectedOrder.steadfast &&
                 selectedOrder.steadfast.consignmentId ? (
-                  <button
-                    className="btn btn-sm cursor-not-allowed"
-                    disabled
-                  >
+                  <button className="btn btn-sm cursor-not-allowed" disabled>
                     Sent to Steadfast
                   </button>
                 ) : (

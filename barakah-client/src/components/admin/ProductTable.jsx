@@ -10,7 +10,7 @@ export default function ProductTable({
   initialProducts,
   currentPage = 1,
   totalPages = 1,
-  itemsPerPage = 20,
+  itemsPerPage = 50,
   onPageChange,
 }) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
