@@ -210,7 +210,10 @@ exports.getDeliveredAnalytics = async (req, res) => {
       ordersCollection
         .find({ status: "delivered", deliveredAt: dateFilter })
         .toArray(),
-      ordersCollection.countDocuments({ status: "cancelled", cancelledAt: dateFilter }), 
+      ordersCollection.countDocuments({
+        status: "cancelled",
+        cancelledAt: dateFilter,
+      }),
     ]);
 
     const totalOrders = deliveredOrders.length;
@@ -225,7 +228,7 @@ exports.getDeliveredAnalytics = async (req, res) => {
         days,
         totalOrders,
         totalRevenue,
-        totalCancelled: cancelledCount, 
+        totalCancelled: cancelledCount,
       },
     });
   } catch (error) {
@@ -309,6 +312,33 @@ exports.markOrderDelivered = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+exports.getOrdersForExport = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const days = Number(req.query.days) || 7;
+
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - days + 1);
+    fromDate.setHours(0, 0, 0, 0);
+
+    const orders = await ordersCollection
+      .find({
+        $or: [
+          { status: "delivered", deliveredAt: { $gte: fromDate } },
+          { status: "cancelled", cancelledAt: { $gte: fromDate } },
+        ],
+      })
+      .sort({ createdAt: -1 }) 
+      .toArray();
+
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

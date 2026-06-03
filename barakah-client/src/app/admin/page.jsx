@@ -94,7 +94,7 @@ export default async function AdminHomePage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <p className="text-sm text-gray-500">Total Products</p>
             <h3 className="text-3xl font-bold mt-2">{totalProducts}</h3>

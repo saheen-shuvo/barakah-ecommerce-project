@@ -6,64 +6,120 @@ const AnalyticsCard = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const [days, setDays] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [analytics, setAnalytics] = useState({
     totalOrders: 0,
     totalRevenue: 0,
+    totalCancelled: 0,
   });
 
   const fetchAnalytics = async (daysCount) => {
     if (!baseUrl) return;
-
+    setLoading(true);
     try {
       const res = await fetch(
         `${baseUrl}/api/orders/analytics?days=${daysCount}`,
-        {
-          cache: "no-store",
-        },
+        { cache: "no-store" },
       );
-
       const data = await res.json();
-
-      if (data.success) {
-        setAnalytics(data.data);
-      }
+      if (data.success) setAnalytics(data.data);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    void fetchAnalytics(1);
+    void fetchAnalytics(days);
   }, []);
+
+  const handleExportCSV = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch(`${baseUrl}/api/orders/export?days=${days}`, {
+        cache: "no-store",
+      });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const headers = ["Name", "Date", "Address", "Amount", "Mobile", "Status"];
+
+      const rows = data.data.map((order) => [
+        order.customerName,
+        new Date(order.deliveredAt ?? order.cancelledAt ?? order.createdAt) // ✅ createdAt fallback
+          .toISOString()
+          .split("T")[0],
+        order.address,
+        order.total,
+        order.phone,
+        order.status,
+      ]);
+
+      const csvContent = [headers, ...rows]
+        .map((row) =>
+          row
+            .map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`)
+            .join(","),
+        )
+        .join("\n");
+
+      const blob = new Blob(["\uFEFF" + csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `orders-last-${days}-days.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-[#e5dccf] p-6">
-      <div className="flex flex-col gap-4 items-start  justify-between">
+      <div className="flex flex-col gap-4 items-start justify-between">
         <p className="text-sm text-gray-500">Total Delivered Orders</p>
+
         <div className="flex gap-2 items-center">
-          <span className="font-medium">Last</span>
+          <span className="text-sm text-gray-500">Last</span>
 
           <input
             type="number"
             min="1"
             value={days}
             onChange={(e) => setDays(parseInt(e.target.value, 10) || 1)}
-            className="input input-bordered w-24"
+            className="input input-bordered w-16 border-gray-300 focus:border-[#d4af37] focus:ring-0"
           />
 
-          <span className="font-medium">Days</span>
+          <span className="text-sm text-gray-500">Days</span>
 
-          <button
-            onClick={() => fetchAnalytics(days)}
-            className="btn bg-[#d4af37] text-white border-none"
-          >
-            Search
-          </button>
+          <div className="flex flex-col md:flex-row gap-1 md:gap-2">
+            <button
+              onClick={() => fetchAnalytics(days)}
+              disabled={loading}
+              className="btn btn-xs md:btn-md bg-[#d4af37] text-white border-none disabled:opacity-60 text-xs w-20"
+            >
+              {loading ? "Searching..." : "Search"}
+            </button>
+            <button
+              onClick={handleExportCSV}
+              disabled={exporting}
+              className="btn btn-xs md:btn-md bg-[#0f2a44] text-white border-none disabled:opacity-60 text-xs w-20"
+            >
+              {exporting ? "Exporting..." : "Export"}
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-6">
           <div>
-            <p className="text-sm text-gray-500">Delivered </p>
+            <p className="text-sm text-gray-500">Delivered</p>
             <h3 className="text-3xl font-bold">{analytics.totalOrders}</h3>
           </div>
 
