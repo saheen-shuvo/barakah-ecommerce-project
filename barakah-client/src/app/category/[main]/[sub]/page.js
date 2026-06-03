@@ -38,36 +38,52 @@ export default async function CategoryPage({ params }) {
           {main?.replace("-", " ")}
         </h1>
 
-        {sub !== "none" && (
-          <div className="flex gap-4 mb-8">
-            <Link
-              href={`/category/${main}/natural`}
-              className={`px-4 py-2 rounded-lg ${
-                sub === "natural" ? "bg-[#0f2a44] text-white" : "bg-white"
-              }`}
-            >
-              Natural
-            </Link>
+        <div className="flex gap-4 mb-8">
+          <Link
+            href={`/category/${main}/natural`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "natural" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Natural
+          </Link>
 
-            <Link
-              href={`/category/${main}/islamic`}
-              className={`px-4 py-2 rounded-lg ${
-                sub === "islamic" ? "bg-[#0f2a44] text-white" : "bg-white"
-              }`}
-            >
-              Islamic
-            </Link>
+          <Link
+            href={`/category/${main}/islamic`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "islamic" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Islamic
+          </Link>
 
-            <Link
-              href={`/category/${main}/others`}
-              className={`px-4 py-2 rounded-lg ${
-                sub === "others" ? "bg-[#0f2a44] text-white" : "bg-white"
-              }`}
-            >
-              Others
-            </Link>
-          </div>
-        )}
+          <Link
+            href={`/category/${main}/special1`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "special1" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Special 1
+          </Link>
+
+          <Link
+            href={`/category/${main}/special2`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "special2" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Special 2
+          </Link>
+
+          <Link
+            href={`/category/${main}/others`}
+            className={`px-4 py-2 rounded-lg ${
+              sub === "others" ? "bg-[#0f2a44] text-white" : "bg-white"
+            }`}
+          >
+            Others
+          </Link>
+        </div>
 
         <ProductSearch products={filteredProducts} />
       </div>

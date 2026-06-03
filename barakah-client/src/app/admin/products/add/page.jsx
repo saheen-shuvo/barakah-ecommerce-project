@@ -182,8 +182,9 @@ export default function AddProductPage() {
               <option value="">Select Subcategory</option>
               <option value="natural">Natural</option>
               <option value="islamic">Islamic</option>
+              <option value="special1">Special 1</option>
+              <option value="special2">Special 2</option>
               <option value="others">Others</option>
-              <option value="none">None</option>
             </select>
             {errors.subcategory && (
               <p className="mt-1 text-sm text-red-500">

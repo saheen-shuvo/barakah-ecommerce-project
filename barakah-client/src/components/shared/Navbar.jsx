@@ -88,7 +88,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/category/wall-art/none"
+              href="/category/wall-art/natural"
               className={navLinkClass(isActive("/category/wall-art"))}
             >
               Wall Art
@@ -102,7 +102,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/category/others/none"
+              href="/category/others/natural"
               className={navLinkClass(isActive("/category/others"))}
             >
               Others
