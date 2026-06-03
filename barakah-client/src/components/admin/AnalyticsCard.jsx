@@ -14,6 +14,14 @@ const AnalyticsCard = () => {
     totalCancelled: 0,
   });
 
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const fetchAnalytics = async (daysCount) => {
     if (!baseUrl) return;
     setLoading(true);
@@ -48,9 +56,7 @@ const AnalyticsCard = () => {
 
       const rows = data.data.map((order) => [
         order.customerName,
-        new Date(order.deliveredAt ?? order.cancelledAt ?? order.createdAt) // ✅ createdAt fallback
-          .toISOString()
-          .split("T")[0],
+        formatDate(order.deliveredAt ?? order.cancelledAt ?? order.createdAt),
         order.address,
         order.total,
         order.phone,
@@ -84,7 +90,7 @@ const AnalyticsCard = () => {
   return (
     <div className="bg-white rounded-2xl border border-[#e5dccf] p-6">
       <div className="flex flex-col gap-4 items-start justify-between">
-        <p className="text-sm text-gray-500">Total Delivered Orders</p>
+        <p className="text-sm text-gray-500">Order Analytics</p>
 
         <div className="flex gap-2 items-center">
           <span className="text-sm text-gray-500">Last</span>

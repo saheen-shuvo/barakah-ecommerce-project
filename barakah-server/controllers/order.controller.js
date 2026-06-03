@@ -333,10 +333,81 @@ exports.getOrdersForExport = async (req, res) => {
           { status: "cancelled", cancelledAt: { $gte: fromDate } },
         ],
       })
-      .sort({ createdAt: -1 }) 
+      .sort({ createdAt: -1 })
       .toArray();
 
     res.json({ success: true, data: orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getOrdersByDate = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+    const { date } = req.query; // DD-MM-YYYY
+
+    if (!date) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Date is required" });
+    }
+
+    // Parse DD-MM-YYYY manually
+    const [dd, mm, yyyy] = date.split("-");
+    if (!dd || !mm || !yyyy) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Invalid date format. Use DD-MM-YYYY",
+        });
+    }
+
+    const from = new Date(Number(yyyy), Number(mm) - 1, Number(dd), 0, 0, 0, 0);
+    const to = new Date(
+      Number(yyyy),
+      Number(mm) - 1,
+      Number(dd),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const [totalOrders, delivered, cancelled] = await Promise.all([
+      ordersCollection.countDocuments({
+        createdAt: { $gte: from, $lte: to },
+      }),
+      ordersCollection
+        .find({
+          status: "delivered",
+          deliveredAt: { $gte: from, $lte: to },
+        })
+        .toArray(),
+      ordersCollection.countDocuments({
+        status: "cancelled",
+        cancelledAt: { $gte: from, $lte: to },
+      }),
+    ]);
+
+    const totalDelivered = delivered.length;
+    const totalRevenue = delivered.reduce(
+      (sum, order) => sum + (Number(order.total) || 0),
+      0,
+    );
+
+    res.json({
+      success: true,
+      data: {
+        date,
+        totalOrders,
+        totalDelivered,
+        totalRevenue,
+        totalCancelled: cancelled,
+      },
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
