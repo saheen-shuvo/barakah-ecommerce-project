@@ -101,9 +101,7 @@ export default function OfferCountdown({ product }) {
                 অর্ডার করুন →
               </button>
             ) : (
-              <button
-                className="px-5 py-2 rounded-full text-lg font-bold text-[#0f2a44] hover:scale-105 transition bg-[#d4af37]"
-              >
+              <button className="px-5 py-2 rounded-full text-lg font-bold text-[#0f2a44] hover:scale-105 transition bg-[#d4af37]">
                 অর্ডার করুন →
               </button>
             )}
@@ -113,10 +111,13 @@ export default function OfferCountdown({ product }) {
 
       {/* Bottom Offer Bar */}
       <div className=" text-white text-center text-xl font-semibold pb-8">
-        <span className="text-2xl text-[#d4af37]">!!! বিশেষ ঈদ অফার !!!</span>{" "}
+        <span className="text-2xl text-[#d4af37]">
+          !!! আজকের বিশেষ অফার !!!
+        </span>{" "}
         <br></br>
-        আজকে প্রথম ৩০ জন অর্ডার কারির জন্য ৩০০ টাকা ডিসকাউন্ট, ডেলিভারি চার্জ
-        সম্পূর্ন ফ্রি! <br></br> সাথে থাকছে আকর্ষনীয় ইসলামিক গিফট!
+        আজ প্রথম ২০ জন অর্ডার কারির জন্য ৩০০ টাকা ডিসকাউন্ট, সারা বাংলাদেশে
+        ডেলিভারি চার্জ মাত্র ৩০ টাকা!
+        <br></br> সাথে থাকছে আকর্ষনীয় ইসলামিক গিফট!
       </div>
     </section>
   );
