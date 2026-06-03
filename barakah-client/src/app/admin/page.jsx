@@ -1,3 +1,4 @@
+import AnalyticsCard from "@/components/admin/AnalyticsCard";
 import AdminRoute from "@/components/auth/AdminRoute";
 import Image from "next/image";
 import Link from "next/link";
@@ -125,6 +126,8 @@ export default async function AdminHomePage() {
               </div>
             </div>
           </div>
+
+          <AnalyticsCard />
         </div>
 
         {/* Quick Actions */}

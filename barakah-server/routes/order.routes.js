@@ -6,14 +6,16 @@ const {
   markOrderDelivered,
   sendToSteadfast,
   getOrderStats,
-  cancelOrder
+  cancelOrder,
+  getDeliveredAnalytics,
 } = require("../controllers/order.controller");
 
 router.post("/", createOrder);
 router.get("/", getOrders);
+router.get("/stats", getOrderStats);
+router.get("/analytics", getDeliveredAnalytics);
 router.patch("/:id/deliver", markOrderDelivered);
 router.patch("/:id/steadfast", sendToSteadfast);
-router.get("/stats", getOrderStats);
 router.patch("/:id/cancel", cancelOrder);
 
 module.exports = router;

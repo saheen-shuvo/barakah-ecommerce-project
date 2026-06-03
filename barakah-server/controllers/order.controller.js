@@ -193,6 +193,49 @@ exports.getOrderStats = async (req, res) => {
   }
 };
 
+exports.getDeliveredAnalytics = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const days = Number(req.query.days) || 1;
+
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - days + 1);
+    fromDate.setHours(0, 0, 0, 0);
+
+    const dateFilter = { $gte: fromDate };
+
+    const [deliveredOrders, cancelledCount] = await Promise.all([
+      ordersCollection
+        .find({ status: "delivered", deliveredAt: dateFilter })
+        .toArray(),
+      ordersCollection.countDocuments({ status: "cancelled", cancelledAt: dateFilter }), 
+    ]);
+
+    const totalOrders = deliveredOrders.length;
+    const totalRevenue = deliveredOrders.reduce(
+      (sum, order) => sum + (Number(order.total) || 0),
+      0,
+    );
+
+    res.json({
+      success: true,
+      data: {
+        days,
+        totalOrders,
+        totalRevenue,
+        totalCancelled: cancelledCount, 
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 exports.cancelOrder = async (req, res) => {
   try {
     const db = await connectDB();
