@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import Image from "next/image";
@@ -17,6 +18,12 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isReady, setIsReady] = useState(false);
+  const [counts, setCounts] = useState({
+    all: 0,
+    pending: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -307,6 +314,21 @@ export default function OrdersPage() {
     }
   };
 
+  const fetchCounts = async () => {
+    const res = await fetch(`${baseUrl}/api/orders/counts`);
+    const data = await res.json();
+
+    if (data.success) {
+      setCounts(data.data);
+    }
+  };
+
+  useEffect(() => {
+    if (!baseUrl) return;
+
+    fetchCounts();
+  }, [baseUrl]);
+
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-[#e5dccf] p-6 flex justify-center py-12">
@@ -360,7 +382,7 @@ export default function OrdersPage() {
                   : "bg-white text-[#3d2f1f] border-[#e5dccf]"
               }`}
             >
-              All
+              All ({counts.all})
             </button>
 
             <button
@@ -373,7 +395,7 @@ export default function OrdersPage() {
                   : "bg-white text-[#3d2f1f] border-[#e5dccf]"
               }`}
             >
-              Pending
+              Pending ({counts.pending})
             </button>
 
             <button
@@ -386,7 +408,7 @@ export default function OrdersPage() {
                   : "bg-white text-[#3d2f1f] border-[#e5dccf]"
               }`}
             >
-              Delivered
+              Delivered ({counts.delivered})
             </button>
 
             <button
@@ -399,7 +421,7 @@ export default function OrdersPage() {
                   : "bg-white text-[#3d2f1f] border-[#e5dccf]"
               }`}
             >
-              Cancelled
+              Cancelled ({counts.cancelled})
             </button>
           </div>
         </div>

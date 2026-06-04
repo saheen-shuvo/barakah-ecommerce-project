@@ -9,11 +9,13 @@ const {
   cancelOrder,
   getDeliveredAnalytics,
   getOrdersForExport,
-  getOrdersByDate
+  getOrdersByDate,
+  getOrderCounts,
 } = require("../controllers/order.controller");
 
 router.post("/", createOrder);
 router.get("/", getOrders);
+router.get("/counts", getOrderCounts);
 router.get("/stats", getOrderStats);
 router.get("/analytics", getDeliveredAnalytics);
 router.get("/export", getOrdersForExport);

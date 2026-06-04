@@ -146,6 +146,35 @@ exports.getOrders = async (req, res) => {
   }
 };
 
+exports.getOrderCounts = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const [all, pending, delivered, cancelled] = await Promise.all([
+      ordersCollection.countDocuments(),
+      ordersCollection.countDocuments({ status: "pending" }),
+      ordersCollection.countDocuments({ status: "delivered" }),
+      ordersCollection.countDocuments({ status: "cancelled" }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        all,
+        pending,
+        delivered,
+        cancelled,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 exports.getOrderStats = async (req, res) => {
   try {
     const db = await connectDB();
@@ -206,22 +235,23 @@ exports.getDeliveredAnalytics = async (req, res) => {
 
     const dateFilter = { $gte: fromDate };
 
-    const [deliveredOrders, cancelledCount, pendingCount, totalOrders] = await Promise.all([
-      ordersCollection
-        .find({ status: "delivered", deliveredAt: dateFilter })
-        .toArray(),
-      ordersCollection.countDocuments({
-        status: "cancelled",
-        cancelledAt: dateFilter,
-      }),
-      ordersCollection.countDocuments({
-        status: "pending",
-        createdAt: dateFilter,
-      }),
-      ordersCollection.countDocuments({
-        createdAt: dateFilter,
-      }),
-    ]);
+    const [deliveredOrders, cancelledCount, pendingCount, totalOrders] =
+      await Promise.all([
+        ordersCollection
+          .find({ status: "delivered", deliveredAt: dateFilter })
+          .toArray(),
+        ordersCollection.countDocuments({
+          status: "cancelled",
+          cancelledAt: dateFilter,
+        }),
+        ordersCollection.countDocuments({
+          status: "pending",
+          createdAt: dateFilter,
+        }),
+        ordersCollection.countDocuments({
+          createdAt: dateFilter,
+        }),
+      ]);
 
     const deliveredCount = deliveredOrders.length;
     const totalRevenue = deliveredOrders.reduce(
@@ -233,8 +263,8 @@ exports.getDeliveredAnalytics = async (req, res) => {
       success: true,
       data: {
         days,
-        totalOrders,         // all orders regardless of status
-        deliveredOrders: deliveredCount,   // renamed from totalOrders
+        totalOrders, // all orders regardless of status
+        deliveredOrders: deliveredCount, // renamed from totalOrders
         totalRevenue,
         totalCancelled: cancelledCount,
         totalPending: pendingCount,
@@ -366,12 +396,10 @@ exports.getOrdersByDate = async (req, res) => {
     // Parse DD-MM-YYYY manually
     const [dd, mm, yyyy] = date.split("-");
     if (!dd || !mm || !yyyy) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid date format. Use DD-MM-YYYY",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format. Use DD-MM-YYYY",
+      });
     }
 
     const from = new Date(Number(yyyy), Number(mm) - 1, Number(dd), 0, 0, 0, 0);
