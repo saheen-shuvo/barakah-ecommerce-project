@@ -5,13 +5,15 @@ import { useEffect, useState } from "react";
 const AnalyticsCard = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  const [days, setDays] = useState(1);
+  const [days, setDays] = useState(7);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [analytics, setAnalytics] = useState({
     totalOrders: 0,
+    deliveredOrders: 0,
     totalRevenue: 0,
     totalCancelled: 0,
+    totalPending: 0,
   });
 
   const formatDate = (date) => {
@@ -90,7 +92,7 @@ const AnalyticsCard = () => {
   return (
     <div className="bg-white rounded-2xl border border-[#e5dccf] p-6">
       <div className="flex flex-col gap-4 items-start justify-between">
-        <p className="text-sm text-gray-500">Order Analytics</p>
+        <p className="text-sm text-gray-500">Total Order Analytics</p>
 
         <div className="flex gap-2 items-center">
           <span className="text-sm text-gray-500">Last</span>
@@ -123,22 +125,41 @@ const AnalyticsCard = () => {
           </div>
         </div>
 
-        <div className="flex gap-6">
-          <div>
-            <p className="text-sm text-gray-500">Delivered</p>
-            <h3 className="text-3xl font-bold">{analytics.totalOrders}</h3>
-          </div>
+        {analytics ? (
+          <div className="grid grid-cols-2 justify-between gap-6 w-full">
+            <div>
+              <p className="text-sm text-gray-500">Total Orders</p>
+              <h3 className="text-3xl font-bold text-[#d4af37]">
+                {analytics.totalOrders}
+              </h3>
+            </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Amount</p>
-            <h3 className="text-3xl font-bold">{analytics.totalRevenue}</h3>
-          </div>
+            <div>
+              <p className="text-sm text-gray-500">Delivered</p>
+              <h3 className="text-3xl font-bold text-green-600">
+                {analytics.deliveredOrders}
+              </h3>
+            </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Cancelled</p>
-            <h3 className="text-3xl font-bold">{analytics.totalCancelled}</h3>
+            <div>
+              <p className="text-sm text-gray-500">Amount</p>
+              <h3 className="text-3xl font-bold text-green-600">
+                {analytics.totalRevenue}
+              </h3>
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-500">Cancelled</p>
+              <h3 className="text-3xl font-bold text-red-500">
+                {analytics.totalCancelled}
+              </h3>
+            </div>
           </div>
-        </div>
+        ) : (
+          <p className="text-sm text-gray-400">
+            Select a date and press Search
+          </p>
+        )}
       </div>
     </div>
   );

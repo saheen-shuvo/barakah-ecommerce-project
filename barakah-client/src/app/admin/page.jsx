@@ -106,7 +106,7 @@ export default async function AdminHomePage() {
             <h3 className="text-3xl font-bold mt-2">{totalOrders}</h3>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          {/* <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <p className="text-sm text-gray-500">Order Analytics</p>
 
             <div className="mt-3 space-y-2">
@@ -126,7 +126,7 @@ export default async function AdminHomePage() {
                 <span className="font-semibold">{last30DaysOrders}</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <AnalyticsCard />
 

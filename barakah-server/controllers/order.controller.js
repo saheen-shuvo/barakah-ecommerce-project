@@ -206,7 +206,7 @@ exports.getDeliveredAnalytics = async (req, res) => {
 
     const dateFilter = { $gte: fromDate };
 
-    const [deliveredOrders, cancelledCount] = await Promise.all([
+    const [deliveredOrders, cancelledCount, pendingCount, totalOrders] = await Promise.all([
       ordersCollection
         .find({ status: "delivered", deliveredAt: dateFilter })
         .toArray(),
@@ -214,9 +214,16 @@ exports.getDeliveredAnalytics = async (req, res) => {
         status: "cancelled",
         cancelledAt: dateFilter,
       }),
+      ordersCollection.countDocuments({
+        status: "pending",
+        createdAt: dateFilter,
+      }),
+      ordersCollection.countDocuments({
+        createdAt: dateFilter,
+      }),
     ]);
 
-    const totalOrders = deliveredOrders.length;
+    const deliveredCount = deliveredOrders.length;
     const totalRevenue = deliveredOrders.reduce(
       (sum, order) => sum + (Number(order.total) || 0),
       0,
@@ -226,9 +233,11 @@ exports.getDeliveredAnalytics = async (req, res) => {
       success: true,
       data: {
         days,
-        totalOrders,
+        totalOrders,         // all orders regardless of status
+        deliveredOrders: deliveredCount,   // renamed from totalOrders
         totalRevenue,
         totalCancelled: cancelledCount,
+        totalPending: pendingCount,
       },
     });
   } catch (error) {
