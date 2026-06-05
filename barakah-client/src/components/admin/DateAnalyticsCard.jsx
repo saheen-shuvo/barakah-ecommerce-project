@@ -84,7 +84,7 @@ const DateAnalyticsCard = () => {
               </h3>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Revenue</p>
+              <p className="text-sm text-gray-500">Amount</p>
               <h3 className="text-3xl font-bold text-green-600">
                 {analytics.totalRevenue}
               </h3>

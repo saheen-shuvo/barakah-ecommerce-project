@@ -38,10 +38,10 @@ export default async function CategoryPage({ params }) {
           {main?.replace("-", " ")}
         </h1>
 
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-2 md:gap-4 mb-8 flex-wrap">
           <Link
             href={`/category/${main}/natural`}
-            className={`px-4 py-2 rounded-lg ${
+            className={`text-xs md:text-base px-2 py-1 md:px-4 md:py-2 rounded-lg ${
               sub === "natural" ? "bg-[#0f2a44] text-white" : "bg-white"
             }`}
           >
@@ -50,7 +50,7 @@ export default async function CategoryPage({ params }) {
 
           <Link
             href={`/category/${main}/islamic`}
-            className={`px-4 py-2 rounded-lg ${
+            className={`text-xs md:text-base px-2 py-1 md:px-4 md:py-2 rounded-lg ${
               sub === "islamic" ? "bg-[#0f2a44] text-white" : "bg-white"
             }`}
           >
@@ -59,7 +59,7 @@ export default async function CategoryPage({ params }) {
 
           <Link
             href={`/category/${main}/special1`}
-            className={`px-4 py-2 rounded-lg ${
+            className={`text-xs md:text-base px-2 py-1 md:px-4 md:py-2 rounded-lg ${
               sub === "special1" ? "bg-[#0f2a44] text-white" : "bg-white"
             }`}
           >
@@ -68,7 +68,7 @@ export default async function CategoryPage({ params }) {
 
           <Link
             href={`/category/${main}/special2`}
-            className={`px-4 py-2 rounded-lg ${
+            className={`text-xs md:text-base px-2 py-1 md:px-4 md:py-2 rounded-lg ${
               sub === "special2" ? "bg-[#0f2a44] text-white" : "bg-white"
             }`}
           >
@@ -77,7 +77,7 @@ export default async function CategoryPage({ params }) {
 
           <Link
             href={`/category/${main}/others`}
-            className={`px-4 py-2 rounded-lg ${
+            className={`text-xs md:text-base px-2 py-1 md:px-4 md:py-2 rounded-lg ${
               sub === "others" ? "bg-[#0f2a44] text-white" : "bg-white"
             }`}
           >

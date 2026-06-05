@@ -197,11 +197,12 @@ export default function EditProductPage() {
               onChange={handleChange}
               className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
             >
-              <option value="">Select subcategory</option>
+              <option value="">Select Subcategory</option>
               <option value="natural">Natural</option>
               <option value="islamic">Islamic</option>
+              <option value="special1">Special 1</option>
+              <option value="special2">Special 2</option>
               <option value="others">Others</option>
-              <option value="none">None</option>
             </select>
           </div>
         </div>
