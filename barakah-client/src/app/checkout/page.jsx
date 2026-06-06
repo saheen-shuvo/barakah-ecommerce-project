@@ -34,7 +34,7 @@ export default function CheckoutPage() {
     },
   });
 
-  const shippingCost = shipping === "inside" ? 30 : 30;
+  const shippingCost = shipping === "inside" ? 0 : 0;
 
   const finalTotal = useMemo(
     () => totalPrice + shippingCost,
@@ -370,7 +370,7 @@ export default function CheckoutPage() {
                       />
                       <span className="text-[#0f2a44]">ঢাকার ভিতরে</span>
                     </div>
-                    <span className="font-medium text-green-600">৳ 30.00</span>
+                    <span className="font-medium text-green-600">৳ 0.00</span>
                   </label>
 
                   <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#0f2a44]/10 px-4 py-4">
@@ -384,7 +384,7 @@ export default function CheckoutPage() {
                       />
                       <span className="text-[#0f2a44]">ঢাকার বাইরে</span>
                     </div>
-                    <span className="font-medium text-green-600">৳ 30.00</span>
+                    <span className="font-medium text-green-600">৳ 0.00</span>
                   </label>
                 </div>
               </div>

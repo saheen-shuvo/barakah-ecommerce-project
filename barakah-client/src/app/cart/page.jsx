@@ -156,7 +156,7 @@ export default function CartPage() {
                   <span>৳ {totalPrice.toFixed(2)}</span>
                 </div>
 
-                <p className="text-green-600 text-center pb-2">সারা বাংলাদেশে ডেলিভারি চার্জ মাত্র ৩০ টাকা!</p>
+                <p className="text-green-600 text-center pb-2">সারা বাংলাদেশে ডেলিভারি চার্জ সম্পুর্ণ ফ্রি!</p>
 
                 <Link
                   href="/checkout"
