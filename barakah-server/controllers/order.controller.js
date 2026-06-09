@@ -222,6 +222,7 @@ exports.getOrderStats = async (req, res) => {
   }
 };
 
+// This API is called by AnalyticsCard.jsx to get analytics for a specific date range for export
 exports.getDeliveredAnalytics = async (req, res) => {
   try {
     const db = await connectDB();
@@ -235,38 +236,60 @@ exports.getDeliveredAnalytics = async (req, res) => {
 
     const dateFilter = { $gte: fromDate };
 
-    const [deliveredOrders, cancelledCount, pendingCount, totalOrders] =
-      await Promise.all([
-        ordersCollection
-          .find({ status: "delivered", createdAt: dateFilter }) // was deliveredAt
-          .toArray(),
-        ordersCollection.countDocuments({
-          status: "cancelled",
-          createdAt: dateFilter, // was cancelledAt
-        }),
-        ordersCollection.countDocuments({
-          status: "pending",
-          createdAt: dateFilter,
-        }),
-        ordersCollection.countDocuments({
-          createdAt: dateFilter,
-        }),
-      ]);
+    const [
+      deliveredOrders,
+      cancelledCount,
+      pendingCount,
+      totalOrders,
+      totalOrdersRevenueAgg,
+      cancelledRevenueAgg,
+    ] = await Promise.all([
+      ordersCollection
+        .find({ status: "delivered", createdAt: dateFilter })
+        .toArray(),
+      ordersCollection.countDocuments({
+        status: "cancelled",
+        createdAt: dateFilter,
+      }),
+      ordersCollection.countDocuments({
+        status: "pending",
+        createdAt: dateFilter,
+      }),
+      ordersCollection.countDocuments({
+        createdAt: dateFilter,
+      }),
+      ordersCollection
+        .aggregate([
+          { $match: { createdAt: dateFilter } },
+          { $group: { _id: null, total: { $sum: "$total" } } },
+        ])
+        .toArray(),
+      ordersCollection
+        .aggregate([
+          { $match: { status: "cancelled", createdAt: dateFilter } },
+          { $group: { _id: null, total: { $sum: "$total" } } },
+        ])
+        .toArray(),
+    ]);
 
     const deliveredCount = deliveredOrders.length;
     const totalRevenue = deliveredOrders.reduce(
       (sum, order) => sum + (Number(order.total) || 0),
       0,
     );
+    const totalOrdersRevenue = totalOrdersRevenueAgg[0]?.total || 0;
+    const cancelledRevenue = cancelledRevenueAgg[0]?.total || 0;
 
     res.json({
       success: true,
       data: {
         days,
         totalOrders, // all orders regardless of status
+        totalOrdersRevenue,
         deliveredOrders: deliveredCount, // renamed from totalOrders
-        totalRevenue,
+        deliveredRevenue: totalRevenue,
         totalCancelled: cancelledCount,
+        cancelledRevenue,
         totalPending: pendingCount,
       },
     });
@@ -354,6 +377,7 @@ exports.markOrderDelivered = async (req, res) => {
   }
 };
 
+// This API is called by AnalyticsCard.jsx to get orders for a specific date range for export
 exports.getOrdersForExport = async (req, res) => {
   try {
     const db = await connectDB();
@@ -381,6 +405,7 @@ exports.getOrdersForExport = async (req, res) => {
   }
 };
 
+//DateAnalyticsCard.jsx will call this API to get analytics for a specific date
 exports.getOrdersByDate = async (req, res) => {
   try {
     const db = await connectDB();
@@ -413,27 +438,47 @@ exports.getOrdersByDate = async (req, res) => {
       999,
     );
 
-    const [totalOrders, delivered, cancelled] = await Promise.all([
-      ordersCollection.countDocuments({
-        createdAt: { $gte: from, $lte: to },
-      }),
-      ordersCollection
-        .find({
-          status: "delivered",
-          createdAt: { $gte: from, $lte: to }, // was deliveredAt
-        })
-        .toArray(),
-      ordersCollection.countDocuments({
-        status: "cancelled",
-        createdAt: { $gte: from, $lte: to }, // was cancelledAt
-      }),
-    ]);
+    const [totalOrders, delivered, cancelled, revenueAgg, cancelledRevenueAgg] =
+      await Promise.all([
+        ordersCollection.countDocuments({
+          createdAt: { $gte: from, $lte: to },
+        }),
+        ordersCollection
+          .find({
+            status: "delivered",
+            createdAt: { $gte: from, $lte: to },
+          })
+          .toArray(),
+        ordersCollection.countDocuments({
+          status: "cancelled",
+          createdAt: { $gte: from, $lte: to },
+        }),
+        ordersCollection
+          .aggregate([
+            { $match: { createdAt: { $gte: from, $lte: to } } },
+            { $group: { _id: null, total: { $sum: "$total" } } },
+          ])
+          .toArray(),
+        ordersCollection
+          .aggregate([
+            {
+              $match: {
+                status: "cancelled",
+                createdAt: { $gte: from, $lte: to },
+              },
+            },
+            { $group: { _id: null, total: { $sum: "$total" } } },
+          ])
+          .toArray(),
+      ]);
 
     const totalDelivered = delivered.length;
     const totalRevenue = delivered.reduce(
       (sum, order) => sum + (Number(order.total) || 0),
       0,
     );
+    const totalOrdersRevenue = revenueAgg[0]?.total || 0;
+    const cancelledRevenue = cancelledRevenueAgg[0]?.total || 0;
 
     res.json({
       success: true,
@@ -442,6 +487,8 @@ exports.getOrdersByDate = async (req, res) => {
         totalOrders,
         totalDelivered,
         totalRevenue,
+        totalOrdersRevenue,
+        cancelledRevenue,
         totalCancelled: cancelled,
       },
     });

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -281,6 +282,15 @@ export default function CheckoutPage() {
                 <h3 className="mb-4 text-xl font-semibold text-[#0f2a44]">
                   পেমেন্ট পদ্ধতি
                 </h3>
+                {/* <p className="mb-4 text-sm text-[#0f2a44]/70">
+                  অর্ডার নিশ্চিত করতে বিকাশ বা নগদে <span className="font-semibold">Send Money </span>করুন
+                  এই নম্বরে: **01601014782**। পেমেন্ট সম্পন্ন হলে বিকাশ অথবা নগদ
+                  অপশন নির্বাচন করে আপনার ব্যবহৃত নম্বরের শেষ ৪টি সংখ্যা প্রদান
+                  করুন।<br></br>
+                  <br /> অথবা, **ক্যাশ অন ডেলিভারি** সুবিধা নিতে চাইলে **ক্যাশ
+                  অন ডেলিভারি** অপশন নির্বাচন করুন। সেক্ষেত্রে পণ্য হাতে পাওয়ার
+                  পর মূল্য পরিশোধ করতে হবে।
+                </p> */}
 
                 <div className="space-y-3">
                   <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#0f2a44]/10 px-4 py-4">
@@ -292,7 +302,7 @@ export default function CheckoutPage() {
                         checked={paymentMethod === "bkash"}
                         onChange={() => setPaymentMethod("bkash")}
                       />
-                      <span className="text-[#0f2a44]">বিকাশ</span>
+                      <span className="text-[#0f2a44]">বিকাশ (01601014782)</span>
                     </div>
                   </label>
 
@@ -305,7 +315,7 @@ export default function CheckoutPage() {
                         checked={paymentMethod === "nagad"}
                         onChange={() => setPaymentMethod("nagad")}
                       />
-                      <span className="text-[#0f2a44]">নগদ</span>
+                      <span className="text-[#0f2a44]">নগদ (01601014782)</span>
                     </div>
                   </label>
 

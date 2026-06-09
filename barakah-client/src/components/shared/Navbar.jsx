@@ -197,7 +197,7 @@ export default function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t bg-white md:hidden">
+        <div className="border-t border-gray-200 bg-white md:hidden">
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4">
             <Link
               href="/"
@@ -224,7 +224,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/category/wall-art/none"
+              href="/category/wall-art/natural"
               onClick={closeMobileMenu}
               className={mobileLinkClass(isActive("/category/wall-art"))}
             >
@@ -240,7 +240,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/category/others/none"
+              href="/category/others/natural"
               onClick={closeMobileMenu}
               className={mobileLinkClass(isActive("/category/others"))}
             >
@@ -248,7 +248,7 @@ export default function Navbar() {
             </Link>
 
             {user && (
-              <div className="mt-2 border-t pt-3 flex flex-col gap-3">
+              <div className="mt-2 border-t border-gray-200 pt-3 flex flex-col gap-3">
                 {user.role === "barakahAdmin1234" && (
                   <Link
                     href="/admin"

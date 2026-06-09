@@ -44,7 +44,7 @@ const DateAnalyticsCard = () => {
 
   useEffect(() => {
     void fetchByDate(todayDisplay);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -78,13 +78,19 @@ const DateAnalyticsCard = () => {
               </h3>
             </div>
             <div>
+              <p className="text-sm text-gray-500">Total Amount</p>
+              <h3 className="text-3xl font-bold text-[#d4af37]">
+                {analytics.totalOrdersRevenue}
+              </h3>
+            </div>
+            <div>
               <p className="text-sm text-gray-500">Delivered</p>
               <h3 className="text-3xl font-bold text-green-600">
                 {analytics.totalDelivered}
               </h3>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Amount</p>
+              <p className="text-sm text-gray-500">Delivered Amount</p>
               <h3 className="text-3xl font-bold text-green-600">
                 {analytics.totalRevenue}
               </h3>
@@ -93,6 +99,12 @@ const DateAnalyticsCard = () => {
               <p className="text-sm text-gray-500">Cancelled</p>
               <h3 className="text-3xl font-bold text-red-500">
                 {analytics.totalCancelled}
+              </h3>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Cancelled Amount</p>
+              <h3 className="text-3xl font-bold text-red-500">
+                {analytics.cancelledRevenue}
               </h3>
             </div>
           </div>
