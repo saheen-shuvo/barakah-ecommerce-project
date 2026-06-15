@@ -48,6 +48,7 @@ export default function CheckoutPage() {
     const alreadyTracked = sessionStorage.getItem("barakah_begin_checkout");
     if (alreadyTracked) return;
 
+    //pushing to data layer for GTM
     pushToDataLayer({
       event: "begin_checkout",
       ecommerce: {
