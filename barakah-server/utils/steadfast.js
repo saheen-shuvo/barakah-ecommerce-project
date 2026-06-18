@@ -1,7 +1,6 @@
 const calculateCOD = (paymentMethod, total) => {
-  return paymentMethod === "bkash" || paymentMethod === "nagad"
-    ? 0
-    : Number(total);
+  // Always send real order price regardless of payment method
+  return Math.round(Number(total));
 };
 
 const transformOrderToSteadfast = (order) => {
