@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { pushToDataLayer } from "@/lib/gtm";
 import LoadingAnimation from "@/components/shared/LoadingAnimation";
+import { FaFacebookMessenger, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 
 export default function CheckoutPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -283,15 +284,6 @@ export default function CheckoutPage() {
                 <h3 className="mb-4 text-xl font-semibold text-[#0f2a44]">
                   পেমেন্ট পদ্ধতি
                 </h3>
-                {/* <p className="mb-4 text-sm text-[#0f2a44]/70">
-                  অর্ডার নিশ্চিত করতে বিকাশ বা নগদে <span className="font-semibold">Send Money </span>করুন
-                  এই নম্বরে: **01601014782**। পেমেন্ট সম্পন্ন হলে বিকাশ অথবা নগদ
-                  অপশন নির্বাচন করে আপনার ব্যবহৃত নম্বরের শেষ ৪টি সংখ্যা প্রদান
-                  করুন।<br></br>
-                  <br /> অথবা, **ক্যাশ অন ডেলিভারি** সুবিধা নিতে চাইলে **ক্যাশ
-                  অন ডেলিভারি** অপশন নির্বাচন করুন। সেক্ষেত্রে পণ্য হাতে পাওয়ার
-                  পর মূল্য পরিশোধ করতে হবে।
-                </p> */}
 
                 <div className="space-y-3">
                   <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#0f2a44]/10 px-4 py-4">
@@ -303,7 +295,9 @@ export default function CheckoutPage() {
                         checked={paymentMethod === "bkash"}
                         onChange={() => setPaymentMethod("bkash")}
                       />
-                      <span className="text-[#0f2a44]">বিকাশ (01601014782)</span>
+                      <span className="text-[#0f2a44]">
+                        বিকাশ (01601014782)
+                      </span>
                     </div>
                   </label>
 
@@ -477,6 +471,58 @@ export default function CheckoutPage() {
               </Link>
             </div>
           </div>
+        </div>
+
+        <div className="fab">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-lg btn-circle bg-[#d4af37] text-white shadow-lg transition hover:opacity-90"
+          >
+            <svg
+              aria-label="New"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>
+          </div>
+
+          {/* Messenger */}
+          <a
+            href="https://m.me/yourpage"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
+          >
+            <FaFacebookMessenger className="text-3xl text-[#0084FF]" />
+          </a>
+
+          {/* WhatsApp */}
+          <a
+            href="https://wa.me/8801XXXXXXXXX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
+          >
+            <FaWhatsapp className="text-3xl text-[#25D366]" />
+          </a>
+
+          {/* Phone */}
+          <a
+            href="tel:+8801XXXXXXXXX"
+            className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
+          >
+            <FaPhoneAlt className="text-2xl text-[#34B7F1]" />
+          </a>
         </div>
       </Container>
     </main>

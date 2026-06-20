@@ -59,7 +59,7 @@ const DateAnalyticsCard = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h2 className="text-2xl font-semibold text-stone-800 tracking-tight">Order Insights</h2>
-            <p className="text-stone-500 text-sm mt-1">Review performance metrics by specific date</p>
+            <p className="text-stone-500 text-xs mt-1">Review performance by specific date</p>
           </div>
 
           <div className="flex items-center gap-3 bg-stone-50 p-2 rounded-2xl border border-stone-200">
@@ -142,7 +142,7 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
   };
 
   return (
-    <div className="bg-white border border-stone-100 p-2 rounded-xl transition-all duration-300 hover:shadow-md">
+    <div className="bg-white border border-stone-100 p-4 rounded-xl transition-all duration-300 hover:shadow-md">
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-2xl ${colors[color].split(' ')[0]} border ${colors[color].split(' ')[2]}`}>
           {icon}
