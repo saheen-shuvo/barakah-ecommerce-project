@@ -498,7 +498,7 @@ export default function CheckoutPage() {
 
           {/* Messenger */}
           <a
-            href="https://m.me/yourpage"
+            href="https://web.facebook.com/messages/t/1056581560872471"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
@@ -508,7 +508,7 @@ export default function CheckoutPage() {
 
           {/* WhatsApp */}
           <a
-            href="https://wa.me/8801XXXXXXXXX"
+            href="https://wa.me/8801346496814"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
@@ -518,12 +518,22 @@ export default function CheckoutPage() {
 
           {/* Phone */}
           <a
-            href="tel:+8801XXXXXXXXX"
+            href="tel:+8801346496814"
             className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
           >
             <FaPhoneAlt className="text-2xl text-[#34B7F1]" />
           </a>
         </div>
+        <h1 className="text-sm md:text-lg font-bold text-[#0f2a44] text-center mt-12">
+          অর্ডার করতে কোনো সমস্যা হলে নিচের বাটনে ক্লিক করুন।
+        </h1>
+        <a
+          href="tel:+8801XXXXXXXXX"
+          className="w-40 md:w-48 mt-4 flex items-center gap-2 mx-auto rounded-xl bg-[#0f2a44] px-6 py-3 text-xs md:text-lg font-semibold text-[#f2c94c] transition hover:opacity-95"
+        >
+          <FaPhoneAlt />
+          এখনই কল করুন
+        </a>
       </Container>
     </main>
   );

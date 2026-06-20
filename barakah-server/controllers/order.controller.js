@@ -4,6 +4,7 @@ const {
   transformOrderToSteadfast,
   callSteadfast,
 } = require("../utils/steadfast");
+const { sendAdminOrderNotification } = require("../lib/emailService");
 
 const extractSteadfastShipmentDetails = (steadfastResponse) => {
   const shipment = steadfastResponse?.consignment || steadfastResponse || {};
@@ -90,10 +91,21 @@ exports.createOrder = async (req, res) => {
 
     const result = await ordersCollection.insertOne(orderData);
 
+    const newOrder = {
+      ...orderData,
+      _id: result.insertedId, // Add MongoDB ID
+    };
+
+    sendAdminOrderNotification(newOrder).catch((err) => {
+      console.error("❌ Failed to send email:", err.message);
+      // Don't throw - order is already created, email is optional
+    });
+
     res.status(201).json({
       success: true,
       message: "Order placed successfully",
       insertedId: result.insertedId,
+      data: newOrder, 
     });
   } catch (error) {
     res.status(500).json({

@@ -67,7 +67,7 @@ export default function Footer() {
 
             <div className="flex flex-col gap-2 text-sm text-white/60">
               <p>barakahislamicclock@gmail.com</p>
-              <p>+8801601014782</p>
+              <p>+8801346496814</p>
               <p>Uttara, Dhaka, Bangladesh</p>
             </div>
           </div>
