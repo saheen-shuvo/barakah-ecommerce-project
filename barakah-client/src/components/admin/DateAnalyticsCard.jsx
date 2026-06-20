@@ -1,12 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { 
-  Calendar, 
-  Package, 
-  CircleCheck, 
-  CircleX, 
-  Search,
-} from "lucide-react";
+import { Calendar, Package, CircleCheck, CircleX, Search } from "lucide-react";
 
 const toInputFormat = (ddmmyyyy) => {
   if (!ddmmyyyy || !ddmmyyyy.includes("-")) return "";
@@ -30,14 +24,23 @@ const DateAnalyticsCard = () => {
   const [analytics, setAnalytics] = useState(null);
 
   const total = analytics?.totalOrders || 0;
-  const deliverySuccessRate = total > 0 ? (((analytics?.totalDelivered || 0) / total) * 100).toFixed(1) : "0.0";
-  const cancellationRate = total > 0 ? (((analytics?.totalCancelled || 0) / total) * 100).toFixed(1) : "0.0";
+  const deliverySuccessRate =
+    total > 0
+      ? (((analytics?.totalDelivered || 0) / total) * 100).toFixed(1)
+      : "0.0";
+  const cancellationRate =
+    total > 0
+      ? (((analytics?.totalCancelled || 0) / total) * 100).toFixed(1)
+      : "0.0";
 
   const fetchByDate = async (ddmmyyyy) => {
     if (!baseUrl || !ddmmyyyy) return;
     setLoading(true);
     try {
-      const res = await fetch(`${baseUrl}/api/orders/by-date?date=${ddmmyyyy}`, { cache: "no-store" });
+      const res = await fetch(
+        `${baseUrl}/api/orders/by-date?date=${ddmmyyyy}`,
+        { cache: "no-store" },
+      );
       const data = await res.json();
       if (data.success) setAnalytics(data.data);
     } catch (error) {
@@ -56,10 +59,14 @@ const DateAnalyticsCard = () => {
     <div className=" bg-[#fdfcfb] rounded-2xl border border-stone-200 shadow-xl shadow-stone-200/50 overflow-hidden">
       {/* Header & Controls */}
       <div className="p-4 border-b border-stone-100 bg-white">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-5.5">
           <div>
-            <h2 className="text-2xl font-semibold text-stone-800 tracking-tight">Order Insights</h2>
-            <p className="text-stone-500 text-xs mt-1">Review performance by specific date</p>
+            <h2 className="text-2xl font-semibold text-stone-800 tracking-tight">
+              Order Insights
+            </h2>
+            <p className="text-stone-500 text-xs mt-1">
+              Review performance by specific date
+            </p>
           </div>
 
           <div className="flex items-center gap-3 bg-stone-50 p-2 rounded-2xl border border-stone-200">
@@ -79,9 +86,13 @@ const DateAnalyticsCard = () => {
               className="flex items-center gap-2 bg-[#d4af37] hover:bg-[#b8962d] disabled:bg-stone-300 text-white px-5 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg shadow-gold/20"
             >
               {loading ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <>
+                  <Search className="w-4 h-4 text-green-600" /> Search
+                </>
               ) : (
-                <><Search className="w-4 h-4" /> Search</>
+                <>
+                  <Search className="w-4 h-4" /> Search
+                </>
               )}
             </button>
           </div>
@@ -93,29 +104,29 @@ const DateAnalyticsCard = () => {
         {analytics ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {/* Stat Card 1: Total Orders */}
-            <StatCard 
-              label="Total Orders" 
-              value={analytics?.totalOrders ?? 0} 
-              subValue={analytics?.totalOrdersRevenue ?? 0} 
+            <StatCard
+              label="Total Orders"
+              value={analytics?.totalOrders ?? 0}
+              subValue={analytics?.totalOrdersRevenue ?? 0}
               icon={<Package className="w-5 h-5 text-amber-600" />}
               color="amber"
             />
 
             {/* Stat Card 2: Delivered */}
-            <StatCard 
-              label="Delivered" 
-              value={analytics?.totalDelivered ?? 0} 
-              subValue={analytics?.totalRevenue ?? 0} 
+            <StatCard
+              label="Delivered"
+              value={analytics?.totalDelivered ?? 0}
+              subValue={analytics?.totalRevenue ?? 0}
               icon={<CircleCheck className="w-5 h-5 text-emerald-600" />}
               color="emerald"
               badge={`${deliverySuccessRate}% Success`}
             />
 
             {/* Stat Card 3: Cancelled */}
-            <StatCard 
-              label="Cancelled" 
-              value={analytics?.totalCancelled ?? 0} 
-              subValue={analytics?.cancelledRevenue ?? 0} 
+            <StatCard
+              label="Cancelled"
+              value={analytics?.totalCancelled ?? 0}
+              subValue={analytics?.cancelledRevenue ?? 0}
               icon={<CircleX className="w-5 h-5 text-rose-600" />}
               color="rose"
               badge={`${cancellationRate}% Rate`}
@@ -124,8 +135,12 @@ const DateAnalyticsCard = () => {
         ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-stone-200 rounded-3xl bg-stone-50/50">
             <Calendar className="w-12 h-12 text-stone-300 mb-4" />
-            <h3 className="text-stone-800 font-medium text-lg">No data selected</h3>
-            <p className="text-stone-500 max-w-xs mx-auto">Please select a date from the picker above to view analytics.</p>
+            <h3 className="text-stone-800 font-medium text-lg">
+              No data selected
+            </h3>
+            <p className="text-stone-500 max-w-xs mx-auto">
+              Please select a date from the picker above to view analytics.
+            </p>
           </div>
         )}
       </div>
@@ -144,24 +159,32 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
   return (
     <div className="bg-white border border-stone-100 p-4 rounded-xl transition-all duration-300 hover:shadow-md">
       <div className="flex justify-between items-start mb-4">
-        <div className={`p-3 rounded-2xl ${colors[color].split(' ')[0]} border ${colors[color].split(' ')[2]}`}>
+        <div
+          className={`p-3 rounded-2xl ${colors[color].split(" ")[0]} border ${colors[color].split(" ")[2]}`}
+        >
           {icon}
         </div>
         {badge && (
-          <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tight ${colors[color]}`}>
+          <span
+            className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tight ${colors[color]}`}
+          >
             {badge}
           </span>
         )}
       </div>
       <div>
-        <p className="text-stone-500 text-xs font-medium uppercase tracking-wider">{label}</p>
+        <p className="text-stone-500 text-xs font-medium uppercase tracking-wider">
+          {label}
+        </p>
         <div className="flex items-baseline gap-2 mt-1">
           <h3 className="text-3xl font-bold text-stone-800">{value}</h3>
         </div>
         <div className="flex items-center gap-1 mt-3 text-stone-600 font-medium">
           <span className="text-sm tracking-tight">
-            BDT {" "}
-            {typeof subValue === "number" ? subValue.toLocaleString() : Number(subValue || 0).toLocaleString()}
+            BDT{" "}
+            {typeof subValue === "number"
+              ? subValue.toLocaleString()
+              : Number(subValue || 0).toLocaleString()}
           </span>
         </div>
       </div>

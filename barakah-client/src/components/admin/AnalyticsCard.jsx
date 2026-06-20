@@ -1,22 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
+import {
+  Calendar,
+  Package,
+  CheckCircle2,
+  XCircle,
+  Download,
+  Search,
+} from "lucide-react";
 
 const AnalyticsCard = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  const [days, setDays] = useState(7);
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 7);
+    return d.toISOString().split("T")[0];
+  });
+
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [analytics, setAnalytics] = useState({
-    totalOrders: 0,
-    totalOrdersRevenue: 0,
-    deliveredOrders: 0,
-    deliveredRevenue: 0,
-    totalCancelled: 0,
-    cancelledRevenue: 0,
-    totalPending: 0,
-  });
+  const [analytics, setAnalytics] = useState(null);
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -26,12 +35,12 @@ const AnalyticsCard = () => {
     return `${day}-${month}-${year}`;
   };
 
-  const fetchAnalytics = async (daysCount) => {
-    if (!baseUrl) return;
+  const fetchAnalytics = async (start, end) => {
+    if (!baseUrl || !start || !end) return;
     setLoading(true);
     try {
       const res = await fetch(
-        `${baseUrl}/api/orders/analytics?days=${daysCount}`,
+        `${baseUrl}/api/orders/analytics?startDate=${start}&endDate=${end}`,
         { cache: "no-store" },
       );
       const data = await res.json();
@@ -44,15 +53,16 @@ const AnalyticsCard = () => {
   };
 
   useEffect(() => {
-    void fetchAnalytics(days);
+    void fetchAnalytics(startDate, endDate);
   }, []);
 
   const handleExportCSV = async () => {
     setExporting(true);
     try {
-      const res = await fetch(`${baseUrl}/api/orders/export?days=${days}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `${baseUrl}/api/orders/export?startDate=${startDate}&endDate=${endDate}`,
+        { cache: "no-store" },
+      );
       const data = await res.json();
       if (!data.success) return;
 
@@ -81,7 +91,7 @@ const AnalyticsCard = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `orders-last-${days}-days.csv`;
+      link.download = `orders-${startDate}-to-${endDate}.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -91,91 +101,208 @@ const AnalyticsCard = () => {
     }
   };
 
+  // Calculate metrics
+  const deliverySuccessRate =
+    analytics && analytics.totalOrders > 0
+      ? Math.round((analytics.deliveredOrders / analytics.totalOrders) * 100)
+      : 0;
+
+  const cancellationRate =
+    analytics && analytics.totalOrders > 0
+      ? Math.round((analytics.totalCancelled / analytics.totalOrders) * 100)
+      : 0;
+
   return (
-    <div className="bg-white rounded-2xl border border-[#e5dccf] p-6">
-      <div className="flex flex-col gap-4 items-start justify-between">
-        <p className="text-sm text-gray-500">Total Order Analytics</p>
+    <div className="bg-[#fdfcfb] rounded-2xl border border-stone-200 shadow-xl shadow-stone-200/50 overflow-hidden">
+      {/* Header & Controls */}
+      <div className="p-4 border-b border-stone-100 bg-white">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-stone-800 tracking-tight">
+              Order Analytics
+            </h2>
+            <p className="text-stone-500 text-xs mt-1 mb-2 md:mb-0">
+              Review by selected date range
+            </p>
+          </div>
 
-        <div className="flex gap-2 items-center">
-          <span className="text-sm text-gray-500">Last</span>
+          <div className="flex flex-col md:flex-row gap-3 items-start justify-center w-full md:w-auto md:items-end">
+            {/* Date Range Inputs */}
+            <div className="flex flex-col gap-1 bg-stone-50 p-3 rounded-2xl border border-stone-200 w-full">
+              <div className="flex flex-col">
+                <label className="text-xs text-stone-600 font-medium uppercase tracking-tight">
+                  From
+                </label>
+                <div className="relative flex items-center">
+                  <Calendar className="absolute left-3 w-4 h-4 text-stone-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="bg-transparent pl-10 text-sm font-medium text-stone-700 focus:outline-none cursor-pointer w-full"
+                  />
+                </div>
+              </div>
 
-          <input
-            type="number"
-            min="1"
-            value={days}
-            onChange={(e) => setDays(parseInt(e.target.value, 10) || 1)}
-            className="input input-bordered w-16 border-gray-300 focus:border-[#d4af37] focus:ring-0"
-          />
+              <div className="flex flex-col">
+                <label className="text-xs text-stone-600 font-medium uppercase tracking-tight">
+                  To
+                </label>
+                <div className="relative flex items-center">
+                  <Calendar className="absolute left-3 w-4 h-4 text-stone-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="bg-transparent pl-10 text-sm font-medium text-stone-700 focus:outline-none cursor-pointer w-full"
+                  />
+                </div>
+              </div>
+            </div>
 
-          <span className="text-sm text-gray-500">Days</span>
+            {/* Action Buttons */}
+            <div className="flex flex-row md:flex-col gap-2 mb-0 md:mb-2 justify-center w-full md:w-auto">
+              <button
+                onClick={() => fetchAnalytics(startDate, endDate)}
+                disabled={loading || !startDate || !endDate}
+                className="flex items-center gap-2 bg-[#d4af37] hover:bg-[#b8962d] disabled:bg-stone-300 text-white px-5 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg shadow-stone-300/20 disabled:shadow-none"
+              >
+                {loading ? (
+                  <>
+                    <Search className="w-4 h-4 text-green-600" /> Search
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" /> Search
+                  </>
+                )}
+              </button>
 
-          <div className="flex flex-col md:flex-row gap-1 md:gap-2">
-            <button
-              onClick={() => fetchAnalytics(days)}
-              disabled={loading}
-              className="btn btn-xs md:btn-md bg-[#d4af37] text-white border-none disabled:opacity-60 text-xs w-20"
-            >
-              {loading ? "Searching..." : "Search"}
-            </button>
-            <button
-              onClick={handleExportCSV}
-              disabled={exporting}
-              className="btn btn-xs md:btn-md bg-[#0f2a44] text-white border-none disabled:opacity-60 text-xs w-20"
-            >
-              {exporting ? "Exporting..." : "Export"}
-            </button>
+              <button
+                onClick={handleExportCSV}
+                disabled={exporting || !startDate || !endDate || !analytics}
+                className="flex items-center gap-2 bg-[#0f2a44] hover:bg-[#1e4b7e] disabled:bg-stone-300 text-white px-5 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg shadow-stone-300/20 disabled:shadow-none"
+              >
+                {exporting ? (
+                  <>
+                    <Download className="w-4 h-4 text-green-600" /> Export
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" /> Export
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
+      {/* Main Content */}
+      <div className="p-4">
         {analytics ? (
-          <div className="grid grid-cols-2 justify-between gap-6 w-full">
-            <div>
-              <p className="text-sm text-gray-500">Total Orders</p>
-              <h3 className="text-3xl font-bold text-[#d4af37]">
-                {analytics.totalOrders}
-              </h3>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            {/* Total Orders */}
+            <StatCard
+              label="Total Orders"
+              value={analytics?.totalOrders ?? 0}
+              subValue={analytics?.totalOrdersRevenue ?? 0}
+              icon={<Package className="w-5 h-5 text-amber-600" />}
+              color="amber"
+            />
 
-            <div>
-              <p className="text-sm text-gray-500">Total Amount</p>
-              <h3 className="text-3xl font-bold text-[#d4af37]">
-                {analytics.totalOrdersRevenue}
-              </h3>
-            </div>
+            {/* Delivered */}
+            <StatCard
+              label="Delivered"
+              value={analytics?.deliveredOrders ?? 0}
+              subValue={analytics?.deliveredRevenue ?? 0}
+              icon={<CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+              color="emerald"
+              badge={`${deliverySuccessRate}% Success`}
+            />
 
-            <div>
-              <p className="text-sm text-gray-500">Delivered</p>
-              <h3 className="text-3xl font-bold text-green-600">
-                {analytics.deliveredOrders}
-              </h3>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500">Delivered Amount</p>
-              <h3 className="text-3xl font-bold text-green-600">
-                {analytics.deliveredRevenue}
-              </h3>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500">Cancelled</p>
-              <h3 className="text-3xl font-bold text-red-500">
-                {analytics.totalCancelled}
-              </h3>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500">Cancelled Amount</p>
-              <h3 className="text-3xl font-bold text-red-500">
-                {analytics.cancelledRevenue}
-              </h3>
-            </div>
+            {/* Cancelled */}
+            <StatCard
+              label="Cancelled"
+              value={analytics?.totalCancelled ?? 0}
+              subValue={analytics?.cancelledRevenue ?? 0}
+              icon={<XCircle className="w-5 h-5 text-rose-600" />}
+              color="rose"
+              badge={`${cancellationRate}% Rate`}
+            />
           </div>
         ) : (
-          <p className="text-sm text-gray-400">
-            Select a date and press Search
-          </p>
+          <div className="py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-stone-200 rounded-3xl bg-stone-50/50">
+            <Calendar className="w-12 h-12 text-stone-300 mb-4" />
+            <h3 className="text-stone-800 font-medium text-lg">
+              No data selected
+            </h3>
+            <p className="text-stone-500 max-w-xs mx-auto text-sm mt-1">
+              Please select a date range and click Search to view analytics.
+            </p>
+          </div>
         )}
+      </div>
+    </div>
+  );
+};
+
+// Stat Card Sub-component
+const StatCard = ({ label, value, subValue, icon, color, badge }) => {
+  const colors = {
+    amber: {
+      bg: "bg-amber-50",
+      text: "text-amber-700",
+      border: "border-amber-100",
+    },
+    emerald: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      border: "border-emerald-100",
+    },
+    rose: {
+      bg: "bg-rose-50",
+      text: "text-rose-700",
+      border: "border-rose-100",
+    },
+  };
+
+  const colorScheme = colors[color];
+
+  return (
+    <div className="bg-white border border-stone-100 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:border-stone-200">
+      {/* Header with Icon and Badge */}
+      <div className="flex justify-between items-start mb-4">
+        <div
+          className={`p-3 rounded-2xl ${colorScheme.bg} border ${colorScheme.border}`}
+        >
+          {icon}
+        </div>
+        {badge && (
+          <span
+            className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tight ${colorScheme.bg} ${colorScheme.text} border ${colorScheme.border}`}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div>
+        <p className="text-stone-500 text-xs font-medium uppercase tracking-wider mb-1">
+          {label}
+        </p>
+        <h3 className="text-3xl font-bold text-stone-800 mb-2">{value}</h3>
+
+        {/* Revenue */}
+        <div className="flex items-center gap-1 text-stone-600 font-medium">
+          <span className="text-sm tracking-tight">
+            BDT{" "}
+            {typeof subValue === "number"
+              ? subValue.toLocaleString()
+              : Number(subValue || 0).toLocaleString()}
+          </span>
+        </div>
       </div>
     </div>
   );

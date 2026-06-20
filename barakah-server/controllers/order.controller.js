@@ -228,13 +228,29 @@ exports.getDeliveredAnalytics = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
 
-    const days = Number(req.query.days) || 1;
+    // Get startDate and endDate from query params
+    const { startDate, endDate } = req.query;
 
-    const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - days + 1);
-    fromDate.setHours(0, 0, 0, 0);
+    // Validate dates
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: "startDate and endDate are required",
+      });
+    }
 
-    const dateFilter = { $gte: fromDate };
+    // Parse dates
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Include entire end date
+
+    // Create date filter for range
+    const dateFilter = {
+      $gte: start,
+      $lte: end,
+    };
 
     const [
       deliveredOrders,
@@ -283,10 +299,11 @@ exports.getDeliveredAnalytics = async (req, res) => {
     res.json({
       success: true,
       data: {
-        days,
-        totalOrders, // all orders regardless of status
+        startDate,
+        endDate,
+        totalOrders,
         totalOrdersRevenue,
-        deliveredOrders: deliveredCount, // renamed from totalOrders
+        deliveredOrders: deliveredCount,
         deliveredRevenue: totalRevenue,
         totalCancelled: cancelledCount,
         cancelledRevenue,
@@ -383,17 +400,31 @@ exports.getOrdersForExport = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
 
-    const days = Number(req.query.days) || 7;
+    const { startDate, endDate } = req.query;
 
-    const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - days + 1);
-    fromDate.setHours(0, 0, 0, 0);
+    // Validate dates
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: "startDate and endDate are required",
+      });
+    }
+
+    // Parse dates
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Include entire end date
+
+    // Date range filter
+    const dateRange = { $gte: start, $lte: end };
 
     const orders = await ordersCollection
       .find({
         $or: [
-          { status: "delivered", deliveredAt: { $gte: fromDate } },
-          { status: "cancelled", cancelledAt: { $gte: fromDate } },
+          { status: "delivered", deliveredAt: dateRange },
+          { status: "cancelled", cancelledAt: dateRange },
         ],
       })
       .sort({ createdAt: -1 })

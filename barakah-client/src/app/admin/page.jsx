@@ -1,6 +1,7 @@
 import AnalyticsCard from "@/components/admin/AnalyticsCard";
 import DateAnalyticsCard from "@/components/admin/DateAnalyticsCard";
 import AdminRoute from "@/components/auth/AdminRoute";
+import { Layers, Package } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -96,14 +97,36 @@ export default async function AdminHomePage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-500">Total Products</p>
-            <h3 className="text-3xl font-bold mt-2">{totalProducts}</h3>
+          <div className="bg-white p-6 rounded-xl border border-stone-100 transition-all duration-300 hover:shadow-md">
+            <div className="flex items-start  gap-4">
+              <div className="p-3 rounded-2xl bg-blue-50 border border-blue-100">
+                <Layers className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-stone-500 font-medium uppercase tracking-wider">
+                  Total Products
+                </p>
+                <h3 className="text-4xl font-bold text-stone-800 mt-2">
+                  {totalProducts}
+                </h3>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-500">Total Orders</p>
-            <h3 className="text-3xl font-bold mt-2">{totalOrders}</h3>
+          <div className="bg-white p-6 rounded-xl border border-stone-100 transition-all duration-300 hover:shadow-md">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-100">
+                <Package className="w-5 h-5 text-amber-600 " />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-stone-500 font-medium uppercase tracking-wider">
+                  Total Orders
+                </p>
+                <h3 className="text-4xl font-bold text-stone-800 mt-2">
+                  {totalOrders}
+                </h3>
+              </div>
+            </div>
           </div>
 
           {/* <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -130,7 +153,7 @@ export default async function AdminHomePage() {
 
           <AnalyticsCard />
 
-          <DateAnalyticsCard/>
+          <DateAnalyticsCard />
         </div>
 
         {/* Quick Actions */}
