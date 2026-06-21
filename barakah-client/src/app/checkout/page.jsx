@@ -473,7 +473,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="fab">
+        <div className="fab fixed bottom-5 right-5 z-[9999] pointer-events-auto touch-manipulation">
           <div
             tabIndex={0}
             role="button"
@@ -528,7 +528,7 @@ export default function CheckoutPage() {
           অর্ডার করতে কোনো সমস্যা হলে নিচের বাটনে ক্লিক করুন।
         </h1>
         <a
-          href="tel:+8801XXXXXXXXX"
+          href="tel:+8801346496814"
           className="w-40 md:w-48 mt-4 flex items-center gap-2 mx-auto rounded-xl bg-[#0f2a44] px-6 py-3 text-xs md:text-lg font-semibold text-[#f2c94c] transition hover:opacity-95"
         >
           <FaPhoneAlt />

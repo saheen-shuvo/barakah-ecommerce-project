@@ -34,28 +34,62 @@ const extractSteadfastShipmentDetails = (steadfastResponse) => {
 
 const getFraudData = async (phone) => {
   try {
-    const response = await fetch(
-      `https://portal.packzy.com/api/v1/fraud_check/${phone}`,
-      {
-        method: "GET",
-        headers: {
-          "Api-Key": process.env.STEADFAST_API_KEY,
-          "Secret-Key": process.env.STEADFAST_SECRET_KEY,
-          "Content-Type": "application/json",
-        },
-        signal: AbortSignal.timeout(5000),
+    const res = await fetch("https://api.bdcourier.com/courier-check", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.BDC_API_KEY}`,
       },
-    );
+      body: JSON.stringify({ phone }),
+    });
 
-    if (!response.ok) {
-      throw new Error(`API responded with status ${response.status}`);
-    }
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-    return await response.json();
+    const data = await res.json();
+    return normalizeFraudData(data);
   } catch (error) {
-    console.error("Fraud Check Fetch Error:", error.message);
+    console.error("Failed to fetch BD Courier data:", error.message);
     return null;
   }
+};
+
+const normalizeFraudData = (api) => {
+  const dataBlock = api?.data || {};
+  const summary = dataBlock.summary || {};
+  const verdict = api?.risk_verdict || {};
+
+  const parseCourier = (courierKey) => {
+    const c = dataBlock[courierKey] || {};
+    return {
+      total: c.total_parcel || 0,
+      delivered: c.success_parcel || 0,
+      cancelled: c.cancelled_parcel || 0,
+      successRatio: c.success_ratio || 0,
+    };
+  };
+
+  return {
+    totalParcels: summary.total_parcel || 0,
+    totalDelivered: summary.success_parcel || 0,
+    totalCancelled: summary.cancelled_parcel || 0,
+    successRatio: summary.success_ratio || 0,
+    fraudReports: Array.isArray(api?.reports) ? api.reports.length : 0,
+
+    riskLevel: verdict.level || "unknown",
+    riskLabel: verdict.label || "Unknown",
+    riskAction: verdict.action || "",
+    riskColor: verdict.color || "gray",
+
+    needsVerification: verdict.level !== "safe",
+    apiStatus: api?.status || "success",
+    flagReason: verdict.reasons?.join(", ") || "None",
+
+    couriers: {
+      pathao: parseCourier("pathao"),
+      steadfast: parseCourier("steadfast"),
+      redx: parseCourier("redx"),
+    },
+  };
 };
 
 exports.createOrder = async (req, res) => {
@@ -102,20 +136,22 @@ exports.createOrder = async (req, res) => {
       ]);
 
     const apiFailed = fraudData === null;
+    const fraud = fraudData || {};
 
     const {
-      total_parcels: totalParcels = 0,
-      total_delivered: totalDelivered = 0,
-      total_cancelled: totalCancelled = 0,
-      fraud_report: fraudReport = [],
-    } = fraudData || {};
+      totalParcels = 0,
+      totalDelivered = 0,
+      totalCancelled = 0,
+      successRatio = 100,
+      fraudReports = 0,
+      couriers = {
+        pathao: { total: 0, delivered: 0, cancelled: 0, successRatio: 0 },
+        steadfast: { total: 0, delivered: 0, cancelled: 0, successRatio: 0 },
+        redx: { total: 0, delivered: 0, cancelled: 0, successRatio: 0 },
+      },
+    } = fraud;
 
-    const totalFraudReports = fraudReport.length;
-
-    const successRatio =
-      totalParcels > 0
-        ? Number(((totalDelivered / totalParcels) * 100).toFixed(2))
-        : 100;
+    const totalFraudReports = fraudReports;
 
     let needsVerification = false;
     let flagReason = "None (Order Passed)";
@@ -128,13 +164,13 @@ exports.createOrder = async (req, res) => {
       flagReason = `High Internal Blacklist (Store Cancelled Orders: ${totalCancelledWebsiteOrders} > 10)`;
     } else if (totalFraudReports > 0) {
       needsVerification = true;
-      flagReason = `Explicit External Fraud Report Found (Reports: ${totalFraudReports})`;
+      flagReason = `External Fraud Report Found (${totalFraudReports})`;
     } else if (totalParcels >= 3 && successRatio < 60) {
       needsVerification = true;
-      flagReason = `Global Courier Risk Profile (Parcels: ${totalParcels}, Ratio: ${successRatio}% < 60%)`;
+      flagReason = `Global Risk Profile (${totalParcels}, ${successRatio}%)`;
     } else if (totalWebsiteOrders > 10 && successRatio < 75) {
       needsVerification = true;
-      flagReason = `Local Spamming Trigger (Store Orders: ${totalWebsiteOrders}, Ratio: ${successRatio}% < 75%)`;
+      flagReason = `Local Spam Trigger (${totalWebsiteOrders}, ${successRatio}%)`;
     }
 
     const orderData = {
@@ -147,7 +183,7 @@ exports.createOrder = async (req, res) => {
       items,
       subtotal: Number(subtotal) || 0,
       total: Number(total) || 0,
-      status: needsVerification ? "verification_required" : "pending", 
+      status: needsVerification ? "verification_required" : "pending",
       createdAt: new Date(),
       paymentMethod,
       accountLast4,
@@ -166,7 +202,13 @@ exports.createOrder = async (req, res) => {
         successRatio,
         needsVerification,
         apiStatus: apiFailed ? "failed" : "success",
-        flagReason 
+        flagReason,
+
+        riskLevel: fraud.riskLevel || null,
+        riskLabel: fraud.riskLabel || null,
+        riskAction: fraud.riskAction || null,
+        riskColor: fraud.riskColor || null,
+        couriers,
       },
     };
 

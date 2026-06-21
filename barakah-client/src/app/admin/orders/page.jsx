@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import LoadingAnimation from "@/components/shared/LoadingAnimation";
+import { LuPhone } from "react-icons/lu";
 
 export default function OrdersPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -728,7 +729,7 @@ export default function OrdersPage() {
               </button>
             </div>
 
-            <div className="p-5 space-y-6">
+            <div className="p-5 space-y-4">
               {/* Customer Info */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-[#e5dccf] p-4">
@@ -742,9 +743,19 @@ export default function OrdersPage() {
                       {selectedOrder.customerName}
                     </p>
 
-                    <p>
-                      <span className="font-semibold">Phone:</span>{" "}
-                      {selectedOrder.phone}
+                    <p className="flex items-center gap-3">
+                      <span>
+                        <span className="font-semibold">Phone:</span>{" "}
+                        {selectedOrder.phone}
+                      </span>
+
+                      <a
+                        href={`tel:${selectedOrder.phone}`}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-green-700 px-3 py-1 text-xs font-semibold text-white hover:bg-green-800 transition-colors"
+                      >
+                        <LuPhone className="w-3 h-3" />
+                        <span>Call</span>
+                      </a>
                     </p>
 
                     <p>
@@ -894,6 +905,111 @@ export default function OrdersPage() {
                   </div>
                 </div>
               </div>
+
+              {selectedOrder.fraudCheck && (
+                <div className="rounded-xl border border-[#e5dccf] p-4">
+                  <div className="">
+                    {/* Header with Badges */}
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                      <h3 className="font-semibold text-base text-[#3d2f1f]">
+                        Fraud Analysis
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        {/* API Status Badge */}
+                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-[#f4ede4] text-[#7a6a58]">
+                          API: {selectedOrder.fraudCheck.apiStatus}
+                        </span>
+
+                        {/* Verification Status Badge */}
+                        {selectedOrder.fraudCheck.needsVerification ? (
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 animate-pulse">
+                            Needs Verification
+                          </span>
+                        ) : (
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                            Safe
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Flag Reason Alert Banner (Only shows if there is a reason) */}
+                    {selectedOrder.fraudCheck.flagReason && (
+                      <div className="mb-4 p-3 rounded-lg shadow-xs border border-[#e5dccf] text-sm text-[#7a6a58]">
+                        <span className="font-medium text-[#3d2f1f]">
+                          Note:
+                        </span>{" "}
+                        {selectedOrder.fraudCheck.flagReason}
+                      </div>
+                    )}
+
+                    {/* Metrics Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-[#3d2f1f]">
+                      {/* Success Ratio Card */}
+                      <div className="p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex flex-col gap-1">
+                        <span className="text-xs text-[#7a6a58] font-medium">
+                          Success Ratio
+                        </span>
+                        <span className="text-xl font-bold text-[#3d2f1f]">
+                          {selectedOrder.fraudCheck.successRatio}%
+                        </span>
+                      </div>
+
+                      {/* Courier Stats Card */}
+                      <div className="p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex flex-col justify-between">
+                        <span className="text-xs text-[#7a6a58] font-medium">
+                          Courier Parcels
+                        </span>
+                        <div className="flex items-baseline justify-between mt-1">
+                          <span className="text-lg font-bold">
+                            {selectedOrder.fraudCheck.totalParcels}
+                          </span>
+                          <div className="text-xs space-x-1.5 text-right">
+                            <span className="text-emerald-600 font-medium">
+                              ✓{selectedOrder.fraudCheck.totalDelivered}
+                            </span>
+                            <span className="text-rose-600 font-medium">
+                              ✕{selectedOrder.fraudCheck.totalCancelled}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Website Orders Card */}
+                      <div className="p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex flex-col justify-between">
+                        <span className="text-xs text-[#7a6a58] font-medium">
+                          Website Orders
+                        </span>
+                        <div className="flex items-baseline justify-between mt-1">
+                          <span className="text-lg font-bold">
+                            {selectedOrder.fraudCheck.totalWebsiteOrders}
+                          </span>
+                          <span className="text-xs text-rose-600 font-medium">
+                            ✕
+                            {
+                              selectedOrder.fraudCheck
+                                .totalCancelledWebsiteOrders
+                            }{" "}
+                            cancelled
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Fraud Reports (Spans full width on small screens for emphasis if needed, or stays grid) */}
+                      <div className="col-span-2 sm:col-span-3 p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex items-center justify-between">
+                        <span className="text-xs text-[#7a6a58] font-medium">
+                          Known Fraud Reports
+                        </span>
+                        <span
+                          className={`text-base font-bold ${selectedOrder.fraudCheck.totalFraudReports > 0 ? "text-rose-600" : "text-emerald-600"}`}
+                        >
+                          {selectedOrder.fraudCheck.totalFraudReports} Reports
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Ordered Items */}
               <div className="rounded-xl border border-[#e5dccf] p-4">
