@@ -77,7 +77,7 @@ async function sendAdminOrderNotification(orderData) {
     await transporter.sendMail({
       from: process.env.GMAIL_USER,
       to: process.env.ADMIN_EMAIL,
-      subject: `নতুন অর্ডার - ${customerName} (${paymentDisplay})`,
+      subject: `নতুন অর্ডার - ${customerName}`,
       html: htmlContent,
     });
 

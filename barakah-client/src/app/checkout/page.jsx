@@ -421,9 +421,9 @@ export default function CheckoutPage() {
               </div>
 
               <div className="space-y-4">
-                {cartItems.map((item) => (
+                {cartItems.map((item, index) => (
                   <div
-                    key={item.id}
+                    key={item._id || item.productId || index}
                     className="flex items-center justify-between gap-4 border-b border-[#0f2a44]/10 pb-4"
                   >
                     <div>

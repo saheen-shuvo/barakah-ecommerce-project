@@ -32,6 +32,32 @@ const extractSteadfastShipmentDetails = (steadfastResponse) => {
   };
 };
 
+const getFraudData = async (phone) => {
+  try {
+    const response = await fetch(
+      `https://portal.packzy.com/api/v1/fraud_check/${phone}`,
+      {
+        method: "GET",
+        headers: {
+          "Api-Key": process.env.STEADFAST_API_KEY,
+          "Secret-Key": process.env.STEADFAST_SECRET_KEY,
+          "Content-Type": "application/json",
+        },
+        signal: AbortSignal.timeout(5000),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`API responded with status ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fraud Check Fetch Error:", error.message);
+    return null;
+  }
+};
+
 exports.createOrder = async (req, res) => {
   try {
     const db = await connectDB();
@@ -68,6 +94,49 @@ exports.createOrder = async (req, res) => {
       });
     }
 
+    const [totalWebsiteOrders, totalCancelledWebsiteOrders, fraudData] =
+      await Promise.all([
+        ordersCollection.countDocuments({ phone }),
+        ordersCollection.countDocuments({ phone, status: "cancelled" }),
+        getFraudData(phone),
+      ]);
+
+    const apiFailed = fraudData === null;
+
+    const {
+      total_parcels: totalParcels = 0,
+      total_delivered: totalDelivered = 0,
+      total_cancelled: totalCancelled = 0,
+      fraud_report: fraudReport = [],
+    } = fraudData || {};
+
+    const totalFraudReports = fraudReport.length;
+
+    const successRatio =
+      totalParcels > 0
+        ? Number(((totalDelivered / totalParcels) * 100).toFixed(2))
+        : 100;
+
+    let needsVerification = false;
+    let flagReason = "None (Order Passed)";
+
+    if (apiFailed) {
+      needsVerification = true;
+      flagReason = "API Failed / Timeout Fallback Protection";
+    } else if (totalCancelledWebsiteOrders > 10) {
+      needsVerification = true;
+      flagReason = `High Internal Blacklist (Store Cancelled Orders: ${totalCancelledWebsiteOrders} > 10)`;
+    } else if (totalFraudReports > 0) {
+      needsVerification = true;
+      flagReason = `Explicit External Fraud Report Found (Reports: ${totalFraudReports})`;
+    } else if (totalParcels >= 3 && successRatio < 60) {
+      needsVerification = true;
+      flagReason = `Global Courier Risk Profile (Parcels: ${totalParcels}, Ratio: ${successRatio}% < 60%)`;
+    } else if (totalWebsiteOrders > 10 && successRatio < 75) {
+      needsVerification = true;
+      flagReason = `Local Spamming Trigger (Store Orders: ${totalWebsiteOrders}, Ratio: ${successRatio}% < 75%)`;
+    }
+
     const orderData = {
       customerName,
       phone,
@@ -78,7 +147,7 @@ exports.createOrder = async (req, res) => {
       items,
       subtotal: Number(subtotal) || 0,
       total: Number(total) || 0,
-      status: "pending",
+      status: needsVerification ? "verification_required" : "pending", 
       createdAt: new Date(),
       paymentMethod,
       accountLast4,
@@ -87,30 +156,45 @@ exports.createOrder = async (req, res) => {
         traffic_medium: "",
         traffic_campaign: "",
       },
+      fraudCheck: {
+        totalWebsiteOrders,
+        totalCancelledWebsiteOrders,
+        totalParcels,
+        totalDelivered,
+        totalCancelled,
+        totalFraudReports,
+        successRatio,
+        needsVerification,
+        apiStatus: apiFailed ? "failed" : "success",
+        flagReason 
+      },
     };
 
     const result = await ordersCollection.insertOne(orderData);
 
     const newOrder = {
       ...orderData,
-      _id: result.insertedId, // Add MongoDB ID
+      _id: result.insertedId,
     };
 
     sendAdminOrderNotification(newOrder).catch((err) => {
-      console.error("❌ Failed to send email:", err.message);
-      // Don't throw - order is already created, email is optional
+      console.error("Failed to send email Notification:", err.message);
     });
 
     res.status(201).json({
       success: true,
-      message: "Order placed successfully",
+      message: needsVerification
+        ? "Extra verification required"
+        : "Order placed successfully",
+      verificationRequired: needsVerification,
       insertedId: result.insertedId,
-      data: newOrder, 
+      data: newOrder,
     });
   } catch (error) {
+    console.error("Failed to create order:", error);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Internal server error",
     });
   }
 };
