@@ -332,12 +332,14 @@ exports.getOrderCounts = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
 
-    const [all, pending, delivered, cancelled] = await Promise.all([
-      ordersCollection.countDocuments(),
-      ordersCollection.countDocuments({ status: "pending" }),
-      ordersCollection.countDocuments({ status: "delivered" }),
-      ordersCollection.countDocuments({ status: "cancelled" }),
-    ]);
+    const [all, pending, delivered, cancelled, verification_required] =
+      await Promise.all([
+        ordersCollection.countDocuments(),
+        ordersCollection.countDocuments({ status: "pending" }),
+        ordersCollection.countDocuments({ status: "delivered" }),
+        ordersCollection.countDocuments({ status: "cancelled" }),
+        ordersCollection.countDocuments({ status: "verification_required" }),
+      ]);
 
     res.json({
       success: true,
@@ -346,6 +348,7 @@ exports.getOrderCounts = async (req, res) => {
         pending,
         delivered,
         cancelled,
+        verification_required,
       },
     });
   } catch (error) {

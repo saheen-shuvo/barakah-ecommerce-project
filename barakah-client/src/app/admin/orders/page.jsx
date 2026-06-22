@@ -22,6 +22,7 @@ export default function OrdersPage() {
   const [isReady, setIsReady] = useState(false);
   const [counts, setCounts] = useState({
     all: 0,
+    verification_required: 0,
     pending: 0,
     delivered: 0,
     cancelled: 0,
@@ -239,6 +240,51 @@ export default function OrdersPage() {
     }
   };
 
+  // const handleVerifyOrder = async (id) => {
+  //   const result = await Swal.fire({
+  //     title: "Verify Order?",
+  //     text: "This order will be marked as verified.",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#4f46e5",
+  //     cancelButtonColor: "#6b7280",
+  //     confirmButtonText: "Yes, verify it",
+  //   });
+
+  //   if (!result.isConfirmed) return;
+
+  //   try {
+  //     const res = await fetch(`${baseUrl}/api/orders/${id}/verify`, {
+  //       method: "PATCH",
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (data.success) {
+  //       setOrders((prev) =>
+  //         prev.map((order) =>
+  //           order._id === id ? { ...order, status: "pending" } : order,
+  //         ),
+  //       );
+
+  //       if (selectedOrder?._id === id) {
+  //         setSelectedOrder((prev) =>
+  //           prev
+  //             ? {
+  //                 ...prev,
+  //                 status: "pending",
+  //               }
+  //             : null,
+  //         );
+  //       }
+
+  //       Swal.fire("Verified!", "Order marked as verified.", "success");
+  //     }
+  //   } catch (error) {
+  //     Swal.fire("Error", "Failed to verify order.", "error");
+  //   }
+  // };
+
   const handleSendToSteadfast = async (id) => {
     if (steadfastLoadingId === id) return;
     const result = await Swal.fire({
@@ -389,6 +435,19 @@ export default function OrdersPage() {
 
             <button
               onClick={() => {
+                handleFilterChange("verification_required");
+              }}
+              className={`btn btn-sm ${
+                statusFilter === "verification_required"
+                  ? "bg-[#d4af37] text-white border-[#d4af37]"
+                  : "bg-white text-[#3d2f1f] border-[#e5dccf]"
+              }`}
+            >
+              Verify ({counts.verification_required})
+            </button>
+
+            <button
+              onClick={() => {
                 handleFilterChange("pending");
               }}
               className={`btn btn-sm ${
@@ -508,24 +567,39 @@ export default function OrdersPage() {
                             View
                           </button>
 
-                          {order.status === "delivered" ? (
-                            <button className="btn btn-sm" disabled>
-                              Delivered
-                            </button>
-                          ) : order.status === "cancelled" ? (
-                            <button className="btn btn-sm" disabled>
-                              Cancelled
+                          {order.status === "verification_required" ? (
+                            <button
+                              onClick={() => handleVerifyOrder(order._id)}
+                              className="btn btn-sm bg-[#4f46e5] text-white border-none hover:bg-[#4338ca]"
+                            >
+                              Verify
                             </button>
                           ) : (
-                            <button
-                              onClick={() => handleMarkDelivered(order._id)}
-                              className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
-                              disabled={loadingId === order._id}
-                            >
-                              {loadingId === order._id
-                                ? "Updating..."
-                                : "Deliver"}
-                            </button>
+                            order.status !== "verification_required" && (
+                              <>
+                                {order.status === "delivered" ? (
+                                  <button className="btn btn-sm" disabled>
+                                    Delivered
+                                  </button>
+                                ) : order.status === "cancelled" ? (
+                                  <button className="btn btn-sm" disabled>
+                                    Cancelled
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      handleMarkDelivered(order._id)
+                                    }
+                                    className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
+                                    disabled={loadingId === order._id}
+                                  >
+                                    {loadingId === order._id
+                                      ? "Updating..."
+                                      : "Deliver"}
+                                  </button>
+                                )}
+                              </>
+                            )
                           )}
                         </div>
                       </td>
