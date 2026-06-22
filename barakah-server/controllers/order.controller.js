@@ -92,42 +92,8 @@ const normalizeFraudData = (api) => {
   };
 };
 
-exports.createOrder = async (req, res) => {
+const runBackgroundFraudCheck = async (ordersCollection, orderId, phone) => {
   try {
-    const db = await connectDB();
-    const ordersCollection = db.collection("orders");
-
-    const {
-      customerName,
-      phone,
-      address,
-      notes,
-      shippingType,
-      shippingCost,
-      paymentMethod,
-      accountLast4,
-      items,
-      subtotal,
-      total,
-      source,
-    } = req.body;
-
-    if (
-      !customerName ||
-      !phone ||
-      !address ||
-      !shippingType ||
-      !items ||
-      !paymentMethod ||
-      !Array.isArray(items) ||
-      items.length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required order fields",
-      });
-    }
-
     const [totalWebsiteOrders, totalCancelledWebsiteOrders, fraudData] =
       await Promise.all([
         ordersCollection.countDocuments({ phone }),
@@ -173,6 +139,84 @@ exports.createOrder = async (req, res) => {
       flagReason = `Local Spam Trigger (${totalWebsiteOrders}, ${successRatio}%)`;
     }
 
+    const updatedStatus = needsVerification
+      ? "verification_required"
+      : "pending";
+
+    const fraudCheckUpdate = {
+      totalWebsiteOrders,
+      totalCancelledWebsiteOrders,
+      totalParcels,
+      totalDelivered,
+      totalCancelled,
+      totalFraudReports,
+      successRatio,
+      needsVerification,
+      apiStatus: apiFailed ? "failed" : "success",
+      flagReason,
+      riskLevel: fraud.riskLevel || null,
+      riskLabel: fraud.riskLabel || null,
+      riskAction: fraud.riskAction || null,
+      riskColor: fraud.riskColor || null,
+      couriers,
+    };
+
+    await ordersCollection.updateOne(
+      { _id: orderId },
+      {
+        $set: {
+          status: updatedStatus,
+          fraudCheck: fraudCheckUpdate,
+        },
+      },
+    );
+
+    const finalOrder = await ordersCollection.findOne({ _id: orderId });
+
+    sendAdminOrderNotification(finalOrder).catch((err) => {
+      console.error("Failed to send email Notification:", err.message);
+    });
+  } catch (error) {
+    console.error(`Background fraud check failed for order ${orderId}:`, error);
+  }
+};
+
+exports.createOrder = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const {
+      customerName,
+      phone,
+      address,
+      notes,
+      shippingType,
+      shippingCost,
+      paymentMethod,
+      accountLast4,
+      items,
+      subtotal,
+      total,
+      source,
+    } = req.body;
+
+    if (
+      !customerName ||
+      !phone ||
+      !address ||
+      !shippingType ||
+      !items ||
+      !paymentMethod ||
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required order fields",
+      });
+    }
+
     const orderData = {
       customerName,
       phone,
@@ -183,7 +227,7 @@ exports.createOrder = async (req, res) => {
       items,
       subtotal: Number(subtotal) || 0,
       total: Number(total) || 0,
-      status: needsVerification ? "verification_required" : "pending",
+      status: "pending",
       createdAt: new Date(),
       paymentMethod,
       accountLast4,
@@ -193,44 +237,43 @@ exports.createOrder = async (req, res) => {
         traffic_campaign: "",
       },
       fraudCheck: {
-        totalWebsiteOrders,
-        totalCancelledWebsiteOrders,
-        totalParcels,
-        totalDelivered,
-        totalCancelled,
-        totalFraudReports,
-        successRatio,
-        needsVerification,
-        apiStatus: apiFailed ? "failed" : "success",
-        flagReason,
-
-        riskLevel: fraud.riskLevel || null,
-        riskLabel: fraud.riskLabel || null,
-        riskAction: fraud.riskAction || null,
-        riskColor: fraud.riskColor || null,
-        couriers,
+        status: "processing",
+        totalWebsiteOrders: 0,
+        totalCancelledWebsiteOrders: 0,
+        totalParcels: 0,
+        totalDelivered: 0,
+        totalCancelled: 0,
+        totalFraudReports: 0,
+        successRatio: 100,
+        needsVerification: false,
+        apiStatus: "pending",
+        flagReason: "Analyzing...",
+        riskLevel: "unknown",
+        riskLabel: "Analyzing...",
+        riskAction: "Please wait",
+        riskColor: "gray",
+        couriers: {
+          pathao: { total: 0, delivered: 0, cancelled: 0, successRatio: 0 },
+          steadfast: { total: 0, delivered: 0, cancelled: 0, successRatio: 0 },
+          redx: { total: 0, delivered: 0, cancelled: 0, successRatio: 0 },
+        },
       },
     };
 
     const result = await ordersCollection.insertOne(orderData);
 
-    const newOrder = {
-      ...orderData,
-      _id: result.insertedId,
-    };
-
-    sendAdminOrderNotification(newOrder).catch((err) => {
-      console.error("Failed to send email Notification:", err.message);
-    });
-
     res.status(201).json({
       success: true,
-      message: needsVerification
-        ? "Extra verification required"
-        : "Order placed successfully",
-      verificationRequired: needsVerification,
+      message: "Order placed successfully",
       insertedId: result.insertedId,
-      data: newOrder,
+      data: {
+        _id: result.insertedId,
+        ...orderData,
+      },
+    });
+
+    setImmediate(() => {
+      runBackgroundFraudCheck(ordersCollection, result.insertedId, phone);
     });
   } catch (error) {
     console.error("Failed to create order:", error);
