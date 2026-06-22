@@ -8,13 +8,28 @@ export default function Footer() {
     { label: "Home", href: "/" },
     { label: "Wall Clocks", href: "/category/wall-clock/natural" },
     { label: "Wall Canvas", href: "/category/wall-canvas/natural" },
-    { label: "Facebook Group", href: "https://facebook.com/groups/893573157040880/" },
+    {
+      label: "Facebook Group",
+      href: "https://facebook.com/groups/893573157040880/",
+    },
   ];
 
   const socialLinks = [
-    { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61575470920192", icon: <FaFacebookF size={14} /> },
-    { label: "Instagram", href: "https://www.instagram.com/saheen_shuvo/?hl=en", icon: <FaInstagram size={16} /> },
-    { label: "Email", href: "mailto:barakahislamicclock@gmail.com", icon: <FaEnvelope size={14} /> },
+    {
+      label: "Facebook",
+      href: "https://www.facebook.com/profile.php?id=61575470920192",
+      icon: <FaFacebookF size={14} />,
+    },
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/saheen_shuvo/?hl=en",
+      icon: <FaInstagram size={16} />,
+    },
+    {
+      label: "Email",
+      href: "mailto:barakahislamicclock@gmail.com",
+      icon: <FaEnvelope size={14} />,
+    },
   ];
 
   return (
@@ -80,7 +95,13 @@ export default function Footer() {
           </p>
           <br />
           <p className="text-xs text-white/40">
-            Developed by <a href="https://saheenalamshuvo.me" target="_blank" rel="noopener noreferrer" className="text-[#d4af37] hover:underline">
+            Developed by{" "}
+            <a
+              href="https://saheenalamshuvo.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#d4af37] hover:underline animate-pulse font-semibold"
+            >
               Saheen Alam Shuvo
             </a>
           </p>

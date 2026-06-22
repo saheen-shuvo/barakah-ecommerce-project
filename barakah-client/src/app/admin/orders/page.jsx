@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import LoadingAnimation from "@/components/shared/LoadingAnimation";
 import { LuPhone } from "react-icons/lu";
+import { RxCross1 } from "react-icons/rx";
 
 export default function OrdersPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -723,9 +724,9 @@ export default function OrdersPage() {
 
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="btn btn-sm bg-white border border-[#e5dccf] text-[#3d2f1f]"
+                className="text-black hover:text-red-700 transition-colors cursor-pointer text-xl"
               >
-                Close
+                <RxCross1 />
               </button>
             </div>
 
@@ -907,105 +908,249 @@ export default function OrdersPage() {
               </div>
 
               {selectedOrder.fraudCheck && (
-                <div className="rounded-xl border border-[#e5dccf] p-4">
-                  <div className="">
-                    {/* Header with Badges */}
-                    <div className="flex items-center justify-between gap-4 mb-4">
-                      <h3 className="font-semibold text-base text-[#3d2f1f]">
-                        Fraud Analysis
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        {/* API Status Badge */}
-                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-[#f4ede4] text-[#7a6a58]">
-                          API: {selectedOrder.fraudCheck.apiStatus}
-                        </span>
+                <div className="rounded-xl border border-base-300 bg-base-100 p-4 sm:p-6 space-y-6 text-base-content">
+                  {/* 1. TOP HEADER & METRIC STRIP */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-base-200">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-lg font-semibold text-[#3d3d3d] tracking-tight">
+                          Fraud Assessment
+                        </h3>
 
-                        {/* Verification Status Badge */}
-                        {selectedOrder.fraudCheck.needsVerification ? (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 animate-pulse">
-                            Needs Verification
+                        {selectedOrder.fraudCheck.riskLabel ? (
+                          <span
+                            className={`badge badge-sm font-bold uppercase tracking-wider border-0 ${
+                              selectedOrder.fraudCheck.riskColor === "green"
+                                ? "badge-success text-white bg-green-700"
+                                : selectedOrder.fraudCheck.riskColor ===
+                                    "yellow"
+                                  ? "badge-warning text-white bg-yellow-600"
+                                  : "badge-error text-white bg-red-600"
+                            }`}
+                          >
+                            {selectedOrder.fraudCheck.riskLabel}
                           </span>
                         ) : (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                            Safe
+                          <span className="badge-error text-white bg-red-600 badge badge-sm font-bold uppercase tracking-wider">
+                            Failed
                           </span>
                         )}
                       </div>
+                      <p className="text-xs text-base-content/60 mt-0.5">
+                        Logistics footprint across digital channels
+                      </p>
                     </div>
 
-                    {/* Flag Reason Alert Banner (Only shows if there is a reason) */}
-                    {selectedOrder.fraudCheck.flagReason && (
-                      <div className="mb-4 p-3 rounded-lg shadow-xs border border-[#e5dccf] text-sm text-[#7a6a58]">
-                        <span className="font-medium text-[#3d2f1f]">
-                          Note:
-                        </span>{" "}
-                        {selectedOrder.fraudCheck.flagReason}
-                      </div>
-                    )}
-
-                    {/* Metrics Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-[#3d2f1f]">
-                      {/* Success Ratio Card */}
-                      <div className="p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex flex-col gap-1">
-                        <span className="text-xs text-[#7a6a58] font-medium">
-                          Success Ratio
-                        </span>
-                        <span className="text-xl font-bold text-[#3d2f1f]">
+                    {/* Main Stat Strips */}
+                    <div className="grid grid-cols-3 gap-2 sm:gap-4 bg-base-200/40 p-2 rounded-lg text-center">
+                      <div className="px-2 sm:px-4">
+                        <p className="text-[10px] uppercase font-sans font-medium text-base-content/50">
+                          Success
+                        </p>
+                        <p className="text-base sm:text-lg font-bold text-green-600">
                           {selectedOrder.fraudCheck.successRatio}%
-                        </span>
+                        </p>
                       </div>
+                      <div className="border-x border-base-300 px-2 sm:px-4">
+                        <p className="text-[10px] uppercase font-sans font-medium text-base-content/50">
+                          Parcels
+                        </p>
+                        <p className="text-base sm:text-lg font-bold">
+                          {selectedOrder.fraudCheck.totalParcels}
+                        </p>
+                      </div>
+                      <div className="px-2 sm:px-4">
+                        <p className="text-[10px] uppercase font-sans font-medium text-base-content/50">
+                          Alerts
+                        </p>
+                        <p
+                          className={`text-base sm:text-lg font-bold ${selectedOrder.fraudCheck.totalFraudReports > 0 ? "text-error" : "opacity-40"}`}
+                        >
+                          {selectedOrder.fraudCheck.totalFraudReports}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-                      {/* Courier Stats Card */}
-                      <div className="p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex flex-col justify-between">
-                        <span className="text-xs text-[#7a6a58] font-medium">
-                          Courier Parcels
-                        </span>
-                        <div className="flex items-baseline justify-between mt-1">
-                          <span className="text-lg font-bold">
-                            {selectedOrder.fraudCheck.totalParcels}
+                  {/* 2. RESPONSIVE SPLIT BLOCK (Banner & Meta Indicators) */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Risk Notification Banner */}
+                    <div
+                      className={`md:col-span-2 rounded-xl p-4 flex flex-col justify-center border ${
+                        selectedOrder.fraudCheck.riskColor === "green"
+                          ? "bg-green-100/50 border-green-200/50 text-green-800"
+                          : selectedOrder.fraudCheck.riskColor === "yellow"
+                            ? "bg-yellow-100/50 border-yellow-200/50 text-yellow-800"
+                            : "bg-red-100/50 border-red-200/50 text-red-800"
+                      }`}
+                    >
+                      <p className="text-sm font-bold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
+                        {selectedOrder.fraudCheck.riskAction}
+                      </p>
+                      <p className="text-xs mt-1 opacity-80 leading-relaxed">
+                        {selectedOrder.fraudCheck.flagReason}
+                      </p>
+                    </div>
+
+                    {/* Verification Parameters */}
+                    <div className="bg-base-200/30 border border-base-200 rounded-xl p-4 flex flex-col justify-between gap-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="opacity-60">System Flag:</span>
+                        {selectedOrder.fraudCheck.riskLevel ? (
+                          <span className="font-semibold text-base-content capitalize">
+                            {selectedOrder.fraudCheck.riskLevel}
                           </span>
-                          <div className="text-xs space-x-1.5 text-right">
-                            <span className="text-emerald-600 font-medium">
-                              ✓{selectedOrder.fraudCheck.totalDelivered}
-                            </span>
-                            <span className="text-rose-600 font-medium">
-                              ✕{selectedOrder.fraudCheck.totalCancelled}
-                            </span>
-                          </div>
-                        </div>
+                        ) : (
+                          <span className="text-xs text-base-content/40">
+                            Not Found
+                          </span>
+                        )}
                       </div>
-
-                      {/* Website Orders Card */}
-                      <div className="p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex flex-col justify-between">
-                        <span className="text-xs text-[#7a6a58] font-medium">
-                          Website Orders
+                      <div className="flex justify-between items-center">
+                        <span className="opacity-60">Verification status:</span>
+                        <span
+                          className={`font-semibold ${selectedOrder.fraudCheck.needsVerification ? "text-red-600" : "text-green-600"}`}
+                        >
+                          {selectedOrder.fraudCheck.needsVerification
+                            ? "Action Needed"
+                            : "Cleared"}
                         </span>
-                        <div className="flex items-baseline justify-between mt-1">
-                          <span className="text-lg font-bold">
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="opacity-60">
+                          API Gateway Response:
+                        </span>
+                        <span className="font-semibold capitalize">
+                          {selectedOrder.fraudCheck.apiStatus}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. PERFORMANCE BREAKDOWN TABLE & CHANNEL STATS */}
+                  <div className="space-y-4 pt-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <h4 className="text-sm font-bold opacity-80">
+                        Fulfillment Performance History
+                      </h4>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                        <span>
+                          Website Orders:{" "}
+                          <strong className="font-semibold">
                             {selectedOrder.fraudCheck.totalWebsiteOrders}
-                          </span>
-                          <span className="text-xs text-rose-600 font-medium">
-                            ✕
+                          </strong>
+                        </span>
+                        <span className="text-error/80">
+                          Web Cancellations:{" "}
+                          <strong className="font-semibold">
                             {
                               selectedOrder.fraudCheck
                                 .totalCancelledWebsiteOrders
-                            }{" "}
-                            cancelled
-                          </span>
-                        </div>
+                            }
+                          </strong>
+                        </span>
                       </div>
+                    </div>
 
-                      {/* Fraud Reports (Spans full width on small screens for emphasis if needed, or stays grid) */}
-                      <div className="col-span-2 sm:col-span-3 p-3 rounded-xl shadow-xs border border-[#e5dccf]/60 flex items-center justify-between">
-                        <span className="text-xs text-[#7a6a58] font-medium">
-                          Known Fraud Reports
-                        </span>
-                        <span
-                          className={`text-base font-bold ${selectedOrder.fraudCheck.totalFraudReports > 0 ? "text-rose-600" : "text-emerald-600"}`}
+                    {/* MOBILE VIEW: Turns into individual stacked cards (hidden on md screens and up) */}
+                    <div className="space-y-3 md:hidden">
+                      {Object.entries(
+                        selectedOrder.fraudCheck.couriers || {},
+                      ).map(([name, courier]) => (
+                        <div
+                          key={name}
+                          className="border border-base-200 rounded-xl p-4 bg-base-200/20 text-xs space-y-2"
                         >
-                          {selectedOrder.fraudCheck.totalFraudReports} Reports
-                        </span>
-                      </div>
+                          <div className="flex justify-between items-center border-b border-base-200/60 pb-2">
+                            <span className="capitalize font-bold text-sm text-base-content">
+                              {name}
+                            </span>
+                            <span
+                              className={`font-bold ${
+                                courier.successRatio >= 80
+                                  ? "text-green-600"
+                                  : courier.successRatio >= 60
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                              }`}
+                            >
+                              {courier.successRatio}% Success Rate
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 pt-1 text-center opacity-80">
+                            <div>
+                              <p className="text-[10px]">Total</p>
+                              <p className="font-semibold text-base-content mt-0.5">
+                                {courier.total}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[10px]">Delivered</p>
+                              <p className="font-semibold text-green-600 mt-0.5">
+                                {courier.delivered}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[10px]">Cancelled</p>
+                              <p className="font-semibold text-red-600 mt-0.5">
+                                {courier.cancelled}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* DESKTOP VIEW: Clean table layout (hidden on mobile layout up to md breakpoint) */}
+                    <div className="hidden md:block border border-base-200 rounded-xl overflow-hidden">
+                      <table className="table table-sm w-full">
+                        <thead>
+                          <tr className="bg-base-200/50 border-b border-base-200 text-xs">
+                            <th className="py-2.5">Courier Partner</th>
+                            <th className="text-center">Total Volume</th>
+                            <th className="text-center">Delivered</th>
+                            <th className="text-center">Cancelled</th>
+                            <th className="text-right">Reliability Rate</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-base-200/60 text-xs">
+                          {Object.entries(
+                            selectedOrder.fraudCheck.couriers || {},
+                          ).map(([name, courier]) => (
+                            <tr
+                              key={name}
+                              className="hover:bg-base-200/20 transition-colors"
+                            >
+                              <td className="capitalize font-semibold text-base-content py-3">
+                                {name}
+                              </td>
+                              <td className="text-center font-semibold">
+                                {courier.total}
+                              </td>
+                              <td className="text-center  text-green-600 font-semibold">
+                                {courier.delivered}
+                              </td>
+                              <td className="text-center  text-red-600 font-semibold">
+                                {courier.cancelled}
+                              </td>
+                              <td className="text-right">
+                                <span
+                                  className={` font-bold ${
+                                    courier.successRatio >= 80
+                                      ? "text-green-600"
+                                      : courier.successRatio >= 60
+                                        ? "text-yellow-600"
+                                        : "text-red-600"
+                                  }`}
+                                >
+                                  {courier.successRatio}%
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
