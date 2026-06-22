@@ -195,6 +195,69 @@ export default function OrdersPage() {
     }
   };
 
+  const handleVerifyOrder = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Mark this order verified and delivered?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, mark it!",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setLoadingId(id);
+
+      const res = await fetch(`${baseUrl}/api/orders/${id}/verify`, {
+        method: "PATCH",
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setOrders((prevOrders) =>
+          prevOrders.filter((order) => order._id !== id),
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Verified!",
+          text: "Order marked as verified and delivered.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        if (selectedOrder?._id === id) {
+          setSelectedOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "delivered",
+                  deliveredAt: new Date().toISOString(),
+                  isVerified: true,
+                  verifiedAt: new Date().toISOString(),
+                }
+              : null,
+          );
+        }
+
+        if (statusFilter === "pending") {
+          setTotalPages((prev) => Math.max(prev, 1));
+        }
+      } else {
+        Swal.fire("Error", data.message || "Failed to verify order!", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Something went wrong!", "error");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   const handleCancelOrder = async (id) => {
     const result = await Swal.fire({
       title: "Cancel Order?",
@@ -239,51 +302,6 @@ export default function OrdersPage() {
       Swal.fire("Error", "Failed to cancel order.", "error");
     }
   };
-
-  // const handleVerifyOrder = async (id) => {
-  //   const result = await Swal.fire({
-  //     title: "Verify Order?",
-  //     text: "This order will be marked as verified.",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#4f46e5",
-  //     cancelButtonColor: "#6b7280",
-  //     confirmButtonText: "Yes, verify it",
-  //   });
-
-  //   if (!result.isConfirmed) return;
-
-  //   try {
-  //     const res = await fetch(`${baseUrl}/api/orders/${id}/verify`, {
-  //       method: "PATCH",
-  //     });
-
-  //     const data = await res.json();
-
-  //     if (data.success) {
-  //       setOrders((prev) =>
-  //         prev.map((order) =>
-  //           order._id === id ? { ...order, status: "pending" } : order,
-  //         ),
-  //       );
-
-  //       if (selectedOrder?._id === id) {
-  //         setSelectedOrder((prev) =>
-  //           prev
-  //             ? {
-  //                 ...prev,
-  //                 status: "pending",
-  //               }
-  //             : null,
-  //         );
-  //       }
-
-  //       Swal.fire("Verified!", "Order marked as verified.", "success");
-  //     }
-  //   } catch (error) {
-  //     Swal.fire("Error", "Failed to verify order.", "error");
-  //   }
-  // };
 
   const handleSendToSteadfast = async (id) => {
     if (steadfastLoadingId === id) return;

@@ -11,6 +11,7 @@ const {
   getOrdersForExport,
   getOrdersByDate,
   getOrderCounts,
+  verifyOrder,
 } = require("../controllers/order.controller");
 
 router.post("/", createOrder);
@@ -23,5 +24,6 @@ router.get("/by-date", getOrdersByDate);
 router.patch("/:id/deliver", markOrderDelivered);
 router.patch("/:id/steadfast", sendToSteadfast);
 router.patch("/:id/cancel", cancelOrder);
+router.patch("/:id/verify", verifyOrder);
 
 module.exports = router;

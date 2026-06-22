@@ -578,6 +578,55 @@ exports.markOrderDelivered = async (req, res) => {
   }
 };
 
+exports.verifyOrder = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+    const { id } = req.params;
+
+    const existingOrder = await ordersCollection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (existingOrder.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Order already verified",
+      });
+    }
+
+    const result = await ordersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: "delivered",
+          deliveredAt: new Date(),
+          isVerified: true,
+          verifiedAt: new Date(),
+        },
+      },
+    );
+
+    res.json({
+      success: true,
+      message: "Order verified successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // This API is called by AnalyticsCard.jsx to get orders for a specific date range for export
 exports.getOrdersForExport = async (req, res) => {
   try {
