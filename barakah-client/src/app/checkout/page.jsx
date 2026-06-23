@@ -473,7 +473,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="fab fixed bottom-5 right-5 z-[9999] pointer-events-auto touch-manipulation">
+        <div className="fab fixed bottom-5 right-5 z-9999 pointer-events-auto touch-manipulation">
           <div
             tabIndex={0}
             role="button"

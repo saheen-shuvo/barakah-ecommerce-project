@@ -235,7 +235,7 @@ const AnalyticsCard = () => {
               badge={`${cancellationRate}% Rate`}
             />
 
-            <div className="grid grid-cols-4 col-span-3 gap-2 mt-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 col-span-1 md:col-span-3 gap-2 mt-2">
               <StatCard
                 label="Risky Orders"
                 value={analytics?.totalRiskyOrders ?? 0}

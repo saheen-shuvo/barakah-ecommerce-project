@@ -93,7 +93,7 @@ const DateAnalyticsCard = () => {
             <button
               onClick={() => fetchByDate(date)}
               disabled={loading}
-              className="flex items-center gap-2 bg-[#d4af37] hover:bg-[#b8962d] disabled:bg-stone-300 text-white px-5 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg shadow-gold/20"
+              className="flex items-center ml-auto gap-2 bg-[#d4af37] hover:bg-[#b8962d] disabled:bg-stone-300 text-white px-3 md:px-5 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg shadow-gold/20"
             >
               {loading ? (
                 <>
@@ -142,7 +142,7 @@ const DateAnalyticsCard = () => {
               badge={`${cancellationRate}% Rate`}
             />
 
-            <div className="grid grid-cols-4 col-span-3 gap-2 mt-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 col-span-1 md:col-span-3 gap-2 mt-2">
               <StatCard
                 label="Risky Orders"
                 value={analytics?.totalRiskyOrders ?? 0}
