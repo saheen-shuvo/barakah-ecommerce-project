@@ -7,5 +7,6 @@
     "pathao",
     "redx",
     "Stedast"
-  ]
+  ],
+  "editor.inlineSuggest.edits.showCollapsed": true
 }

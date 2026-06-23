@@ -65,7 +65,7 @@ export default function AllProductsPage() {
 
       {loading ? (
         <div className="flex justify-center py-12 ">
-          <LoadingAnimation width={300} height={300}/>
+          <LoadingAnimation width={300} height={300} message="Loading products..." />
         </div>
       ) : (
         <ProductTable

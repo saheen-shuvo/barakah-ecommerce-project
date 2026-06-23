@@ -702,24 +702,37 @@ export default function OrdersPage() {
                     View Order
                   </button>
 
-                  {order.status === "delivered" ? (
-                    <button className="btn btn-sm" disabled>
-                      Delivered
-                    </button>
-                  ) : order.status === "cancelled" ? (
-                    <button className="btn btn-sm" disabled>
-                      Cancelled
+                  {order.status === "verification_required" ? (
+                    <button
+                      onClick={() => handleVerifyOrder(order._id)}
+                      className="btn btn-sm bg-[#4f46e5] text-white border-none hover:bg-[#4338ca]"
+                    >
+                      Verify Order
                     </button>
                   ) : (
-                    <button
-                      onClick={() => handleMarkDelivered(order._id)}
-                      className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
-                      disabled={loadingId === order._id}
-                    >
-                      {loadingId === order._id
-                        ? "Updating..."
-                        : "Mark Delivered"}
-                    </button>
+                    order.status !== "verification_required" && (
+                      <>
+                        {order.status === "delivered" ? (
+                          <button className="btn btn-sm" disabled>
+                            Delivered
+                          </button>
+                        ) : order.status === "cancelled" ? (
+                          <button className="btn btn-sm" disabled>
+                            Cancelled
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleMarkDelivered(order._id)}
+                            className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
+                            disabled={loadingId === order._id}
+                          >
+                            {loadingId === order._id
+                              ? "Updating..."
+                              : "Deliver"}
+                          </button>
+                        )}
+                      </>
+                    )
                   )}
                 </div>
               </div>

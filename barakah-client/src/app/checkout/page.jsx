@@ -183,7 +183,7 @@ export default function CheckoutPage() {
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="rounded-2xl bg-white p-8">
-            <LoadingAnimation width={300} height={300} />
+            <LoadingAnimation width={300} height={300} message="Order placing, please wait..." />
           </div>
         </div>
       )}
