@@ -1,8 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { LuPhone } from "react-icons/lu";
+import LoadingAnimation from "@/components/shared/LoadingAnimation";
+import Swal from "sweetalert2";
 
 export default function AbandonedOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -10,6 +13,7 @@ export default function AbandonedOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [loadingId, setLoadingId] = useState(null);
 
   // Dynamic filter stats tracking setup
   const [counts, setCounts] = useState({ all: 0, abandoned: 0, converted: 0 });
@@ -39,14 +43,18 @@ export default function AbandonedOrdersPage() {
           const abandonedCount = rawOrders.filter(
             (o) => o.status === "abandoned",
           ).length;
-          const convertedCount = rawOrders.filter(
-            (o) => o.status === "converted",
+          const deliveredCount = rawOrders.filter(
+            (o) => o.status === "delivered",
+          ).length;
+          const cancelledCount = rawOrders.filter(
+            (o) => o.status === "cancelled",
           ).length;
 
           setCounts({
             all: allCount,
             abandoned: abandonedCount,
-            converted: convertedCount,
+            delivered: deliveredCount,
+            cancelled: cancelledCount,
           });
         }
       } catch (error) {
@@ -59,6 +67,36 @@ export default function AbandonedOrdersPage() {
     fetchOrders();
   }, [baseUrl, currentPage]);
 
+  useEffect(() => {
+    if (statusFilter === "all") {
+      setFilteredOrders(orders);
+    } else {
+      setFilteredOrders(
+        orders.filter((order) => order.status === statusFilter),
+      );
+    }
+  }, [orders, statusFilter]);
+
+  useEffect(() => {
+    const allCount = orders.length;
+    const abandonedCount = orders.filter(
+      (o) => o.status === "abandoned",
+    ).length;
+    const deliveredCount = orders.filter(
+      (o) => o.status === "delivered",
+    ).length;
+    const cancelledCount = orders.filter(
+      (o) => o.status === "cancelled",
+    ).length;
+
+    setCounts({
+      all: allCount,
+      abandoned: abandonedCount,
+      delivered: deliveredCount,
+      cancelled: cancelledCount,
+    });
+  }, [orders]);
+
   // Handle local state filtering switches
   const handleFilterChange = (filterType) => {
     setStatusFilter(filterType);
@@ -66,6 +104,140 @@ export default function AbandonedOrdersPage() {
       setFilteredOrders(orders);
     } else {
       setFilteredOrders(orders.filter((order) => order.status === filterType));
+    }
+  };
+
+  const handleDeliverAbandonedOrder = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Mark this abandoned order as delivered?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d4af37",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, mark it!",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setLoadingId(id);
+
+      const res = await fetch(`${baseUrl}/api/orders/abandoned/${id}/deliver`, {
+        method: "PATCH",
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === id
+              ? {
+                  ...order,
+                  status: "delivered",
+                  deliveredAt: new Date().toISOString(),
+                }
+              : order,
+          ),
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Delivered!",
+          text: "Abandoned order marked as delivered.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        if (selectedOrder?._id === id) {
+          setSelectedOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "delivered",
+                  deliveredAt: new Date().toISOString(),
+                }
+              : null,
+          );
+        }
+      } else {
+        Swal.fire("Error", "Failed to update abandoned order!", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Something went wrong!", "error");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleCancelAbandonedOrder = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Mark this abandoned order as cancelled?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, cancel it!",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setLoadingId(id);
+
+      const res = await fetch(`${baseUrl}/api/orders/abandoned/${id}/cancel`, {
+        method: "PATCH",
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === id
+              ? {
+                  ...order,
+                  status: "cancelled",
+                  cancelledAt: new Date().toISOString(),
+                }
+              : order,
+          ),
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Cancelled!",
+          text: "Abandoned order marked as cancelled.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        if (selectedOrder?._id === id) {
+          setSelectedOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "cancelled",
+                  cancelledAt: new Date().toISOString(),
+                }
+              : null,
+          );
+        }
+
+        if (statusFilter === "pending") {
+          setTotalPages((prev) => Math.max(prev, 1));
+        }
+      } else {
+        Swal.fire("Error", "Failed to cancel order!", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Something went wrong!", "error");
+    } finally {
+      setLoadingId(null);
     }
   };
 
@@ -89,11 +261,14 @@ export default function AbandonedOrdersPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d4af37]"></div>
-        <p className="text-sm font-medium text-[#7a6a58] mt-2">
-          Loading checkouts...
-        </p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="rounded-2xl bg-white p-8">
+          <LoadingAnimation
+            width={300}
+            height={300}
+            message="Loading all orders..."
+          />
+        </div>
       </div>
     );
   }
@@ -137,14 +312,25 @@ export default function AbandonedOrdersPage() {
             </button>
 
             <button
-              onClick={() => handleFilterChange("converted")}
+              onClick={() => handleFilterChange("delivered")}
               className={`btn btn-sm ${
-                statusFilter === "converted"
+                statusFilter === "delivered"
                   ? "bg-[#d4af37] text-white border-[#d4af37]"
                   : "bg-white text-[#3d2f1f] border-[#e5dccf]"
               }`}
             >
-              Converted ({counts.converted})
+              Delivered ({counts.delivered})
+            </button>
+
+            <button
+              onClick={() => handleFilterChange("cancelled")}
+              className={`btn btn-sm ${
+                statusFilter === "cancelled"
+                  ? "bg-[#d4af37] text-white border-[#d4af37]"
+                  : "bg-white text-[#3d2f1f] border-[#e5dccf]"
+              }`}
+            >
+              Cancelled ({counts.cancelled})
             </button>
           </div>
         </div>
@@ -194,8 +380,12 @@ export default function AbandonedOrdersPage() {
                             <span className="inline-flex items-center gap-1 rounded-md bg-[#fef3c7] px-2 py-1 text-xs font-semibold text-[#b45309] capitalize">
                               {order.status}
                             </span>
-                          ) : (
+                          ) : order.status === "delivered" ? (
                             <span className="inline-flex items-center gap-1 rounded-md bg-[#d1fae5] px-2 py-1 text-xs font-semibold text-[#065f46] capitalize">
+                              {order.status}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-[#c54242] px-2 py-1 text-xs font-semibold text-[white] capitalize">
                               {order.status}
                             </span>
                           )}
@@ -213,13 +403,35 @@ export default function AbandonedOrdersPage() {
                             })
                           : "--"}
                       </td>
-                      <td>
+                      <td className="flex flex-col gap-2">
                         <button
                           onClick={() => setSelectedOrder(order)}
                           className="btn btn-sm bg-white text-[#3d2f1f] border border-[#d4af37] hover:bg-[#faf7f0]"
                         >
-                          View Order
+                          View
                         </button>
+
+                        {order.status === "delivered" ? (
+                          <button className="btn btn-sm" disabled>
+                            Delivered
+                          </button>
+                        ) : order.status === "cancelled" ? (
+                          <button className="btn btn-sm" disabled>
+                            Cancelled
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              handleDeliverAbandonedOrder(order._id)
+                            }
+                            className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f]"
+                            disabled={loadingId === order._id}
+                          >
+                            {loadingId === order._id
+                              ? "Updating..."
+                              : "Deliver"}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -263,8 +475,12 @@ export default function AbandonedOrdersPage() {
                         <span className="inline-flex items-center gap-1 rounded-md bg-[#fef3c7] px-2 py-1 text-xs font-semibold text-[#b45309] capitalize">
                           {order.status}
                         </span>
-                      ) : (
+                      ) : order.status === "delivered" ? (
                         <span className="inline-flex items-center gap-1 rounded-md bg-[#d1fae5] px-2 py-1 text-xs font-semibold text-[#065f46] capitalize">
+                          {order.status}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#c54242] px-2 py-1 text-xs font-semibold text-[white] capitalize">
                           {order.status}
                         </span>
                       )}
@@ -286,13 +502,33 @@ export default function AbandonedOrdersPage() {
                   </p>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-4 flex flex-col justify-center">
                   <button
                     onClick={() => setSelectedOrder(order)}
-                    className="btn btn-sm w-full bg-white text-[#3d2f1f] border border-[#d4af37] hover:bg-[#faf7f0]"
+                    className="btn btn-sm bg-white text-[#3d2f1f] border border-[#d4af37] hover:bg-[#faf7f0]"
                   >
                     View Order
                   </button>
+                  <div className="mt-2">
+                    {" "}
+                    {order.status === "delivered" ? (
+                      <button className="btn btn-sm w-full" disabled>
+                        Delivered
+                      </button>
+                    ) : order.status === "cancelled" ? (
+                      <button className="btn btn-sm w-full" disabled>
+                        Cancelled
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDeliverAbandonedOrder(order._id)}
+                        className="btn btn-sm bg-[#d4af37] text-white border-none hover:bg-[#c39d2f] w-full"
+                        disabled={loadingId === order._id}
+                      >
+                        {loadingId === order._id ? "Updating..." : "Deliver"}
+                      </button>
+                    )}{" "}
+                  </div>
                 </div>
               </div>
             ))}
@@ -489,6 +725,26 @@ export default function AbandonedOrdersPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                {selectedOrder.status === "cancelled" ? (
+                  <button className="btn btn-sm" disabled>
+                    Cancelled
+                  </button>
+                ) : selectedOrder.status === "delivered" ? (
+                  <button className="btn btn-sm" disabled>
+                    Delivered
+                  </button>
+                ) : (
+                  <button
+                    onClick={() =>
+                      handleCancelAbandonedOrder(selectedOrder._id)
+                    }
+                    className="btn btn-sm bg-red-600 text-white border-none hover:bg-red-700"
+                  >
+                    Cancel Order
+                  </button>
+                )}
               </div>
             </div>
           </div>

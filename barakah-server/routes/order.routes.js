@@ -14,11 +14,15 @@ const {
   verifyOrder,
   saveAbandonedOrder,
   getAbandonedOrders,
+  deliverAbandonedOrder,
+  cancelAbandonedOrder,
 } = require("../controllers/order.controller");
 
 router.post("/", createOrder);
 router.post("/abandoned", saveAbandonedOrder);
 router.get("/abandoned", getAbandonedOrders);
+router.patch("/abandoned/:id/deliver", deliverAbandonedOrder);
+router.patch("/abandoned/:id/cancel", cancelAbandonedOrder);
 router.get("/", getOrders);
 router.get("/counts", getOrderCounts);
 router.get("/stats", getOrderStats);

@@ -264,19 +264,11 @@ exports.createOrder = async (req, res) => {
     };
 
     const result = await ordersCollection.insertOne(orderData);
+
     if (sessionId) {
-      await abandonedOrdersCollection.updateOne(
-        {
-          sessionId,
-        },
-        {
-          $set: {
-            status: "converted",
-            convertedOrderId: result.insertedId,
-            convertedAt: new Date(),
-          },
-        },
-      );
+      await abandonedOrdersCollection.deleteOne({
+        sessionId,
+      });
     }
 
     res.status(201).json({
@@ -1055,6 +1047,86 @@ exports.getAbandonedOrders = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+exports.deliverAbandonedOrder = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const abandonedOrdersCollection = db.collection("abandoned-orders");
+
+    const { id } = req.params;
+
+    const result = await abandonedOrdersCollection.updateOne(
+      {
+        _id: new ObjectId(id),
+      },
+      {
+        $set: {
+          status: "delivered",
+          deliveredAt: new Date(),
+        },
+      },
+    );
+
+    if (!result.modifiedCount) {
+      return res.status(404).json({
+        success: false,
+        message: "Abandoned order not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Abandoned order marked as delivered",
+    });
+  } catch (error) {
+    console.error("Deliver abandoned order error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.cancelAbandonedOrder = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const abandonedOrdersCollection = db.collection("abandoned-orders");
+
+    const { id } = req.params;
+
+    const result = await abandonedOrdersCollection.updateOne(
+      {
+        _id: new ObjectId(id),
+      },
+      {
+        $set: {
+          status: "cancelled",
+          cancelledAt: new Date(),
+        },
+      },
+    );
+
+    if (!result.modifiedCount) {
+      return res.status(404).json({
+        success: false,
+        message: "Abandoned order not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Abandoned order marked as cancelled",
+    });
+  } catch (error) {
+    console.error("Cancel abandoned order error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
 };
