@@ -185,8 +185,10 @@ exports.createOrder = async (req, res) => {
   try {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
+    const abandonedOrdersCollection = db.collection("abandoned-orders");
 
     const {
+      sessionId,
       customerName,
       phone,
       address,
@@ -218,6 +220,7 @@ exports.createOrder = async (req, res) => {
     }
 
     const orderData = {
+      sessionId: sessionId || null,
       customerName,
       phone,
       address,
@@ -261,6 +264,20 @@ exports.createOrder = async (req, res) => {
     };
 
     const result = await ordersCollection.insertOne(orderData);
+    if (sessionId) {
+      await abandonedOrdersCollection.updateOne(
+        {
+          sessionId,
+        },
+        {
+          $set: {
+            status: "converted",
+            convertedOrderId: result.insertedId,
+            convertedAt: new Date(),
+          },
+        },
+      );
+    }
 
     res.status(201).json({
       success: true,
@@ -932,6 +949,107 @@ exports.sendToSteadfast = async (req, res) => {
       success: true,
       message: "Order sent to Steadfast successfully",
       data: updatedOrder.steadfast,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.saveAbandonedOrder = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const abandonedOrdersCollection = db.collection("abandoned-orders");
+
+    const {
+      sessionId,
+      customerName,
+      phone,
+      address,
+      items,
+      notes,
+      shippingType,
+      shippingCost,
+      subtotal,
+      total,
+    } = req.body;
+
+    if (
+      !sessionId ||
+      !customerName ||
+      !phone ||
+      !address ||
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required abandoned order fields",
+      });
+    }
+
+    await abandonedOrdersCollection.updateOne(
+      { sessionId },
+
+      {
+        $set: {
+          customerName,
+          phone,
+          address,
+          notes: notes || "",
+
+          shippingType: shippingType || "",
+          shippingCost: Number(shippingCost) || 0,
+
+          items,
+
+          subtotal: Number(subtotal) || 0,
+          total: Number(total) || 0,
+
+          updatedAt: new Date(),
+        },
+
+        $setOnInsert: {
+          sessionId,
+          status: "abandoned",
+          createdAt: new Date(),
+        },
+      },
+
+      {
+        upsert: true,
+      },
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Abandoned order saved successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getAbandonedOrders = async (req, res) => {
+  try {
+    const db = await connectDB();
+
+    const abandonedOrders = await db
+      .collection("abandoned-orders")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.json({
+      success: true,
+      data: abandonedOrders,
     });
   } catch (error) {
     res.status(500).json({

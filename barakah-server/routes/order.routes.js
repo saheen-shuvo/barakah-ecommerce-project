@@ -12,9 +12,13 @@ const {
   getOrdersByDate,
   getOrderCounts,
   verifyOrder,
+  saveAbandonedOrder,
+  getAbandonedOrders,
 } = require("../controllers/order.controller");
 
 router.post("/", createOrder);
+router.post("/abandoned", saveAbandonedOrder);
+router.get("/abandoned", getAbandonedOrders);
 router.get("/", getOrders);
 router.get("/counts", getOrderCounts);
 router.get("/stats", getOrderStats);

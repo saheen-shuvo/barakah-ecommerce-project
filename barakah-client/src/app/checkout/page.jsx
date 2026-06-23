@@ -21,10 +21,22 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [loading, setLoading] = useState(false);
 
+  const getCheckoutSessionId = () => {
+    let sessionId = localStorage.getItem("checkoutSessionId");
+
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem("checkoutSessionId", sessionId);
+    }
+
+    return sessionId;
+  };
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -36,12 +48,71 @@ export default function CheckoutPage() {
     },
   });
 
+  const formValues = watch();
+
   const shippingCost = shipping === "inside" ? 0 : 0;
 
   const finalTotal = useMemo(
     () => totalPrice + shippingCost,
     [totalPrice, shippingCost],
   );
+
+  const saveAbandonedOrder = async (data) => {
+    try {
+      const sessionId = getCheckoutSessionId();
+
+      const roundedSubtotal = Number(totalPrice.toFixed(2));
+      const roundedShippingCost = Number(shippingCost.toFixed(2));
+      const roundedTotal = Number(finalTotal.toFixed(2));
+
+      await fetch(`${baseUrl}/api/orders/abandoned`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId,
+
+          customerName: data.name,
+          phone: data.phone,
+          address: data.address,
+
+          notes: data.notes,
+
+          shippingType: shipping,
+          shippingCost: roundedShippingCost,
+
+          items: cartItems.map((item) => ({
+            productId: item._id,
+            name: item.name,
+            price: Number(item.price.toFixed(2)),
+            quantity: item.quantity,
+            image: item.image,
+          })),
+
+          subtotal: roundedSubtotal,
+          total: roundedTotal,
+        }),
+      });
+    } catch (error) {
+      console.log("Abandoned order save failed:", error);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (
+        formValues.name &&
+        formValues.phone &&
+        formValues.address &&
+        cartItems.length > 0
+      ) {
+        saveAbandonedOrder(formValues);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [formValues.name, formValues.phone, formValues.address, cartItems]);
 
   useEffect(() => {
     if (cartItems.length === 0) return;
@@ -94,6 +165,7 @@ export default function CheckoutPage() {
     );
 
     const orderData = {
+      sessionId: getCheckoutSessionId(),
       customerName: data.name,
       phone: data.phone,
       address: data.address,
@@ -183,7 +255,11 @@ export default function CheckoutPage() {
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="rounded-2xl bg-white p-8">
-            <LoadingAnimation width={300} height={300} message="Order placing, please wait..." />
+            <LoadingAnimation
+              width={300}
+              height={300}
+              message="Order placing, please wait..."
+            />
           </div>
         </div>
       )}
