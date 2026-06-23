@@ -702,39 +702,81 @@ exports.getOrdersByDate = async (req, res) => {
       999,
     );
 
-    const [totalOrders, delivered, cancelled, revenueAgg, cancelledRevenueAgg] =
-      await Promise.all([
-        ordersCollection.countDocuments({
+    const [
+      totalOrders,
+      delivered,
+      cancelled,
+      revenueAgg,
+      cancelledRevenueAgg,
+
+      totalRiskyOrders,
+      verifiedRiskyOrders,
+      pendingRiskyOrders,
+      cancelledRiskyOrders,
+    ] = await Promise.all([
+      ordersCollection.countDocuments({
+        createdAt: { $gte: from, $lte: to },
+      }),
+
+      ordersCollection
+        .find({
+          status: "delivered",
           createdAt: { $gte: from, $lte: to },
-        }),
-        ordersCollection
-          .find({
-            status: "delivered",
-            createdAt: { $gte: from, $lte: to },
-          })
-          .toArray(),
-        ordersCollection.countDocuments({
-          status: "cancelled",
-          createdAt: { $gte: from, $lte: to },
-        }),
-        ordersCollection
-          .aggregate([
-            { $match: { createdAt: { $gte: from, $lte: to } } },
-            { $group: { _id: null, total: { $sum: "$total" } } },
-          ])
-          .toArray(),
-        ordersCollection
-          .aggregate([
-            {
-              $match: {
-                status: "cancelled",
-                createdAt: { $gte: from, $lte: to },
-              },
+        })
+        .toArray(),
+
+      ordersCollection.countDocuments({
+        status: "cancelled",
+        createdAt: { $gte: from, $lte: to },
+      }),
+
+      ordersCollection
+        .aggregate([
+          { $match: { createdAt: { $gte: from, $lte: to } } },
+          { $group: { _id: null, total: { $sum: "$total" } } },
+        ])
+        .toArray(),
+
+      ordersCollection
+        .aggregate([
+          {
+            $match: {
+              status: "cancelled",
+              createdAt: { $gte: from, $lte: to },
             },
-            { $group: { _id: null, total: { $sum: "$total" } } },
-          ])
-          .toArray(),
-      ]);
+          },
+          { $group: { _id: null, total: { $sum: "$total" } } },
+        ])
+        .toArray(),
+
+      // Total risky
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        createdAt: { $gte: from, $lte: to },
+      }),
+
+      // Verified risky
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        isVerified: true,
+        createdAt: { $gte: from, $lte: to },
+      }),
+
+      // Pending risky
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        isVerified: { $ne: true },
+        status: { $nin: ["cancelled", "delivered"] },
+        createdAt: { $gte: from, $lte: to },
+      }),
+
+      // Cancelled risky
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        status: "cancelled",
+        createdAt: { $gte: from, $lte: to },
+      }),
+    ]);
 
     const totalDelivered = delivered.length;
     const totalRevenue = delivered.reduce(
@@ -754,6 +796,10 @@ exports.getOrdersByDate = async (req, res) => {
         totalOrdersRevenue,
         cancelledRevenue,
         totalCancelled: cancelled,
+        totalRiskyOrders,
+        verifiedRiskyOrders,
+        pendingRiskyOrders,
+        cancelledRiskyOrders,
       },
     });
   } catch (error) {

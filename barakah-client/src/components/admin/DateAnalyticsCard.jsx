@@ -1,6 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Calendar, Package, CircleCheck, CircleX, Search } from "lucide-react";
+import {
+  Calendar,
+  Package,
+  CircleCheck,
+  CircleX,
+  Search,
+  AlertTriangle,
+  ShieldCheck,
+  Clock3,
+  ShieldX,
+} from "lucide-react";
 
 const toInputFormat = (ddmmyyyy) => {
   if (!ddmmyyyy || !ddmmyyyy.includes("-")) return "";
@@ -131,6 +141,36 @@ const DateAnalyticsCard = () => {
               color="rose"
               badge={`${cancellationRate}% Rate`}
             />
+
+            <div className="grid grid-cols-4 col-span-3 gap-2 mt-2">
+              <StatCard
+                label="Risky Orders"
+                value={analytics?.totalRiskyOrders ?? 0}
+                icon={<AlertTriangle className="w-5 h-5 text-orange-600" />}
+                color="orange"
+              />
+
+              <StatCard
+                label="Verified"
+                value={analytics?.verifiedRiskyOrders ?? 0}
+                icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
+                color="emerald"
+              />
+
+              <StatCard
+                label="Pending Review"
+                value={analytics?.pendingRiskyOrders ?? 0}
+                icon={<Clock3 className="w-5 h-5 text-amber-600" />}
+                color="amber"
+              />
+
+              <StatCard
+                label="Risky Cancelled"
+                value={analytics?.cancelledRiskyOrders ?? 0}
+                icon={<ShieldX className="w-5 h-5 text-rose-600" />}
+                color="rose"
+              />
+            </div>
           </div>
         ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-stone-200 rounded-3xl bg-stone-50/50">
@@ -154,6 +194,7 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
     amber: "bg-amber-50 text-amber-700 border-amber-100",
     emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
     rose: "bg-rose-50 text-rose-700 border-rose-100",
+    orange: "bg-orange-50 text-orange-700 border-orange-100",
   };
 
   return (
@@ -179,14 +220,16 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
         <div className="flex items-baseline gap-2 mt-1">
           <h3 className="text-3xl font-bold text-stone-800">{value}</h3>
         </div>
-        <div className="flex items-center gap-1 mt-3 text-stone-600 font-medium">
-          <span className="text-sm tracking-tight">
-            BDT{" "}
-            {typeof subValue === "number"
-              ? subValue.toLocaleString()
-              : Number(subValue || 0).toLocaleString()}
-          </span>
-        </div>
+        {subValue !== undefined && (
+          <div className="flex items-center gap-1 mt-3 text-stone-600 font-medium">
+            <span className="text-sm tracking-tight">
+              BDT{" "}
+              {typeof subValue === "number"
+                ? subValue.toLocaleString()
+                : Number(subValue || 0).toLocaleString()}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
