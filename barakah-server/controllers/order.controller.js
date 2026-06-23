@@ -443,33 +443,79 @@ exports.getDeliveredAnalytics = async (req, res) => {
       totalOrders,
       totalOrdersRevenueAgg,
       cancelledRevenueAgg,
+
+      totalRiskyOrders,
+      verifiedRiskyOrders,
+      pendingRiskyOrders,
+      cancelledRiskyOrders,
     ] = await Promise.all([
       ordersCollection
-        .find({ status: "delivered", createdAt: dateFilter })
+        .find({
+          status: "delivered",
+          createdAt: dateFilter,
+        })
         .toArray(),
+
       ordersCollection.countDocuments({
         status: "cancelled",
         createdAt: dateFilter,
       }),
+
       ordersCollection.countDocuments({
         status: "pending",
         createdAt: dateFilter,
       }),
+
       ordersCollection.countDocuments({
         createdAt: dateFilter,
       }),
+
       ordersCollection
         .aggregate([
           { $match: { createdAt: dateFilter } },
           { $group: { _id: null, total: { $sum: "$total" } } },
         ])
         .toArray(),
+
       ordersCollection
         .aggregate([
-          { $match: { status: "cancelled", createdAt: dateFilter } },
+          {
+            $match: {
+              status: "cancelled",
+              createdAt: dateFilter,
+            },
+          },
           { $group: { _id: null, total: { $sum: "$total" } } },
         ])
         .toArray(),
+
+      // Risky Orders
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        createdAt: dateFilter,
+      }),
+
+      // Verified Risky Orders
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        isVerified: true,
+        createdAt: dateFilter,
+      }),
+
+      // Pending Verification
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        isVerified: { $ne: true },
+        status: { $nin: ["cancelled", "delivered"] },
+        createdAt: dateFilter,
+      }),
+
+      // Cancelled Risky Orders
+      ordersCollection.countDocuments({
+        "fraudCheck.needsVerification": true,
+        status: "cancelled",
+        createdAt: dateFilter,
+      }),
     ]);
 
     const deliveredCount = deliveredOrders.length;
@@ -492,6 +538,10 @@ exports.getDeliveredAnalytics = async (req, res) => {
         totalCancelled: cancelledCount,
         cancelledRevenue,
         totalPending: pendingCount,
+        totalRiskyOrders,
+        verifiedRiskyOrders,
+        pendingRiskyOrders,
+        cancelledRiskyOrders,
       },
     });
   } catch (error) {
