@@ -11,6 +11,10 @@ import {
   Clock3,
   ShieldX,
 } from "lucide-react";
+import { MdShoppingCartCheckout } from "react-icons/md";
+import { GrDeliver } from "react-icons/gr";
+import { RiPassPendingLine } from "react-icons/ri";
+import { TbUserCancel } from "react-icons/tb";
 
 const toInputFormat = (ddmmyyyy) => {
   if (!ddmmyyyy || !ddmmyyyy.includes("-")) return "";
@@ -171,6 +175,38 @@ const DateAnalyticsCard = () => {
                 color="rose"
               />
             </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 col-span-1 md:col-span-3 gap-2 mt-2">
+              <StatCard
+                label="Abandoned Orders"
+                value={analytics?.totalAbandonedOrders ?? 0}
+                icon={
+                  <MdShoppingCartCheckout className="w-5 h-5 text-orange-600" />
+                }
+                color="blue"
+              />
+
+              <StatCard
+                label="Delivered Abandoned"
+                value={analytics?.deliveredAbandonedOrders ?? 0}
+                icon={<GrDeliver className="w-5 h-5 text-emerald-600" />}
+                color="violet"
+              />
+
+              <StatCard
+                label="Pending Abandoned"
+                value={analytics?.pendingAbandonedOrders ?? 0}
+                icon={<RiPassPendingLine className="w-5 h-5 text-amber-600" />}
+                color="cyan"
+              />
+
+              <StatCard
+                label="Cancelled Abandoned"
+                value={analytics?.cancelledAbandonedOrders ?? 0}
+                icon={<TbUserCancel className="w-5 h-5 text-rose-600" />}
+                color="slate"
+              />
+            </div>
           </div>
         ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-stone-200 rounded-3xl bg-stone-50/50">
@@ -195,6 +231,11 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
     emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
     rose: "bg-rose-50 text-rose-700 border-rose-100",
     orange: "bg-orange-50 text-orange-700 border-orange-100",
+
+    blue: "bg-blue-50 text-blue-700 border-blue-100",
+    violet: "bg-violet-50 text-violet-700 border-violet-100",
+    cyan: "bg-cyan-50 text-cyan-700 border-cyan-100",
+    slate: "bg-slate-50 text-slate-700 border-slate-100",
   };
 
   return (

@@ -415,11 +415,12 @@ exports.getOrderStats = async (req, res) => {
   }
 };
 
-// This API is called by AnalyticsCard.jsx to get analytics for a specific date range for export
+// This API is called by AnalyticsCard.jsx to get analytics for a specific date range
 exports.getDeliveredAnalytics = async (req, res) => {
   try {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
+    const abandonedOrdersCollection = db.collection("abandoned-orders");
 
     // Get startDate and endDate from query params
     const { startDate, endDate } = req.query;
@@ -457,6 +458,11 @@ exports.getDeliveredAnalytics = async (req, res) => {
       verifiedRiskyOrders,
       pendingRiskyOrders,
       cancelledRiskyOrders,
+
+      totalAbandonedOrders,
+      deliveredAbandonedOrders,
+      cancelledAbandonedOrders,
+      pendingAbandonedOrders
     ] = await Promise.all([
       ordersCollection
         .find({
@@ -525,6 +531,26 @@ exports.getDeliveredAnalytics = async (req, res) => {
         status: "cancelled",
         createdAt: dateFilter,
       }),
+
+      // Abandoned Orders
+      abandonedOrdersCollection.countDocuments({
+        createdAt: dateFilter,
+      }),
+
+      abandonedOrdersCollection.countDocuments({
+        status: "delivered",
+        createdAt: dateFilter,
+      }),
+
+      abandonedOrdersCollection.countDocuments({
+        status: "cancelled",
+        createdAt: dateFilter,
+      }),
+
+      abandonedOrdersCollection.countDocuments({
+        status: { $nin: ["delivered", "cancelled"] },
+        createdAt: dateFilter,
+      }),
     ]);
 
     const deliveredCount = deliveredOrders.length;
@@ -551,6 +577,10 @@ exports.getDeliveredAnalytics = async (req, res) => {
         verifiedRiskyOrders,
         pendingRiskyOrders,
         cancelledRiskyOrders,
+        totalAbandonedOrders,
+        deliveredAbandonedOrders,
+        cancelledAbandonedOrders,
+        pendingAbandonedOrders,
       },
     });
   } catch (error) {
@@ -733,6 +763,7 @@ exports.getOrdersByDate = async (req, res) => {
   try {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
+    const abandonedOrdersCollection = db.collection("abandoned-orders");
     const { date } = req.query; // DD-MM-YYYY
 
     if (!date) {
@@ -772,6 +803,10 @@ exports.getOrdersByDate = async (req, res) => {
       verifiedRiskyOrders,
       pendingRiskyOrders,
       cancelledRiskyOrders,
+
+      totalAbandonedOrders,
+      deliveredAbandonedOrders,
+      cancelledAbandonedOrders,
     ] = await Promise.all([
       ordersCollection.countDocuments({
         createdAt: { $gte: from, $lte: to },
@@ -835,6 +870,20 @@ exports.getOrdersByDate = async (req, res) => {
         status: "cancelled",
         createdAt: { $gte: from, $lte: to },
       }),
+
+      abandonedOrdersCollection.countDocuments({
+        createdAt: { $gte: from, $lte: to },
+      }),
+
+      abandonedOrdersCollection.countDocuments({
+        status: "delivered",
+        createdAt: { $gte: from, $lte: to },
+      }),
+
+      abandonedOrdersCollection.countDocuments({
+        status: "cancelled",
+        createdAt: { $gte: from, $lte: to },
+      }),
     ]);
 
     const totalDelivered = delivered.length;
@@ -859,6 +908,9 @@ exports.getOrdersByDate = async (req, res) => {
         verifiedRiskyOrders,
         pendingRiskyOrders,
         cancelledRiskyOrders,
+        totalAbandonedOrders,
+        deliveredAbandonedOrders,
+        cancelledAbandonedOrders,
       },
     });
   } catch (error) {

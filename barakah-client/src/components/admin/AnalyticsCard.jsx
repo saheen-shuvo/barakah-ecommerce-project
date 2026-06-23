@@ -13,6 +13,10 @@ import {
   Clock3,
   ShieldX,
 } from "lucide-react";
+import { MdShoppingCartCheckout } from "react-icons/md";
+import { GrDeliver } from "react-icons/gr";
+import { RiPassPendingLine } from "react-icons/ri";
+import { TbUserCancel } from "react-icons/tb";
 
 const AnalyticsCard = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -264,6 +268,38 @@ const AnalyticsCard = () => {
                 color="rose"
               />
             </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 col-span-1 md:col-span-3 gap-2 mt-2">
+              <StatCard
+                label="Abandoned Orders"
+                value={analytics?.totalAbandonedOrders ?? 0}
+                icon={
+                  <MdShoppingCartCheckout className="w-5 h-5 text-orange-600" />
+                }
+                color="blue"
+              />
+
+              <StatCard
+                label="Delivered Abandoned"
+                value={analytics?.deliveredAbandonedOrders ?? 0}
+                icon={<GrDeliver className="w-5 h-5 text-emerald-600" />}
+                color="violet"
+              />
+
+              <StatCard
+                label="Pending Abandoned"
+                value={analytics?.pendingAbandonedOrders ?? 0}
+                icon={<RiPassPendingLine className="w-5 h-5 text-amber-600" />}
+                color="cyan"
+              />
+
+              <StatCard
+                label="Cancelled Abandoned"
+                value={analytics?.cancelledAbandonedOrders ?? 0}
+                icon={<TbUserCancel className="w-5 h-5 text-rose-600" />}
+                color="slate"
+              />
+            </div>
           </div>
         ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-stone-200 rounded-3xl bg-stone-50/50">
@@ -303,6 +339,30 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
       bg: "bg-orange-50",
       text: "text-orange-700",
       border: "border-orange-100",
+    },
+
+    blue: {
+      bg: "bg-blue-50",
+      text: "text-blue-700",
+      border: "border-blue-100",
+    },
+
+    violet: {
+      bg: "bg-violet-50",
+      text: "text-violet-700",
+      border: "border-violet-100",
+    },
+
+    cyan: {
+      bg: "bg-cyan-50",
+      text: "text-cyan-700",
+      border: "border-cyan-100",
+    },
+
+    slate: {
+      bg: "bg-slate-50",
+      text: "text-slate-700",
+      border: "border-slate-100",
     },
   };
 
