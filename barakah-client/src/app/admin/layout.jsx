@@ -5,6 +5,7 @@ import { FiHome, FiBox, FiPlus, FiShoppingCart } from "react-icons/fi";
 import { IoMdMenu } from "react-icons/io";
 import { usePathname } from "next/navigation";
 import AdminRoute from "@/components/auth/AdminRoute";
+import { MdOutlineShoppingCartCheckout } from "react-icons/md";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -96,6 +97,21 @@ export default function AdminLayout({ children }) {
                 >
                   <FiShoppingCart />
                   Orders
+                </Link>
+              </li>
+
+              {/* Abandoned Orders */}
+              <li>
+                <Link
+                  href="/admin/abandoned-orders"
+                  className={
+                    isExact("/admin/abandoned-orders")
+                      ? "bg-[#d4af37] text-white"
+                      : ""
+                  }
+                >
+                  <MdOutlineShoppingCartCheckout />
+                  Abandoned
                 </Link>
               </li>
             </ul>

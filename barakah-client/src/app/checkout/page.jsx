@@ -109,7 +109,7 @@ export default function CheckoutPage() {
       ) {
         saveAbandonedOrder(formValues);
       }
-    }, 5000);
+    }, 8000);
 
     return () => clearTimeout(timer);
   }, [formValues.name, formValues.phone, formValues.address, cartItems]);
