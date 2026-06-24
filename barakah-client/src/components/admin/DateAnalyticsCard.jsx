@@ -69,6 +69,50 @@ const DateAnalyticsCard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const riskyOrdersRate =
+    analytics && analytics.totalOrders > 0
+      ? Math.round((analytics.totalRiskyOrders / analytics.totalOrders) * 100)
+      : 0;
+
+  const verifiedRiskyOrdersRate =
+    analytics && analytics.totalRiskyOrders > 0
+      ? Math.round(
+          (analytics.verifiedRiskyOrders / analytics.totalRiskyOrders) * 100,
+        )
+      : 0;
+
+  const cancelledRiskyOrdersRate =
+    analytics && analytics.totalRiskyOrders > 0
+      ? Math.round(
+          (analytics.cancelledRiskyOrders / analytics.totalRiskyOrders) * 100,
+        )
+      : 0;
+
+  const deliveredAbandonedOrdersRate =
+    analytics && analytics.totalAbandonedOrders > 0
+      ? Math.round(
+          (analytics.deliveredAbandonedOrders /
+            analytics.totalAbandonedOrders) *
+            100,
+        )
+      : 0;
+
+  const cancelledAbandonedOrdersRate =
+    analytics && analytics.totalAbandonedOrders > 0
+      ? Math.round(
+          (analytics.cancelledAbandonedOrders /
+            analytics.totalAbandonedOrders) *
+            100,
+        )
+      : 0;
+
+  const pendingAbandonedOrders = Math.max(
+    0,
+    (analytics?.totalAbandonedOrders || 0) -
+      (analytics?.deliveredAbandonedOrders || 0) -
+      (analytics?.cancelledAbandonedOrders || 0),
+  );
+
   return (
     <div className=" bg-[#fdfcfb] rounded-2xl border border-stone-200 shadow-xl shadow-stone-200/50 overflow-hidden">
       {/* Header & Controls */}
@@ -152,13 +196,7 @@ const DateAnalyticsCard = () => {
                 value={analytics?.totalRiskyOrders ?? 0}
                 icon={<AlertTriangle className="w-5 h-5 text-orange-600" />}
                 color="orange"
-              />
-
-              <StatCard
-                label="Verified"
-                value={analytics?.verifiedRiskyOrders ?? 0}
-                icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
-                color="emerald"
+                badge={`${riskyOrdersRate}%`}
               />
 
               <StatCard
@@ -169,16 +207,25 @@ const DateAnalyticsCard = () => {
               />
 
               <StatCard
+                label="Verified"
+                value={analytics?.verifiedRiskyOrders ?? 0}
+                icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
+                color="emerald"
+                badge={`${verifiedRiskyOrdersRate}%`}
+              />
+
+              <StatCard
                 label="Risky Cancelled"
                 value={analytics?.cancelledRiskyOrders ?? 0}
                 icon={<ShieldX className="w-5 h-5 text-rose-600" />}
                 color="rose"
+                badge={`${cancelledRiskyOrdersRate}%`}
               />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 col-span-1 md:col-span-3 gap-2 mt-2">
               <StatCard
-                label="Abandoned Orders"
+                label="Total Abandoned"
                 value={analytics?.totalAbandonedOrders ?? 0}
                 icon={
                   <MdShoppingCartCheckout className="w-5 h-5 text-orange-600" />
@@ -187,17 +234,18 @@ const DateAnalyticsCard = () => {
               />
 
               <StatCard
+                label="Pending Abandoned"
+                value={pendingAbandonedOrders ?? 0}
+                icon={<RiPassPendingLine className="w-5 h-5 text-amber-600" />}
+                color="cyan"
+              />
+
+              <StatCard
                 label="Delivered Abandoned"
                 value={analytics?.deliveredAbandonedOrders ?? 0}
                 icon={<GrDeliver className="w-5 h-5 text-emerald-600" />}
                 color="violet"
-              />
-
-              <StatCard
-                label="Pending Abandoned"
-                value={analytics?.pendingAbandonedOrders ?? 0}
-                icon={<RiPassPendingLine className="w-5 h-5 text-amber-600" />}
-                color="cyan"
+                badge={`${deliveredAbandonedOrdersRate}%`}
               />
 
               <StatCard
@@ -205,6 +253,7 @@ const DateAnalyticsCard = () => {
                 value={analytics?.cancelledAbandonedOrders ?? 0}
                 icon={<TbUserCancel className="w-5 h-5 text-rose-600" />}
                 color="slate"
+                badge={`${cancelledAbandonedOrdersRate}%`}
               />
             </div>
           </div>
@@ -239,7 +288,7 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
   };
 
   return (
-    <div className="bg-white border border-stone-100 p-4 rounded-xl transition-all duration-300 hover:shadow-md">
+    <div className="bg-white border border-stone-100 p-5 rounded-xl transition-all duration-300 hover:shadow-md">
       <div className="flex justify-between items-start mb-4">
         <div
           className={`p-3 rounded-2xl ${colors[color].split(" ")[0]} border ${colors[color].split(" ")[2]}`}

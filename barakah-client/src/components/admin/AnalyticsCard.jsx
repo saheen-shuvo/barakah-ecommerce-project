@@ -120,6 +120,43 @@ const AnalyticsCard = () => {
       ? Math.round((analytics.totalCancelled / analytics.totalOrders) * 100)
       : 0;
 
+  const riskyOrdersRate =
+    analytics && analytics.totalOrders > 0
+      ? Math.round((analytics.totalRiskyOrders / analytics.totalOrders) * 100)
+      : 0;
+
+  const verifiedRiskyOrdersRate =
+    analytics && analytics.totalRiskyOrders > 0
+      ? Math.round(
+          (analytics.verifiedRiskyOrders / analytics.totalRiskyOrders) * 100,
+        )
+      : 0;
+
+  const cancelledRiskyOrdersRate =
+    analytics && analytics.totalRiskyOrders > 0
+      ? Math.round(
+          (analytics.cancelledRiskyOrders / analytics.totalRiskyOrders) * 100,
+        )
+      : 0;
+
+  const abandonedDeliverySuccessRate =
+    analytics && analytics.totalAbandonedOrders > 0
+      ? Math.round(
+          (analytics.deliveredAbandonedOrders /
+            analytics.totalAbandonedOrders) *
+            100,
+        )
+      : 0;
+
+  const abandonedCancellationRate =
+    analytics && analytics.totalAbandonedOrders > 0
+      ? Math.round(
+          (analytics.cancelledAbandonedOrders /
+            analytics.totalAbandonedOrders) *
+            100,
+        )
+      : 0;
+
   return (
     <div className="bg-[#fdfcfb] rounded-2xl border border-stone-200 shadow-xl shadow-stone-200/50 overflow-hidden">
       {/* Header & Controls */}
@@ -245,13 +282,7 @@ const AnalyticsCard = () => {
                 value={analytics?.totalRiskyOrders ?? 0}
                 icon={<AlertTriangle className="w-5 h-5 text-orange-600" />}
                 color="orange"
-              />
-
-              <StatCard
-                label="Verified"
-                value={analytics?.verifiedRiskyOrders ?? 0}
-                icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
-                color="emerald"
+                badge={`${riskyOrdersRate}%`}
               />
 
               <StatCard
@@ -262,28 +293,30 @@ const AnalyticsCard = () => {
               />
 
               <StatCard
+                label="Verified"
+                value={analytics?.verifiedRiskyOrders ?? 0}
+                icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
+                color="emerald"
+                badge={`${verifiedRiskyOrdersRate}%`}
+              />
+
+              <StatCard
                 label="Risky Cancelled"
                 value={analytics?.cancelledRiskyOrders ?? 0}
                 icon={<ShieldX className="w-5 h-5 text-rose-600" />}
                 color="rose"
+                badge={`${cancelledRiskyOrdersRate}%`}
               />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 col-span-1 md:col-span-3 gap-2 mt-2">
               <StatCard
-                label="Abandoned Orders"
+                label="Total Abandoned"
                 value={analytics?.totalAbandonedOrders ?? 0}
                 icon={
                   <MdShoppingCartCheckout className="w-5 h-5 text-orange-600" />
                 }
                 color="blue"
-              />
-
-              <StatCard
-                label="Delivered Abandoned"
-                value={analytics?.deliveredAbandonedOrders ?? 0}
-                icon={<GrDeliver className="w-5 h-5 text-emerald-600" />}
-                color="violet"
               />
 
               <StatCard
@@ -294,10 +327,19 @@ const AnalyticsCard = () => {
               />
 
               <StatCard
+                label="Delivered Abandoned"
+                value={analytics?.deliveredAbandonedOrders ?? 0}
+                icon={<GrDeliver className="w-5 h-5 text-emerald-600" />}
+                color="violet"
+                badge={`${abandonedDeliverySuccessRate}%`}
+              />
+
+              <StatCard
                 label="Cancelled Abandoned"
                 value={analytics?.cancelledAbandonedOrders ?? 0}
                 icon={<TbUserCancel className="w-5 h-5 text-rose-600" />}
                 color="slate"
+                badge={`${abandonedCancellationRate}%`}
               />
             </div>
           </div>

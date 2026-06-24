@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { pushToDataLayer } from "@/lib/gtm";
 import LoadingAnimation from "@/components/shared/LoadingAnimation";
 import { FaFacebookMessenger, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
+import { RxCross1 } from "react-icons/rx";
 
 export default function CheckoutPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -20,6 +21,7 @@ export default function CheckoutPage() {
   const [shipping, setShipping] = useState("inside");
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const getCheckoutSessionId = () => {
     let sessionId = localStorage.getItem("checkoutSessionId");
@@ -549,56 +551,62 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="fab fixed bottom-5 right-5 z-9999 pointer-events-auto touch-manipulation">
-          <div
-            tabIndex={0}
-            role="button"
+        <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-3 items-end">
+          {open && (
+            <>
+              {/* Messenger */}
+              <a
+                href="https://web.facebook.com/messages/t/1056581560872471"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
+              >
+                <FaFacebookMessenger className="text-3xl text-[#0084FF]" />
+              </a>
+
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/8801346496814"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
+              >
+                <FaWhatsapp className="text-3xl text-[#25D366]" />
+              </a>
+
+              {/* Phone */}
+              <a
+                href="tel:+8801346496814"
+                className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
+              >
+                <FaPhoneAlt className="text-2xl text-[#34B7F1]" />
+              </a>
+            </>
+          )}
+
+          <button
+            onClick={() => setOpen(!open)}
             className="btn btn-lg btn-circle bg-[#d4af37] text-white shadow-lg transition hover:opacity-90"
           >
-            <svg
-              aria-label="New"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-              className="size-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>
-          </div>
-
-          {/* Messenger */}
-          <a
-            href="https://web.facebook.com/messages/t/1056581560872471"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
-          >
-            <FaFacebookMessenger className="text-3xl text-[#0084FF]" />
-          </a>
-
-          {/* WhatsApp */}
-          <a
-            href="https://wa.me/8801346496814"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
-          >
-            <FaWhatsapp className="text-3xl text-[#25D366]" />
-          </a>
-
-          {/* Phone */}
-          <a
-            href="tel:+8801346496814"
-            className="btn btn-lg btn-circle bg-white shadow-lg hover:scale-105 transition"
-          >
-            <FaPhoneAlt className="text-2xl text-[#34B7F1]" />
-          </a>
+            {open ? (
+              <RxCross1 className="text-xl" />
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            )}
+          </button>
         </div>
         <h1 className="text-sm md:text-lg font-bold text-[#0f2a44] text-center mt-12">
           অর্ডার করতে কোনো সমস্যা হলে নিচের বাটনে ক্লিক করুন।
