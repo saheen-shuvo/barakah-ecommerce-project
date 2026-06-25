@@ -2,8 +2,9 @@
 import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { offers } from "@/config/offers";
 
-export default function OfferCountdown({ product }) {
+export default function OfferCountdown({ product, category, subcategory }) {
   const router = useRouter();
   const { addToCart, clearCart } = useCart();
   const [timeLeft, setTimeLeft] = useState({
@@ -11,6 +12,29 @@ export default function OfferCountdown({ product }) {
     m: 59,
     s: 59,
   });
+
+  let offerKey = "default";
+
+  // Category page
+  if (category === "others" && subcategory === "islamic") {
+    offerKey = "islamic";
+  }
+
+  if(category === "others" && subcategory === "others") {
+    offerKey = "others";
+  }
+
+  // Product details page
+  if (product?.category === "others" && product?.subcategory === "islamic") {
+    offerKey = "islamic";
+  }
+
+  // Product details page
+  if (product?.category === "others" && product?.subcategory === "others") {
+    offerKey = "others";
+  }
+
+  const offer = offers[offerKey];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -112,12 +136,10 @@ export default function OfferCountdown({ product }) {
       {/* Bottom Offer Bar */}
       <div className=" text-white text-center text-xl font-semibold pb-8">
         <span className="text-2xl text-[#d4af37]">
-          !!! আজকের বিশেষ অফার !!!
+          {offer.title}
         </span>{" "}
         <br></br>
-        আজ প্রথম ২০ জন অর্ডার কারির জন্য ৩০০ টাকা ডিসকাউন্ট, সারা বাংলাদেশে
-        ডেলিভারি চার্জ সম্পুর্ণ ফ্রি!
-        <br></br> সাথে থাকছে আকর্ষনীয় ইসলামিক গিফট!
+        {offer.text}
       </div>
     </section>
   );

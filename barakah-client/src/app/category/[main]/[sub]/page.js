@@ -31,7 +31,7 @@ export default async function CategoryPage({ params }) {
 
   return (
     <main className="bg-[#faf7f0] min-h-screen pb-10">
-      <OfferCountdown></OfferCountdown>
+      <OfferCountdown category={main} subcategory={sub} />
       <div className="max-w-7xl mx-auto px-4 pt-8">
         {/* Title */}
         <h1 className="text-3xl font-bold mb-6 capitalize">

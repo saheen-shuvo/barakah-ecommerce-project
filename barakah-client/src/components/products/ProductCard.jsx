@@ -47,7 +47,7 @@ export default function ProductCard({ product }) {
                 ? "bg-red-500 text-white"
                 : product.badge === "New"
                   ? "bg-[#d4af37] text-white"
-                  : "bg-[#0f2a44] text-white"
+                  : "bg-red-500 text-white"
             }`}
           >
             {product.badge}
