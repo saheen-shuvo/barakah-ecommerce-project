@@ -4,6 +4,7 @@ import ProductDetailsActions from "../../../components/products/ProductDetailsAc
 import Image from "next/image";
 import ViewItemTracker from "@/components/tracking/ViewItemTracker";
 import OfferCountdown from "@/components/products/OfferCountdown";
+import Reviews from "@/components/home/Reviews";
 
 async function getProducts() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -131,6 +132,8 @@ export default async function ProductDetails({ params }) {
             </div>
           </div>
         )}
+
+        <Reviews />
       </div>
     </main>
   );

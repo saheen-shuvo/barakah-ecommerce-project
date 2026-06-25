@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ProductSearch from "@/components/products/ProductSearch";
 import OfferCountdown from "@/components/products/OfferCountdown";
+import Reviews from "@/components/home/Reviews";
 
 async function getProducts(main, sub) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -87,6 +88,7 @@ export default async function CategoryPage({ params }) {
 
         <ProductSearch products={filteredProducts} />
       </div>
+      <Reviews />
     </main>
   );
 }
