@@ -462,7 +462,7 @@ exports.getDeliveredAnalytics = async (req, res) => {
       totalAbandonedOrders,
       deliveredAbandonedOrders,
       cancelledAbandonedOrders,
-      pendingAbandonedOrders
+      pendingAbandonedOrders,
     ] = await Promise.all([
       ordersCollection
         .find({
@@ -918,6 +918,7 @@ exports.getOrdersByDate = async (req, res) => {
   }
 };
 
+// This API is called by the admin panel to send an order to Steadfast for delivery
 exports.sendToSteadfast = async (req, res) => {
   try {
     const db = await connectDB();
@@ -1001,6 +1002,98 @@ exports.sendToSteadfast = async (req, res) => {
     });
   }
 };
+
+// This API is called by the admin panel to send the order to Pathao for delivery
+// exports.sendToPathao = async (req, res) => {
+//   try {
+//     const db = await connectDB();
+//     const ordersCollection = db.collection("orders");
+//     const { id } = req.params;
+
+//     const order = await ordersCollection.findOne({
+//       _id: new ObjectId(id),
+//     });
+
+//     if (!order) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Order not found",
+//       });
+//     }
+
+//     if (order.pathao && order.pathao.consignmentId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "This order has already been sent to Pathao",
+//       });
+//     }
+
+//     if (
+//       !order.customerName ||
+//       !order.phone ||
+//       !order.address ||
+//       order.total == null ||
+//       !order.items ||
+//       order.items.length === 0
+//     ) {
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "Missing required order information. Ensure customer details and items are present.",
+//       });
+//     }
+
+//     // Transform order to Pathao format
+//     const payload = transformOrderToPathao(order);
+
+//     // Call Pathao API
+//     const pathaoResponse = await callPathao(payload);
+
+//     // Extract useful information
+//     const { consignmentId, trackingUrl, shipment } =
+//       extractPathaoShipmentDetails(pathaoResponse);
+
+//     if (!consignmentId) {
+//       throw new Error(
+//         "Pathao shipment was created but no consignment ID was returned.",
+//       );
+//     }
+
+//     // Save shipment details
+//     await ordersCollection.updateOne(
+//       { _id: new ObjectId(id) },
+//       {
+//         $set: {
+//           pathao: {
+//             consignmentId,
+//             status: "sent",
+//             trackingUrl,
+//             sentAt: new Date(),
+//             courierName: "Pathao",
+//             response: shipment,
+//           },
+//         },
+//       },
+//     );
+
+//     const updatedOrder = await ordersCollection.findOne({
+//       _id: new ObjectId(id),
+//     });
+
+//     res.json({
+//       success: true,
+//       message: "Order sent to Pathao successfully",
+//       data: updatedOrder.pathao,
+//     });
+//   } catch (error) {
+//     console.error("Pathao Error:", error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 exports.saveAbandonedOrder = async (req, res) => {
   try {

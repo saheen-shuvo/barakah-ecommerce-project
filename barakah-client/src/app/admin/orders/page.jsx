@@ -17,6 +17,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState(null);
   const [steadfastLoadingId, setStedastLoadingId] = useState(null);
+  // const [pathaoLoadingId, setPathaoLoadingId] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isReady, setIsReady] = useState(false);
@@ -379,6 +380,87 @@ export default function OrdersPage() {
       setStedastLoadingId(null);
     }
   };
+
+  // const handleSendToPathao = async (id) => {
+  //   if (pathaoLoadingId === id) return;
+
+  //   const result = await Swal.fire({
+  //     title: "Send to Pathao?",
+  //     text: "This will create a shipment in Pathao. You cannot undo this action.",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#eb7029",
+  //     cancelButtonColor: "#6b7280",
+  //     confirmButtonText: "Yes, send it!",
+  //   });
+
+  //   if (!result.isConfirmed) return;
+
+  //   try {
+  //     setPathaoLoadingId(id);
+
+  //     const res = await fetch(`${baseUrl}/api/orders/${id}/pathao`, {
+  //       method: "PATCH",
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (!res.ok) {
+  //       throw new Error(data.message || "Request failed");
+  //     }
+
+  //     if (data.success) {
+  //       const updatedOrders = orders.map((order) =>
+  //         order._id === id
+  //           ? {
+  //               ...order,
+  //               pathao: data.data,
+  //             }
+  //           : order,
+  //       );
+
+  //       setOrders(updatedOrders);
+
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Sent to Pathao!",
+  //         html: `
+  //         <div class="text-left">
+  //           <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
+  //           ${
+  //             data.data.trackingUrl
+  //               ? `<p><a href="${data.data.trackingUrl}" target="_blank" class="text-[#eb7029] underline">View Tracking</a></p>`
+  //               : ""
+  //           }
+  //         </div>
+  //       `,
+  //         confirmButtonColor: "#eb7029",
+  //       });
+
+  //       if (selectedOrder?._id === id) {
+  //         setSelectedOrder((prev) =>
+  //           prev
+  //             ? {
+  //                 ...prev,
+  //                 pathao: data.data,
+  //               }
+  //             : null,
+  //         );
+  //       }
+  //     } else {
+  //       Swal.fire(
+  //         "Error",
+  //         data.message || "Failed to send to Pathao!",
+  //         "error",
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     Swal.fire("Error", error.message || "Something went wrong!", "error");
+  //   } finally {
+  //     setPathaoLoadingId(null);
+  //   }
+  // };
 
   const fetchCounts = async () => {
     const res = await fetch(`${baseUrl}/api/orders/counts`);
@@ -1324,6 +1406,24 @@ export default function OrdersPage() {
                         : "Send To Steadfast"}
                     </button>
                   ))}
+
+                {/* {selectedOrder.status !== "delivered" &&
+                  selectedOrder.status !== "cancelled" &&
+                  (selectedOrder.pathao?.consignmentId ? (
+                    <button className="btn btn-sm cursor-not-allowed" disabled>
+                      Sent to Pathao
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleSendToPathao(selectedOrder._id)}
+                      className="btn btn-sm bg-[#eb7029] text-white border-none hover:bg-[#01B795]"
+                      disabled={pathaoLoadingId === selectedOrder._id}
+                    >
+                      {pathaoLoadingId === selectedOrder._id
+                        ? "Sending..."
+                        : "Send To Pathao"}
+                    </button>
+                  ))} */}
 
                 {selectedOrder.status === "cancelled" ? (
                   <button className="btn btn-sm" disabled>
