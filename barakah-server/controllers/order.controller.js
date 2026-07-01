@@ -929,6 +929,7 @@ exports.sendToSteadfast = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
     const { id } = req.params;
+    const { account } = req.body;
 
     const order = await ordersCollection.findOne({
       _id: new ObjectId(id),
@@ -964,7 +965,7 @@ exports.sendToSteadfast = async (req, res) => {
     }
 
     const payload = transformOrderToSteadfast(order);
-    const steadfastResponse = await callSteadfast(payload);
+    const steadfastResponse = await callSteadfast(payload, account);
 
     const { consignmentId, trackingUrl, shipment } =
       extractSteadfastShipmentDetails(steadfastResponse);
@@ -980,9 +981,10 @@ exports.sendToSteadfast = async (req, res) => {
       {
         $set: {
           steadfast: {
-            consignmentId: consignmentId,
+            account,
+            consignmentId,
             status: "sent",
-            trackingUrl: trackingUrl,
+            trackingUrl,
             sentAt: new Date(),
             courierName: "Steadfast",
             response: shipment,
@@ -1019,13 +1021,6 @@ exports.sendToPathao = async (req, res) => {
       _id: new ObjectId(id),
     });
 
-    console.log("===================================");
-    console.log("Order ID:", id);
-    console.log("Customer:", order.customerName);
-    console.log("Phone:", order.phone);
-    console.log("Total:", order.total);
-    console.log("===================================");
-
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -1057,22 +1052,10 @@ exports.sendToPathao = async (req, res) => {
 
     const payload = transformOrderToPathao(order);
 
-    console.log("========== PATHAO PAYLOAD ==========");
-    console.log(JSON.stringify(payload, null, 2));
-    console.log("====================================");
-
     const pathaoResponse = await callPathao(payload);
 
     const { consignmentId, merchantOrderId, orderStatus, deliveryFee } =
       extractPathaoShipmentDetails(pathaoResponse);
-
-    console.log("Extracted Shipment Details:");
-    console.log({
-      consignmentId,
-      merchantOrderId,
-      orderStatus,
-      deliveryFee,
-    });
 
     if (!consignmentId) {
       throw new Error(
@@ -1107,12 +1090,7 @@ exports.sendToPathao = async (req, res) => {
       data: updatedOrder.pathao,
     });
   } catch (error) {
-    // console.error("Pathao Error:", error);
-    console.error("========== PATHAO ERROR ==========");
-    console.error(error);
-    console.error(error.stack);
-    console.error("=================================");
-
+    console.error("Pathao Error:", error);
     res.status(500).json({
       success: false,
       message: error.message,

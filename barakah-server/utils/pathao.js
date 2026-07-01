@@ -40,7 +40,6 @@ const transformOrderToPathao = (order) => {
  * Get OAuth Access Token
  */
 const getPathaoAccessToken = async () => {
-  console.log("Requesting Pathao Access Token...");
   const baseUrl = process.env.PATHAO_BASE_URL;
 
   const response = await fetch(`${baseUrl}/aladdin/api/v1/issue-token`, {
@@ -58,12 +57,10 @@ const getPathaoAccessToken = async () => {
   });
 
   const data = await response.json();
-  console.log("Token Response:", data);
 
   if (!response.ok) {
     throw new Error(data?.message || `Pathao Auth Error (${response.status})`);
   }
-  console.log("Access Token:", data.access_token);
   return data.access_token;
 };
 
@@ -74,8 +71,6 @@ const callPathao = async (payload) => {
   const baseUrl = process.env.PATHAO_BASE_URL;
 
   const token = await getPathaoAccessToken();
-  console.log("Sending Order to Pathao...");
-  console.log("Payload:", payload);
 
   const response = await fetch(`${baseUrl}/aladdin/api/v1/orders`, {
     method: "POST",
@@ -87,9 +82,6 @@ const callPathao = async (payload) => {
   });
 
   const data = await response.json();
-
-  console.log("Pathao Response:");
-  console.log(JSON.stringify(data, null, 2));
 
   if (!response.ok) {
     throw new Error(data?.message || `Pathao API Error (${response.status})`);

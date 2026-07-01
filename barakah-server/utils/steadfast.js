@@ -11,20 +11,32 @@ const transformOrderToSteadfast = (order) => {
     recipient_address: order.address,
     cod_amount: calculateCOD(order.paymentMethod, order.total),
     note: order.notes || "",
-    item_description:
-      order.items?.map((item) => item.name).join(", ") || "",
+    item_description: order.items?.map((item) => item.name).join(", ") || "",
   };
 };
 
-const callSteadfast = async (payload) => {
+const callSteadfast = async (payload, account) => {
   const apiUrl = process.env.STEADFAST_API_URL;
-  const apiKey = process.env.STEADFAST_API_KEY;
-  const secretKey = process.env.STEADFAST_SECRET_KEY;
+  let apiKey;
+  let secretKey;
+
+  switch (account) {
+    case "narayanganj":
+      apiKey = process.env.STEADFAST_API_KEY_NARAYANGANJ;
+      secretKey = process.env.STEADFAST_SECRET_KEY_NARAYANGANJ;
+      break;
+
+    case "badda":
+      apiKey = process.env.STEADFAST_API_KEY_BADDA;
+      secretKey = process.env.STEADFAST_SECRET_KEY_BADDA;
+      break;
+
+    default:
+      throw new Error("Invalid Steadfast account.");
+  }
 
   if (!apiUrl || !apiKey || !secretKey) {
-    throw new Error(
-      "Steadfast API credentials not configured."
-    );
+    throw new Error("Steadfast API credentials not configured.");
   }
 
   const response = await fetch(`${apiUrl}/create_order`, {
@@ -41,7 +53,7 @@ const callSteadfast = async (payload) => {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || `Steadfast API Error (${response.status})`
+      data?.message || `Steadfast API Error (${response.status})`,
     );
   }
 

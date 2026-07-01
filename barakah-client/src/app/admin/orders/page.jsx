@@ -304,11 +304,12 @@ export default function OrdersPage() {
     }
   };
 
-  const handleSendToSteadfast = async (id) => {
-    if (steadfastLoadingId === id) return;
+  const handleSendToSteadfast = async (id, account) => {
+    if (steadfastLoadingId === `${id}-${account}`) return;
+
     const result = await Swal.fire({
-      title: "Send to Steadfast?",
-      text: "This will create a shipment in Steadfast. You cannot undo this action.",
+      title: `Send to Steadfast (${account})?`,
+      text: `This will create a shipment in the ${account} Steadfast account. You cannot undo this action.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d4af37",
@@ -319,10 +320,14 @@ export default function OrdersPage() {
     if (!result.isConfirmed) return;
 
     try {
-      setStedastLoadingId(id);
+      setStedastLoadingId(`${id}-${account}`);
 
       const res = await fetch(`${baseUrl}/api/orders/${id}/steadfast`, {
         method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ account }),
       });
 
       const data = await res.json();
@@ -346,13 +351,13 @@ export default function OrdersPage() {
           icon: "success",
           title: "Sent to Steadfast!",
           html: `<div class="text-left">
-            <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
-            ${
-              data.data.trackingUrl
-                ? `<p><a href="${data.data.trackingUrl}" target="_blank" class="text-[#d4af37] underline">View Tracking</a></p>`
-                : ""
-            }
-          </div>`,
+          <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
+          ${
+            data.data.trackingUrl
+              ? `<p><a href="${data.data.trackingUrl}" target="_blank" class="text-[#d4af37] underline">View Tracking</a></p>`
+              : ""
+          }
+        </div>`,
           confirmButtonColor: "#d4af37",
         });
 
@@ -428,8 +433,6 @@ export default function OrdersPage() {
   <div class="text-left">
     <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
     <p><strong>Merchant Order ID:</strong> ${data.data.merchantOrderId}</p>
-    <p><strong>Status:</strong> ${data.data.orderStatus}</p>
-    <p><strong>Delivery Fee:</strong> ৳${data.data.deliveryFee}</p>
   </div>
 `,
           confirmButtonColor: "#eb7029",
@@ -1052,6 +1055,10 @@ export default function OrdersPage() {
                           Steadfast Tracking:
                         </p>
                         <p>
+                          <span className="font-medium">Account:</span>{" "}
+                          {selectedOrder.steadfast.account || "Not Found"}
+                        </p>
+                        <p>
                           <span className="font-medium">Status:</span>{" "}
                           <span className="text-[#d4af37]">Sent</span>
                         </p>
@@ -1108,11 +1115,6 @@ export default function OrdersPage() {
                             Merchant Order ID:
                           </span>{" "}
                           {selectedOrder.pathao.merchantOrderId}
-                        </p>
-
-                        <p>
-                          <span className="font-medium">Delivery Fee:</span> ৳
-                          {selectedOrder.pathao.deliveryFee}
                         </p>
 
                         {selectedOrder.pathao.sentAt && (
@@ -1430,25 +1432,55 @@ export default function OrdersPage() {
               </div>
 
               {/* Footer Action */}
-              <div className="flex gap-2 justify-center md:justify-end">
+              <div className="grid md:flex grid-cols-2 gap-2 justify-center md:justify-end">
                 {selectedOrder.status !== "delivered" &&
                   selectedOrder.status !== "cancelled" &&
-                  (selectedOrder.steadfast?.consignmentId ? (
+                  (selectedOrder.steadfast?.account === "narayanganj" ? (
                     <button
                       className="btn btn-xs md:btn-sm cursor-not-allowed"
                       disabled
                     >
-                      Sent to Steadfast
+                      Sent to Steadfast (N)
                     </button>
                   ) : (
                     <button
-                      onClick={() => handleSendToSteadfast(selectedOrder._id)}
+                      onClick={() =>
+                        handleSendToSteadfast(selectedOrder._id, "narayanganj")
+                      }
                       className="btn btn-xs md:btn-sm bg-[#01B795] text-white border-none hover:bg-[#00886f]"
-                      disabled={steadfastLoadingId === selectedOrder._id}
+                      disabled={
+                        steadfastLoadingId ===
+                        `${selectedOrder._id}-narayanganj`
+                      }
                     >
-                      {steadfastLoadingId === selectedOrder._id
+                      {steadfastLoadingId === `${selectedOrder._id}-narayanganj`
                         ? "Sending..."
-                        : "Send To Steadfast"}
+                        : "Send To Steadfast (N)"}
+                    </button>
+                  ))}
+
+                {selectedOrder.status !== "delivered" &&
+                  selectedOrder.status !== "cancelled" &&
+                  (selectedOrder.steadfast?.account === "badda" ? (
+                    <button
+                      className="btn btn-xs md:btn-sm cursor-not-allowed"
+                      disabled
+                    >
+                      Sent to Steadfast (B)
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        handleSendToSteadfast(selectedOrder._id, "badda")
+                      }
+                      className="btn btn-xs md:btn-sm bg-[#01a8b7] text-white border-none hover:bg-[#026c6d]"
+                      disabled={
+                        steadfastLoadingId === `${selectedOrder._id}-badda`
+                      }
+                    >
+                      {steadfastLoadingId === `${selectedOrder._id}-badda`
+                        ? "Sending..."
+                        : "Send To Steadfast (B)"}
                     </button>
                   ))}
 

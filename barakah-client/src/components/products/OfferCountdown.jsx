@@ -20,7 +20,10 @@ export default function OfferCountdown({ product, category, subcategory }) {
     offerKey = "islamic";
   }
 
-  if(category === "others" && subcategory === "others") {
+  if (
+    (category === "others" && subcategory === "others") ||
+    (category === "others" && subcategory === "special2")
+  ) {
     offerKey = "others";
   }
 
@@ -135,10 +138,7 @@ export default function OfferCountdown({ product, category, subcategory }) {
 
       {/* Bottom Offer Bar */}
       <div className=" text-white text-center text-xl font-semibold pb-8">
-        <span className="text-2xl text-[#d4af37]">
-          {offer.title}
-        </span>{" "}
-        <br></br>
+        <span className="text-2xl text-[#d4af37]">{offer.title}</span> <br></br>
         {offer.text}
       </div>
     </section>
