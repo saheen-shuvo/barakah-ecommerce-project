@@ -4,6 +4,11 @@ const {
   transformOrderToSteadfast,
   callSteadfast,
 } = require("../utils/steadfast");
+const {
+  transformOrderToPathao,
+  callPathao,
+  extractPathaoShipmentDetails,
+} = require("../utils/pathao");
 const { sendAdminOrderNotification } = require("../lib/emailService");
 
 const extractSteadfastShipmentDetails = (steadfastResponse) => {
@@ -1004,96 +1009,116 @@ exports.sendToSteadfast = async (req, res) => {
 };
 
 // This API is called by the admin panel to send the order to Pathao for delivery
-// exports.sendToPathao = async (req, res) => {
-//   try {
-//     const db = await connectDB();
-//     const ordersCollection = db.collection("orders");
-//     const { id } = req.params;
+exports.sendToPathao = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+    const { id } = req.params;
 
-//     const order = await ordersCollection.findOne({
-//       _id: new ObjectId(id),
-//     });
+    const order = await ordersCollection.findOne({
+      _id: new ObjectId(id),
+    });
 
-//     if (!order) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Order not found",
-//       });
-//     }
+    console.log("===================================");
+    console.log("Order ID:", id);
+    console.log("Customer:", order.customerName);
+    console.log("Phone:", order.phone);
+    console.log("Total:", order.total);
+    console.log("===================================");
 
-//     if (order.pathao && order.pathao.consignmentId) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "This order has already been sent to Pathao",
-//       });
-//     }
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
 
-//     if (
-//       !order.customerName ||
-//       !order.phone ||
-//       !order.address ||
-//       order.total == null ||
-//       !order.items ||
-//       order.items.length === 0
-//     ) {
-//       return res.status(400).json({
-//         success: false,
-//         message:
-//           "Missing required order information. Ensure customer details and items are present.",
-//       });
-//     }
+    if (order.pathao && order.pathao.consignmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "This order has already been sent to Pathao",
+      });
+    }
 
-//     // Transform order to Pathao format
-//     const payload = transformOrderToPathao(order);
+    if (
+      !order.customerName ||
+      !order.phone ||
+      !order.address ||
+      order.total == null ||
+      !order.items ||
+      order.items.length === 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required order information. Ensure customer details and items are present.",
+      });
+    }
 
-//     // Call Pathao API
-//     const pathaoResponse = await callPathao(payload);
+    const payload = transformOrderToPathao(order);
 
-//     // Extract useful information
-//     const { consignmentId, trackingUrl, shipment } =
-//       extractPathaoShipmentDetails(pathaoResponse);
+    console.log("========== PATHAO PAYLOAD ==========");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("====================================");
 
-//     if (!consignmentId) {
-//       throw new Error(
-//         "Pathao shipment was created but no consignment ID was returned.",
-//       );
-//     }
+    const pathaoResponse = await callPathao(payload);
 
-//     // Save shipment details
-//     await ordersCollection.updateOne(
-//       { _id: new ObjectId(id) },
-//       {
-//         $set: {
-//           pathao: {
-//             consignmentId,
-//             status: "sent",
-//             trackingUrl,
-//             sentAt: new Date(),
-//             courierName: "Pathao",
-//             response: shipment,
-//           },
-//         },
-//       },
-//     );
+    const { consignmentId, merchantOrderId, orderStatus, deliveryFee } =
+      extractPathaoShipmentDetails(pathaoResponse);
 
-//     const updatedOrder = await ordersCollection.findOne({
-//       _id: new ObjectId(id),
-//     });
+    console.log("Extracted Shipment Details:");
+    console.log({
+      consignmentId,
+      merchantOrderId,
+      orderStatus,
+      deliveryFee,
+    });
 
-//     res.json({
-//       success: true,
-//       message: "Order sent to Pathao successfully",
-//       data: updatedOrder.pathao,
-//     });
-//   } catch (error) {
-//     console.error("Pathao Error:", error);
+    if (!consignmentId) {
+      throw new Error(
+        "Pathao shipment was created but no consignment ID was returned.",
+      );
+    }
 
-//     res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          pathao: {
+            consignmentId,
+            merchantOrderId,
+            orderStatus,
+            deliveryFee,
+            status: "sent",
+            sentAt: new Date(),
+            courierName: "Pathao",
+          },
+        },
+      },
+    );
+
+    const updatedOrder = await ordersCollection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    res.json({
+      success: true,
+      message: "Order sent to Pathao successfully",
+      data: updatedOrder.pathao,
+    });
+  } catch (error) {
+    // console.error("Pathao Error:", error);
+    console.error("========== PATHAO ERROR ==========");
+    console.error(error);
+    console.error(error.stack);
+    console.error("=================================");
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 exports.saveAbandonedOrder = async (req, res) => {
   try {

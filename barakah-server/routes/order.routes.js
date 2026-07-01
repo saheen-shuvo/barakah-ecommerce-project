@@ -16,6 +16,7 @@ const {
   getAbandonedOrders,
   deliverAbandonedOrder,
   cancelAbandonedOrder,
+  sendToPathao,
 } = require("../controllers/order.controller");
 
 router.post("/", createOrder);
@@ -31,6 +32,7 @@ router.get("/export", getOrdersForExport);
 router.get("/by-date", getOrdersByDate);
 router.patch("/:id/deliver", markOrderDelivered);
 router.patch("/:id/steadfast", sendToSteadfast);
+router.patch("/:id/pathao", sendToPathao);
 router.patch("/:id/cancel", cancelOrder);
 router.patch("/:id/verify", verifyOrder);
 
