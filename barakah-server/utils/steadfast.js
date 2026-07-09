@@ -49,7 +49,24 @@ const callSteadfast = async (payload, account) => {
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json();
+  console.log("Steadfast Status:", response.status);
+  console.log("Content-Type:", response.headers.get("content-type"));
+
+  const rawResponse = await response.text();
+
+  console.log("========== STEADFAST RAW RESPONSE ==========");
+  console.log(rawResponse);
+  console.log("============================================");
+
+  let data;
+
+  try {
+    data = JSON.parse(rawResponse);
+  } catch (err) {
+    throw new Error(
+      `Steadfast returned non-JSON response. Status: ${response.status}`,
+    );
+  }
 
   if (!response.ok) {
     throw new Error(

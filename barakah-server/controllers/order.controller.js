@@ -1003,6 +1003,7 @@ exports.sendToSteadfast = async (req, res) => {
       data: updatedOrder.steadfast,
     });
   } catch (error) {
+    console.error("Message:", error.message);
     res.status(500).json({
       success: false,
       message: error.message,
