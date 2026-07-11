@@ -6,6 +6,8 @@ import { RxCross1 } from "react-icons/rx";
 import { LuPhone } from "react-icons/lu";
 import LoadingAnimation from "@/components/shared/LoadingAnimation";
 import Swal from "sweetalert2";
+import { FaWhatsapp } from "react-icons/fa";
+import { LuCopy } from "react-icons/lu";
 
 export default function AbandonedOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -257,6 +259,69 @@ export default function AbandonedOrdersPage() {
       }
     }
     return pages;
+  };
+
+  const normalizePhone = (phone) => {
+    if (!phone) return "";
+
+    let cleaned = phone.replace(/\D/g, "");
+
+    if (cleaned.startsWith("0")) {
+      cleaned = "88" + cleaned;
+    }
+
+    if (!cleaned.startsWith("88")) {
+      cleaned = "88" + cleaned;
+    }
+
+    return cleaned;
+  };
+
+  const generateWhatsAppMessage = (order) => {
+    const productNames = order.items.map((item) => item.name).join(", ");
+
+    return `আসসালামু আলাইকুম ${order.customerName} স্যার/ ম্যাম,
+
+আমি বারাকাহ ইসলামিক ক্লক অ্যান্ড ক্যানভাস থেকে বলছি।
+
+আমরা লক্ষ্য করেছি যে আপনি নিচের প্রডাক্টগুলো অর্ডার করার জন্য তথ্য পূরণ করেছিলেন, কিন্তু অর্ডারটি সম্পূর্ণ হয়নি।
+
+পণ্যের নাম: ${productNames}
+মূল্য: ৳${order.total}
+ডেলিভারি ঠিকানা: ${order.address}
+
+আপনি চাইলে আমরা এখনই এই অর্ডারটি কনফার্ম করে পাঠিয়ে দিতে পারি।
+
+যদি অর্ডারটি নিতে আগ্রহী থাকেন, তাহলে শুধু "জি" লিখে রিপ্লাই করুন অথবা আমাদের কল করুন।
+
+বারাকাহ ইসলামিক ক্লক অ্যান্ড ক্যানভাসের সাথে থাকার জন্য আপনাকে আন্তরিক ধন্যবাদ।`;
+  };
+
+  const handleWhatsAppChat = (order) => {
+    const phone = normalizePhone(order.phone);
+    const message = encodeURIComponent(generateWhatsAppMessage(order));
+
+    window.open(
+      `https://wa.me/${phone}?text=${message}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
+  const handleCopyWhatsAppMessage = async (order) => {
+    try {
+      await navigator.clipboard.writeText(generateWhatsAppMessage(order));
+
+      Swal.fire({
+        icon: "success",
+        title: "Copied!",
+        text: "WhatsApp message copied.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch {
+      Swal.fire("Error", "Failed to copy message.", "error");
+    }
   };
 
   if (loading) {
@@ -646,19 +711,36 @@ export default function AbandonedOrdersPage() {
                       <span className="font-semibold">Name:</span>{" "}
                       {selectedOrder.customerName}
                     </p>
-                    <p className="flex items-center gap-3">
-                      <span>
-                        <span className="font-semibold">Phone:</span>{" "}
-                        {selectedOrder.phone}
-                      </span>
+                    <p>
+                      <span className="font-semibold">Phone:</span>{" "}
+                      {selectedOrder.phone}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mt-2">
                       <a
                         href={`tel:${selectedOrder.phone}`}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-green-700 px-3 py-1 text-xs font-semibold text-white hover:bg-green-800 transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-md bg-green-700 px-3 py-1 text-xs font-semibold text-white hover:bg-green-800"
                       >
                         <LuPhone className="w-3 h-3" />
                         <span>Call</span>
                       </a>
-                    </p>
+
+                      <button
+                        onClick={() => handleWhatsAppChat(selectedOrder)}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-[#1dd460] px-3 py-1 text-xs font-semibold text-white hover:bg-[#1ebe5d]"
+                      >
+                        <FaWhatsapp className="w-4 h-4" />
+                        <span>WhatsApp</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleCopyWhatsAppMessage(selectedOrder)}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-slate-600 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-700"
+                      >
+                        <LuCopy className="w-3.5 h-3.5" />
+                        <span>Copy</span>
+                      </button>
+                    </div>
                     <p>
                       <span className="font-semibold">Address:</span>{" "}
                       {selectedOrder.address}

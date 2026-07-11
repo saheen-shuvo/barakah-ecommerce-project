@@ -551,7 +551,13 @@ ${productNames}
 
     await navigator.clipboard.writeText(message);
 
-    toast.success("Message copied!");
+    Swal.fire({
+      icon: "success",
+      title: "Copied!",
+      text: "WhatsApp message copied.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
     setPendingWhatsAppOrderId(order._id);
   };
 
@@ -1244,6 +1250,42 @@ ${productNames}
                           ? "Cancelled"
                           : "Pending"}
                     </p>
+
+                    {selectedOrder.status === "delivered" &&
+                      selectedOrder.deliveredAt && (
+                        <p>
+                          <span className="font-semibold">Delivered At:</span>{" "}
+                          {new Date(selectedOrder.deliveredAt).toLocaleString(
+                            "en-BD",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            },
+                          )}
+                        </p>
+                      )}
+
+                    {selectedOrder.status === "cancelled" &&
+                      selectedOrder.cancelledAt && (
+                        <p>
+                          <span className="font-semibold">Cancelled At:</span>{" "}
+                          {new Date(selectedOrder.cancelledAt).toLocaleString(
+                            "en-BD",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            },
+                          )}
+                        </p>
+                      )}
 
                     <p>
                       <span className="font-semibold">Date:</span>{" "}
