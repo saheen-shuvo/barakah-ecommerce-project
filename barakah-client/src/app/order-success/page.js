@@ -82,6 +82,17 @@ export default function OrderSuccessPage() {
             </Link>
           </div>
         </div>
+        <p className="text-xs text-black/80 text-center mt-16">
+          Need Website? Contact with{" "}
+          <a
+            href="https://saheenalamshuvo.me"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#0b91eb] hover:underline animate-pulse font-semibold"
+          >
+            Saheen Alam Shuvo
+          </a>
+        </p>
       </div>
     </main>
   );

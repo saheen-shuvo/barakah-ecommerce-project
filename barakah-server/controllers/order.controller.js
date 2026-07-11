@@ -266,6 +266,11 @@ exports.createOrder = async (req, res) => {
           redx: { total: 0, delivered: 0, cancelled: 0, successRatio: 0 },
         },
       },
+      whatsapp: {
+        status: "pending",
+        updatedAt: null,
+        updatedBy: null,
+      },
     };
 
     const result = await ordersCollection.insertOne(orderData);
@@ -1276,6 +1281,44 @@ exports.cancelAbandonedOrder = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal server error",
+    });
+  }
+};
+
+exports.updateWhatsAppStatus = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const { id } = req.params;
+    const { status, updatedBy } = req.body;
+
+    if (!["pending", "sent", "no_whatsapp"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid WhatsApp status",
+      });
+    }
+
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          "whatsapp.status": status,
+          "whatsapp.updatedAt": new Date(),
+          "whatsapp.updatedBy": updatedBy,
+        },
+      },
+    );
+
+    res.json({
+      success: true,
+      message: "WhatsApp status updated",
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
     });
   }
 };

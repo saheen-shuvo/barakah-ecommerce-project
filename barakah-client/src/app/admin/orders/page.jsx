@@ -5,11 +5,14 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import LoadingAnimation from "@/components/shared/LoadingAnimation";
-import { LuPhone } from "react-icons/lu";
+import { LuCopy, LuPhone } from "react-icons/lu";
 import { RxCross1 } from "react-icons/rx";
+import { FaWhatsapp } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function OrdersPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const user = JSON.parse(localStorage.getItem("barakahUser") || "{}");
   const [orders, setOrders] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -20,6 +23,7 @@ export default function OrdersPage() {
   const [pathaoLoadingId, setPathaoLoadingId] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [pendingWhatsAppOrderId, setPendingWhatsAppOrderId] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [counts, setCounts] = useState({
     all: 0,
@@ -471,6 +475,181 @@ export default function OrdersPage() {
       setCounts(data.data);
     }
   };
+
+  const formatPhoneForWhatsApp = (phone) => {
+    // Remove spaces, dashes, parentheses, etc.
+    let cleaned = phone.replace(/\D/g, "");
+
+    // +88017XXXXXXXX -> 88017XXXXXXXX
+    if (cleaned.startsWith("880")) {
+      return cleaned;
+    }
+
+    // 017XXXXXXXX -> 88017XXXXXXXX
+    if (cleaned.startsWith("0")) {
+      return `88${cleaned}`;
+    }
+
+    // 171XXXXXXXX -> 88017XXXXXXXX
+    if (cleaned.length === 10 && cleaned.startsWith("1")) {
+      return `880${cleaned}`;
+    }
+
+    // Already invalid
+    return null;
+  };
+
+  const handleWhatsAppChat = (order) => {
+    const phone = formatPhoneForWhatsApp(order.phone);
+
+    if (!phone) {
+      alert("Invalid phone number");
+      return;
+    }
+
+    const productNames = order.items.map((item) => item.name).join(", ");
+
+    const message = `আসসালামু আলাইকুম ${order.customerName} স্যার/ ম্যাম,
+
+আমি বারাকাহ ইসলামিক ক্লক অ্যান্ড ক্যানভাস থেকে বলছি।
+
+আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।
+
+পণ্যের নাম: ${productNames}
+মূল্য: ৳${order.total}
+ডেলিভারি ঠিকানা: ${order.address}
+
+আমরা প্রডাক্টটি কি এখন পাঠিয়ে দেব?
+
+বারাকাহ থেকে অর্ডার করার জন্য আপনাকে আন্তরিক ধন্যবাদ।`;
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+
+    setPendingWhatsAppOrderId(order._id);
+  };
+
+  const handleCopyWhatsAppMessage = async (order) => {
+    const productNames = order.items.map((item) => item.name).join(", ");
+
+    const message = `আসসালামু আলাইকুম ${order.customerName} স্যার/ ম্যাম,
+
+আমি বারাকাহ ইসলামিক ক্লক অ্যান্ড ক্যানভাস থেকে বলছি।
+
+আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।
+
+🛍️ পণ্যের নাম:
+${productNames}
+
+💰 মূল্য: ৳${order.total}
+📍 ডেলিভারি ঠিকানা: ${order.address}
+
+আমরা প্রডাক্টটি কি এখন পাঠিয়ে দেব?
+
+বারাকাহ থেকে অর্ডার করার জন্য আপনাকে আন্তরিক ধন্যবাদ।`;
+
+    await navigator.clipboard.writeText(message);
+
+    toast.success("Message copied!");
+    setPendingWhatsAppOrderId(order._id);
+  };
+
+  const updateWhatsAppStatus = async (orderId, status) => {
+    try {
+      const res = await fetch(`${baseUrl}/api/orders/${orderId}/whatsapp`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status,
+          updatedBy: user.userName,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update WhatsApp status");
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "WhatsApp status updated.",
+        confirmButtonText: "OK",
+      });
+
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId
+            ? {
+                ...order,
+                whatsapp: {
+                  ...(order.whatsapp || {}),
+                  status,
+                  updatedAt: new Date().toISOString(),
+                  updatedBy: user?.userName || "Admin",
+                },
+              }
+            : order,
+        ),
+      );
+
+      if (selectedOrder?._id === orderId) {
+        setSelectedOrder((prev) => ({
+          ...prev,
+          whatsapp: {
+            ...(prev.whatsapp || {}),
+            status,
+            updatedAt: new Date().toISOString(),
+            updatedBy: user?.userName || "Admin",
+          },
+        }));
+      }
+
+      setPendingWhatsAppOrderId(null);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      const order = orders.find((o) => o._id === pendingWhatsAppOrderId);
+      if (
+        !document.hidden &&
+        order &&
+        (!order.whatsapp || order.whatsapp.status === "pending")
+      ) {
+        const result = await Swal.fire({
+          title: "WhatsApp Confirmation",
+          text: "Did you successfully send the confirmation message to the customer?",
+          icon: "question",
+          showCancelButton: true,
+          showDenyButton: true,
+          confirmButtonText: "Message Sent",
+          denyButtonText: "No WhatsApp",
+          cancelButtonText: "Later",
+        });
+
+        if (result.isConfirmed) {
+          await updateWhatsAppStatus(pendingWhatsAppOrderId, "sent");
+        } else if (result.isDenied) {
+          await updateWhatsAppStatus(pendingWhatsAppOrderId, "no_whatsapp");
+        }
+
+        setPendingWhatsAppOrderId(null);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [pendingWhatsAppOrderId, orders]);
 
   useEffect(() => {
     if (!baseUrl) return;
@@ -937,14 +1116,6 @@ export default function OrdersPage() {
                         <span className="font-semibold">Phone:</span>{" "}
                         {selectedOrder.phone}
                       </span>
-
-                      <a
-                        href={`tel:${selectedOrder.phone}`}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-green-700 px-3 py-1 text-xs font-semibold text-white hover:bg-green-800 transition-colors"
-                      >
-                        <LuPhone className="w-3 h-3" />
-                        <span>Call</span>
-                      </a>
                     </p>
 
                     <p>
@@ -958,11 +1129,85 @@ export default function OrdersPage() {
                         {selectedOrder.notes}
                       </p>
                     )}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <a
+                        href={`tel:${selectedOrder.phone}`}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-green-700 px-3 py-1 text-xs font-semibold text-white hover:bg-green-800 transition-colors"
+                      >
+                        <LuPhone className="w-3 h-3" />
+                        <span>Call</span>
+                      </a>
+
+                      <button
+                        onClick={() => handleWhatsAppChat(selectedOrder)}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-[#1dd460] px-3 py-1 text-xs font-semibold text-white hover:bg-[#1ebe5d] transition-colors"
+                      >
+                        <FaWhatsapp className="w-4 h-4" />
+                        <span>WhatsApp</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleCopyWhatsAppMessage(selectedOrder)}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-slate-600 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-700 transition-colors"
+                      >
+                        <LuCopy className="w-3.5 h-3.5" />
+                        <span>Copy</span>
+                      </button>
+                    </div>
+
+                    {selectedOrder.whatsapp && (
+                      <div className="border-t border-[#e5dccf] pt-3 mt-3 space-y-2">
+                        <h5 className="font-semibold text-[#3d2f1f]">
+                          WhatsApp Status
+                        </h5>
+
+                        <p>
+                          <span className="font-medium">Status:</span>{" "}
+                          {selectedOrder.whatsapp.status === "sent" ? (
+                            <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                              Sent
+                            </span>
+                          ) : selectedOrder.whatsapp.status ===
+                            "no_whatsapp" ? (
+                            <span className="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                              No WhatsApp
+                            </span>
+                          ) : (
+                            <span className="inline-flex rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-700">
+                              Pending
+                            </span>
+                          )}
+                        </p>
+
+                        {selectedOrder.whatsapp.updatedBy && (
+                          <p>
+                            <span className="font-medium">Updated By:</span>{" "}
+                            {selectedOrder.whatsapp.updatedBy}
+                          </p>
+                        )}
+
+                        {selectedOrder.whatsapp.updatedAt && (
+                          <p>
+                            <span className="font-medium">Updated At:</span>{" "}
+                            {new Date(
+                              selectedOrder.whatsapp.updatedAt,
+                            ).toLocaleString("en-BD", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     {selectedOrder.source && (
                       <>
                         <div className="border-t border-[#e5dccf] pt-2 mt-2">
-                          <p className="font-semibold mb-2">Order Source:</p>
+                          <h5 className="font-semibold mb-2">Order Source:</h5>
                           <p>
                             <span className="font-medium">Source:</span>{" "}
                             {selectedOrder.source.traffic_source || "direct"}
