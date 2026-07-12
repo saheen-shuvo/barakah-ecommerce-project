@@ -57,6 +57,9 @@ export default function Navbar() {
     };
   }, []);
 
+  const canAccessDashboard =
+    user?.role === "barakahAdmin1234" || user?.role === "barakahModerator0102";
+
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-md">
       <div className="mx-auto w-full max-w-7xl px-4">
@@ -146,7 +149,7 @@ export default function Navbar() {
                       </div>
 
                       <div className="py-2">
-                        {user.role === "barakahAdmin1234" && (
+                        {canAccessDashboard && (
                           <Link
                             href="/admin"
                             onClick={() => setUserMenuOpen(false)}
@@ -249,7 +252,7 @@ export default function Navbar() {
 
             {user && (
               <div className="mt-2 border-t border-gray-200 pt-3 flex flex-col gap-3">
-                {user.role === "barakahAdmin1234" && (
+                {canAccessDashboard && (
                   <Link
                     href="/admin"
                     onClick={closeMobileMenu}

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ProductTable({
   initialProducts,
@@ -14,7 +15,9 @@ export default function ProductTable({
   onPageChange,
 }) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const { user } = useAuth();
   const [products, setProducts] = useState([]);
+  const isModerator = user?.role === "barakahModerator0102";
 
   useEffect(() => {
     setProducts(initialProducts);
@@ -153,13 +156,14 @@ export default function ProductTable({
                     >
                       Edit
                     </Link>
-
-                    <button
-                      onClick={() => handleDelete(product._id)}
-                      className="btn btn-ghost btn-xs text-red-500"
-                    >
-                      {deletingId === product._id ? "Deleting..." : "Delete"}
-                    </button>
+                    {!isModerator && (
+                      <button
+                        onClick={() => handleDelete(product._id)}
+                        className="btn btn-ghost btn-xs text-red-500"
+                      >
+                        {deletingId === product._id ? "Deleting..." : "Delete"}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -216,12 +220,20 @@ export default function ProductTable({
                 Edit
               </Link>
 
-              <button
+              {/* <button
                 onClick={() => handleDelete(product._id)}
                 className="btn btn-sm btn-error flex-1"
               >
                 {deletingId === product._id ? "Deleting..." : "Delete"}
-              </button>
+              </button> */}
+              {!isModerator && (
+                <button
+                  onClick={() => handleDelete(product._id)}
+                  className="btn btn-sm btn-error flex-1"
+                >
+                  {deletingId === product._id ? "Deleting..." : "Delete"}
+                </button>
+              )}
             </div>
           </div>
         ))}

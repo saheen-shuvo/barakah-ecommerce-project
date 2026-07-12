@@ -15,6 +15,7 @@ import { MdShoppingCartCheckout } from "react-icons/md";
 import { GrDeliver } from "react-icons/gr";
 import { RiPassPendingLine } from "react-icons/ri";
 import { TbUserCancel } from "react-icons/tb";
+import { useAuth } from "@/contexts/AuthContext";
 
 const toInputFormat = (ddmmyyyy) => {
   if (!ddmmyyyy || !ddmmyyyy.includes("-")) return "";
@@ -275,6 +276,8 @@ const DateAnalyticsCard = () => {
 
 // Helper Sub-component for Stats
 const StatCard = ({ label, value, subValue, icon, color, badge }) => {
+  const { user } = useAuth();
+  const isModerator = user?.role === "barakahModerator0102";
   const colors = {
     amber: "bg-amber-50 text-amber-700 border-amber-100",
     emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
@@ -310,7 +313,7 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
         <div className="flex items-baseline gap-2 mt-1">
           <h3 className="text-3xl font-bold text-stone-800">{value}</h3>
         </div>
-        {subValue !== undefined && (
+        {subValue !== undefined && !isModerator && (
           <div className="flex items-center gap-1 mt-3 text-stone-600 font-medium">
             <span className="text-sm tracking-tight">
               BDT{" "}

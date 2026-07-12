@@ -17,6 +17,7 @@ import { MdShoppingCartCheckout } from "react-icons/md";
 import { GrDeliver } from "react-icons/gr";
 import { RiPassPendingLine } from "react-icons/ri";
 import { TbUserCancel } from "react-icons/tb";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AnalyticsCard = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -361,6 +362,8 @@ const AnalyticsCard = () => {
 
 // Stat Card Sub-component
 const StatCard = ({ label, value, subValue, icon, color, badge }) => {
+  const { user } = useAuth();
+  const isModerator = user?.role === "barakahModerator0102";
   const colors = {
     amber: {
       bg: "bg-amber-50",
@@ -436,7 +439,7 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
         <h3 className="text-3xl font-bold text-stone-800 mb-2">{value}</h3>
 
         {/* Revenue */}
-        {subValue !== undefined && (
+        {subValue !== undefined && !isModerator && (
           <div className="flex items-center gap-1 text-stone-600 font-medium">
             <span className="text-sm tracking-tight">
               BDT{" "}

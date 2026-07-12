@@ -9,6 +9,7 @@ export default function AdminRoute({ children }) {
   const { user } = useAuth();
 
   const isAdmin = user?.role === "barakahAdmin1234";
+  const isModerator = user?.role === "barakahModerator0102";
 
   useEffect(() => {
     if (user === undefined) return; // still loading
@@ -18,12 +19,12 @@ export default function AdminRoute({ children }) {
       return;
     }
 
-    if (!isAdmin) {
+    if (!isAdmin && !isModerator) {
       router.replace("/");
     }
-  }, [user, isAdmin, router]);
+  }, [user, isAdmin, isModerator, router]);
 
-  if (!user || !isAdmin) {
+  if (!user || (!isAdmin && !isModerator)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <span className="loading loading-spinner loading-lg"></span>
