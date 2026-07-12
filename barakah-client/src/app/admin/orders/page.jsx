@@ -24,11 +24,13 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [pendingWhatsAppOrderId, setPendingWhatsAppOrderId] = useState(null);
+  const [pendingCallOrderId, setPendingCallOrderId] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [counts, setCounts] = useState({
     all: 0,
     verification_required: 0,
     pending: 0,
+    no_response: 0,
     delivered: 0,
     cancelled: 0,
   });
@@ -530,6 +532,51 @@ export default function OrdersPage() {
     setPendingWhatsAppOrderId(order._id);
   };
 
+  const handleCall = async (order) => {
+    try {
+      const res = await fetch(`${baseUrl}/api/orders/${order._id}/call`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          updatedBy: user.userName,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update call count");
+      }
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === order._id
+            ? {
+                ...o,
+                call: data.data,
+              }
+            : o,
+        ),
+      );
+
+      if (selectedOrder?._id === order._id) {
+        setSelectedOrder((prev) => ({
+          ...prev,
+          call: data.data,
+        }));
+      }
+
+      setPendingCallOrderId(order._id);
+
+      window.location.href = `tel:${order.phone}`;
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update call count.");
+    }
+  };
+
   const handleCopyWhatsAppMessage = async (order) => {
     const productNames = order.items.map((item) => item.name).join(", ");
 
@@ -622,6 +669,73 @@ ${productNames}
     }
   };
 
+  const updateOrderStatus = async (orderId, status) => {
+    try {
+      // Get previous status before updating
+      const previousStatus = orders.find((o) => o._id === orderId)?.status;
+
+      const res = await fetch(`${baseUrl}/api/orders/${orderId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update order status");
+      }
+
+      await Swal.fire({
+        icon: "success",
+        title: "Updated",
+        text: "Order status updated successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      // Update orders
+      setOrders((prev) => {
+        const updatedOrders = prev.map((order) =>
+          order._id === orderId ? { ...order, status } : order,
+        );
+
+        if (statusFilter === "all") {
+          return updatedOrders;
+        }
+
+        return updatedOrders.filter((order) => order.status === statusFilter);
+      });
+
+      // Update counts
+      if (previousStatus && previousStatus !== status) {
+        setCounts((prev) => ({
+          ...prev,
+          [previousStatus]: Math.max((prev[previousStatus] || 0) - 1, 0),
+          [status]: (prev[status] || 0) + 1,
+        }));
+      }
+
+      // Update selected order
+      if (selectedOrder?._id === orderId) {
+        setSelectedOrder((prev) => ({
+          ...prev,
+          status,
+        }));
+      }
+    } catch (error) {
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message,
+      });
+    }
+  };
+
   useEffect(() => {
     const handleVisibilityChange = async () => {
       const order = orders.find((o) => o._id === pendingWhatsAppOrderId);
@@ -656,6 +770,39 @@ ${productNames}
     return () =>
       document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [pendingWhatsAppOrderId, orders]);
+
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.hidden) return;
+
+      const order = orders.find((o) => o._id === pendingCallOrderId);
+
+      if (!order) return;
+
+      const result = await Swal.fire({
+        title: "Call Confirmation",
+        text: "Did the customer respond to the call?",
+        icon: "question",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: "Yes",
+        denyButtonText: "No",
+        cancelButtonText: "Later",
+      });
+
+      if (result.isDenied) {
+        await updateOrderStatus(pendingCallOrderId, "no_response");
+      }
+
+      setPendingCallOrderId(null);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [pendingCallOrderId, orders]);
 
   useEffect(() => {
     if (!baseUrl) return;
@@ -743,6 +890,19 @@ ${productNames}
               }`}
             >
               Pending ({counts.pending})
+            </button>
+
+            <button
+              onClick={() => {
+                handleFilterChange("no_response");
+              }}
+              className={`btn btn-sm ${
+                statusFilter === "no_response"
+                  ? "bg-[#d4af37] text-white border-[#d4af37]"
+                  : "bg-white text-[#3d2f1f] border-[#e5dccf]"
+              }`}
+            >
+              No Response ({counts.no_response})
             </button>
 
             <button
@@ -1136,13 +1296,13 @@ ${productNames}
                       </p>
                     )}
                     <div className="flex flex-wrap gap-2 mt-2">
-                      <a
-                        href={`tel:${selectedOrder.phone}`}
+                      <button
+                        onClick={() => handleCall(selectedOrder)}
                         className="inline-flex items-center gap-1.5 rounded-md bg-green-700 px-3 py-1 text-xs font-semibold text-white hover:bg-green-800 transition-colors"
                       >
                         <LuPhone className="w-3 h-3" />
                         <span>Call</span>
-                      </a>
+                      </button>
 
                       <button
                         onClick={() => handleWhatsAppChat(selectedOrder)}
@@ -1207,6 +1367,47 @@ ${productNames}
                             })}
                           </p>
                         )}
+
+                        {selectedOrder.call && (
+                          <div className="border-t border-[#e5dccf] pt-3 mt-3 space-y-2">
+                            <h5 className="font-semibold text-[#3d2f1f]">
+                              Call Information
+                            </h5>
+
+                            <p>
+                              <span className="font-medium">Called:</span>{" "}
+                              {selectedOrder.call.count}{" "}
+                              {selectedOrder.call.count === 1
+                                ? "time"
+                                : "times"}
+                            </p>
+
+                            {selectedOrder.call.updatedBy && (
+                              <p>
+                                <span className="font-medium">Updated By:</span>{" "}
+                                {selectedOrder.call.updatedBy}
+                              </p>
+                            )}
+
+                            {selectedOrder.call.updatedAt && (
+                              <p>
+                                <span className="font-medium">
+                                  Last Called:
+                                </span>{" "}
+                                {new Date(
+                                  selectedOrder.call.updatedAt,
+                                ).toLocaleString("en-BD", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                })}
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1248,7 +1449,24 @@ ${productNames}
                         ? "Delivered"
                         : selectedOrder.status === "cancelled"
                           ? "Cancelled"
-                          : "Pending"}
+                          : selectedOrder.status === "pending"
+                            ? "Pending"
+                            : "No Response"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Order Date:</span>{" "}
+                      {new Date(selectedOrder.createdAt).toLocaleString(
+                        "en-BD",
+                        {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        },
+                      )}
                     </p>
 
                     {selectedOrder.status === "delivered" &&
@@ -1286,13 +1504,6 @@ ${productNames}
                           )}
                         </p>
                       )}
-
-                    <p>
-                      <span className="font-semibold">Date:</span>{" "}
-                      {selectedOrder.createdAt
-                        ? new Date(selectedOrder.createdAt).toLocaleDateString()
-                        : "—"}
-                    </p>
 
                     <p>
                       <span className="font-semibold">Delivery Method:</span>{" "}

@@ -271,6 +271,11 @@ exports.createOrder = async (req, res) => {
         updatedAt: null,
         updatedBy: null,
       },
+      call: {
+        count: 0,
+        updatedAt: null,
+        updatedBy: null,
+      },
     };
 
     const result = await ordersCollection.insertOne(orderData);
@@ -351,10 +356,11 @@ exports.getOrderCounts = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
 
-    const [all, pending, delivered, cancelled, verification_required] =
+    const [all, pending, no_response, delivered, cancelled, verification_required] =
       await Promise.all([
         ordersCollection.countDocuments(),
         ordersCollection.countDocuments({ status: "pending" }),
+        ordersCollection.countDocuments({ status: "no_response" }),
         ordersCollection.countDocuments({ status: "delivered" }),
         ordersCollection.countDocuments({ status: "cancelled" }),
         ordersCollection.countDocuments({ status: "verification_required" }),
@@ -365,6 +371,7 @@ exports.getOrderCounts = async (req, res) => {
       data: {
         all,
         pending,
+        no_response,
         delivered,
         cancelled,
         verification_required,
@@ -1314,6 +1321,89 @@ exports.updateWhatsAppStatus = async (req, res) => {
     res.json({
       success: true,
       message: "WhatsApp status updated",
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.updateCallCount = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const { id } = req.params;
+    const { updatedBy } = req.body;
+
+    const result = await ordersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $inc: {
+          "call.count": 1,
+        },
+        $set: {
+          "call.updatedAt": new Date(),
+          "call.updatedBy": updatedBy,
+        },
+      },
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    const order = await ordersCollection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Call count updated successfully.",
+      data: order.call,
+    });
+  } catch (error) {
+    console.error("Update Call Count Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const result = await ordersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status,
+        },
+      },
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Order status updated successfully.",
     });
   } catch (err) {
     res.status(500).json({

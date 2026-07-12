@@ -18,6 +18,8 @@ const {
   cancelAbandonedOrder,
   sendToPathao,
   updateWhatsAppStatus,
+  updateCallCount,
+  updateOrderStatus,
 } = require("../controllers/order.controller");
 
 router.post("/", createOrder);
@@ -37,5 +39,7 @@ router.patch("/:id/pathao", sendToPathao);
 router.patch("/:id/cancel", cancelOrder);
 router.patch("/:id/verify", verifyOrder);
 router.patch("/:id/whatsapp", updateWhatsAppStatus);
+router.patch("/:id/call", updateCallCount);
+router.patch("/:id/status", updateOrderStatus);
 
 module.exports = router;
