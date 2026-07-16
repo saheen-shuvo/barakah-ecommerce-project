@@ -186,6 +186,7 @@ const runBackgroundFraudCheck = async (ordersCollection, orderId, phone) => {
   }
 };
 
+// Create Order
 exports.createOrder = async (req, res) => {
   try {
     const db = await connectDB();
@@ -438,7 +439,7 @@ exports.getOrderStats = async (req, res) => {
   }
 };
 
-// This API is called by AnalyticsCard.jsx to get analytics for a specific date range
+// AnalyticsCard.jsx for a specific date range
 exports.getDeliveredAnalytics = async (req, res) => {
   try {
     const db = await connectDB();
@@ -614,6 +615,7 @@ exports.getDeliveredAnalytics = async (req, res) => {
   }
 };
 
+// Cancel Order
 exports.cancelOrder = async (req, res) => {
   try {
     const db = await connectDB();
@@ -645,6 +647,7 @@ exports.cancelOrder = async (req, res) => {
   }
 };
 
+//Mark Order Delivered
 exports.markOrderDelivered = async (req, res) => {
   try {
     const db = await connectDB();
@@ -694,11 +697,13 @@ exports.markOrderDelivered = async (req, res) => {
   }
 };
 
+//Verify Order
 exports.verifyOrder = async (req, res) => {
   try {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
     const { id } = req.params;
+    const { verifiedBy, deliveredBy } = req.body;
 
     const existingOrder = await ordersCollection.findOne({
       _id: new ObjectId(id),
@@ -726,6 +731,8 @@ exports.verifyOrder = async (req, res) => {
           deliveredAt: new Date(),
           isVerified: true,
           verifiedAt: new Date(),
+          verifiedBy,
+          deliveredBy,
         },
       },
     );

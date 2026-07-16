@@ -186,6 +186,7 @@ export default function CheckoutPage() {
         price: Number(item.price.toFixed(2)),
         quantity: item.quantity,
         image: item.image,
+        productCode: item.productCode || "Not Found",
       })),
       subtotal: roundedSubtotal,
       total: roundedTotal,

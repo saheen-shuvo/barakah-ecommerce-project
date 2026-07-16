@@ -228,22 +228,33 @@ export default function OrdersPage() {
 
       const res = await fetch(`${baseUrl}/api/orders/${id}/verify`, {
         method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          verifiedBy: user?.userName,
+          deliveredBy: user?.userName,
+        }),
       });
 
       const data = await res.json();
 
       if (data.success) {
         setOrders((prevOrders) =>
-          prevOrders.filter((order) => order._id !== id),
+          prevOrders.map((order) =>
+            order._id === id
+              ? {
+                  ...order,
+                  status: "delivered",
+                  deliveredAt: new Date().toISOString(),
+                  isVerified: true,
+                  verifiedAt: new Date().toISOString(),
+                  verifiedBy: user?.userName,
+                  deliveredBy: user?.userName,
+                }
+              : order,
+          ),
         );
-
-        Swal.fire({
-          icon: "success",
-          title: "Verified!",
-          text: "Order marked as verified and delivered.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
 
         if (selectedOrder?._id === id) {
           setSelectedOrder((prev) =>
@@ -254,10 +265,20 @@ export default function OrdersPage() {
                   deliveredAt: new Date().toISOString(),
                   isVerified: true,
                   verifiedAt: new Date().toISOString(),
+                  verifiedBy: user?.userName,
+                  deliveredBy: user?.userName,
                 }
               : null,
           );
         }
+
+        Swal.fire({
+          icon: "success",
+          title: "Verified!",
+          text: "Order marked as verified and delivered.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
         if (statusFilter === "pending") {
           setTotalPages((prev) => Math.max(prev, 1));
@@ -293,7 +314,7 @@ export default function OrdersPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cancelledBy: user?.UserName,
+          cancelledBy: user?.userName,
         }),
       });
 
@@ -1578,6 +1599,13 @@ ${productNames}
                           <span className="font-medium">Consignment ID:</span>{" "}
                           {selectedOrder.steadfast.consignmentId}
                         </p>
+                        <p>
+                          <span className="font-medium">Product Code:</span>{" "}
+                          {selectedOrder.items
+                            .map((item) => item.productCode)
+                            .filter(Boolean)
+                            .join(", ") || "Not Found"}
+                        </p>
                         {selectedOrder.steadfast.trackingUrl && (
                           <p>
                             <a
@@ -1925,6 +1953,9 @@ ${productNames}
                         <div>
                           <p className="font-medium text-[#3d2f1f]">
                             {item.name}
+                          </p>
+                          <p className="text-sm text-[#7a6a58]">
+                            {item.productCode}
                           </p>
                           <p className="text-sm text-[#7a6a58]">
                             Qty: {item.quantity}
