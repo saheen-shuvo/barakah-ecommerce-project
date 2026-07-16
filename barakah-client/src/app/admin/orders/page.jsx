@@ -174,7 +174,16 @@ export default function OrdersPage() {
 
       if (data.success) {
         setOrders((prevOrders) =>
-          prevOrders.filter((order) => order._id !== id),
+          prevOrders.map((order) =>
+            order._id === id
+              ? {
+                  ...order,
+                  status: "delivered",
+                  deliveredAt: new Date().toISOString(),
+                  deliveredBy: user?.userName,
+                }
+              : order,
+          ),
         );
 
         Swal.fire({

@@ -952,6 +952,99 @@ exports.getOrdersByDate = async (req, res) => {
   }
 };
 
+// This API is called by the admin panel to get moderator activity for a specific date
+exports.getModeratorActivity = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const { date, moderator } = req.query; // DD-MM-YYYY
+
+    if (!date || !moderator) {
+      return res.status(400).json({
+        success: false,
+        message: "Date and moderator are required",
+      });
+    }
+
+    // Parse DD-MM-YYYY
+    const [dd, mm, yyyy] = date.split("-");
+
+    if (!dd || !mm || !yyyy) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format. Use DD-MM-YYYY",
+      });
+    }
+
+    const from = new Date(`${yyyy}-${mm}-${dd}T00:00:00.000Z`);
+    const to = new Date(`${yyyy}-${mm}-${dd}T23:59:59.999Z`);
+
+    const [verified, delivered, cancelled, calls, whatsapp] = await Promise.all(
+      [
+        ordersCollection.countDocuments({
+          verifiedBy: moderator,
+          verifiedAt: {
+            $gte: from,
+            $lte: to,
+          },
+        }),
+
+        ordersCollection.countDocuments({
+          deliveredBy: moderator,
+          deliveredAt: {
+            $gte: from,
+            $lte: to,
+          },
+        }),
+
+        ordersCollection.countDocuments({
+          cancelledBy: moderator,
+          cancelledAt: {
+            $gte: from,
+            $lte: to,
+          },
+        }),
+
+        ordersCollection.countDocuments({
+          "call.updatedBy": moderator,
+          "call.updatedAt": {
+            $gte: from,
+            $lte: to,
+          },
+        }),
+
+        ordersCollection.countDocuments({
+          "whatsapp.updatedBy": moderator,
+          "whatsapp.updatedAt": {
+            $gte: from,
+            $lte: to,
+          },
+        }),
+      ],
+    );
+
+    res.json({
+      success: true,
+      data: {
+        date,
+        moderator,
+        verified,
+        delivered,
+        cancelled,
+        calls,
+        whatsapp,
+        totalActions: verified + delivered + cancelled + calls + whatsapp,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // This API is called by the admin panel to send an order to Steadfast for delivery
 exports.sendToSteadfast = async (req, res) => {
   try {
