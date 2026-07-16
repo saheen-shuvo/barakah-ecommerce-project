@@ -356,15 +356,21 @@ exports.getOrderCounts = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
 
-    const [all, pending, no_response, delivered, cancelled, verification_required] =
-      await Promise.all([
-        ordersCollection.countDocuments(),
-        ordersCollection.countDocuments({ status: "pending" }),
-        ordersCollection.countDocuments({ status: "no_response" }),
-        ordersCollection.countDocuments({ status: "delivered" }),
-        ordersCollection.countDocuments({ status: "cancelled" }),
-        ordersCollection.countDocuments({ status: "verification_required" }),
-      ]);
+    const [
+      all,
+      pending,
+      no_response,
+      delivered,
+      cancelled,
+      verification_required,
+    ] = await Promise.all([
+      ordersCollection.countDocuments(),
+      ordersCollection.countDocuments({ status: "pending" }),
+      ordersCollection.countDocuments({ status: "no_response" }),
+      ordersCollection.countDocuments({ status: "delivered" }),
+      ordersCollection.countDocuments({ status: "cancelled" }),
+      ordersCollection.countDocuments({ status: "verification_required" }),
+    ]);
 
     res.json({
       success: true,
@@ -614,6 +620,7 @@ exports.cancelOrder = async (req, res) => {
     const ordersCollection = db.collection("orders");
 
     const { id } = req.params;
+    const { cancelledBy } = req.body;
 
     const result = await ordersCollection.updateOne(
       { _id: new ObjectId(id) },
@@ -621,6 +628,7 @@ exports.cancelOrder = async (req, res) => {
         $set: {
           status: "cancelled",
           cancelledAt: new Date(),
+          cancelledBy,
         },
       },
     );
@@ -642,6 +650,7 @@ exports.markOrderDelivered = async (req, res) => {
     const db = await connectDB();
     const ordersCollection = db.collection("orders");
     const { id } = req.params;
+    const { deliveredBy } = req.body || {};
 
     const existingOrder = await ordersCollection.findOne({
       _id: new ObjectId(id),
@@ -667,6 +676,7 @@ exports.markOrderDelivered = async (req, res) => {
         $set: {
           status: "delivered",
           deliveredAt: new Date(),
+          deliveredBy,
         },
       },
     );

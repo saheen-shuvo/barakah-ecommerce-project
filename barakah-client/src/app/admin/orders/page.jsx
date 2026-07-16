@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
@@ -161,6 +162,12 @@ export default function OrdersPage() {
 
       const res = await fetch(`${baseUrl}/api/orders/${id}/deliver`, {
         method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          deliveredBy: user?.userName,
+        }),
       });
 
       const data = await res.json();
@@ -282,6 +289,12 @@ export default function OrdersPage() {
     try {
       const res = await fetch(`${baseUrl}/api/orders/${id}/cancel`, {
         method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cancelledBy: user?.UserName,
+        }),
       });
 
       const data = await res.json();
