@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import { useEffect, useState } from "react";
 import {
@@ -311,7 +312,7 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
           {label}
         </p>
         <div className="flex items-baseline gap-2 mt-1">
-          <h3 className="text-3xl font-bold text-stone-800">{value}</h3>
+          <p className="text-3xl font-semibold text-stone-600">{value}</p>
         </div>
         {subValue !== undefined && !isModerator && (
           <div className="flex items-center gap-1 mt-3 text-stone-600 font-medium">

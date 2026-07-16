@@ -20,6 +20,7 @@ export default function EditProductPage() {
     oldPrice: "",
     image: "",
     badge: "",
+    productCode: "",
     inStock: true,
   });
 
@@ -49,6 +50,7 @@ export default function EditProductPage() {
             oldPrice: product.oldPrice || "",
             image: product.image || "",
             badge: product.badge || "",
+            productCode: product.productCode || "",
             inStock: product.inStock ?? true,
           });
         } else {
@@ -250,19 +252,36 @@ export default function EditProductPage() {
           />
         </div>
 
-        <div className="grid gap-5">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
-              Badge
-            </label>
-            <input
-              type="text"
-              name="badge"
-              value={formData.badge}
-              onChange={handleChange}
-              placeholder="New / Sale"
-              className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
-            />
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
+                Discount Badge (Optional)
+              </label>
+              <input
+                type="text"
+                name="badge"
+                value={formData.badge}
+                onChange={handleChange}
+                placeholder="25% Off"
+                className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
+              />
+            </div>
+          </div>
+          <div className="grid gap-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
+                Product Code (Optional)
+              </label>
+              <input
+                type="text"
+                name="productCode"
+                value={formData.productCode}
+                onChange={handleChange}
+                placeholder="CWC-121"
+                className="w-full rounded-xl border border-[#e5dccf] px-4 py-3 outline-none focus:border-[#d4af37]"
+              />
+            </div>
           </div>
         </div>
 

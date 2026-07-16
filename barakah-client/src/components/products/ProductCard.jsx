@@ -63,9 +63,9 @@ export default function ProductCard({ product }) {
         </p>
 
         {/* Name */}
-        <h3 className="mb-1.5 line-clamp-1 text-sm font-semibold text-[#0f2a44]">
+        <p className="mb-1.5 line-clamp-1 text-sm font-semibold text-[#0f2a44]">
           {product.name}
-        </h3>
+        </p>
 
         {/* Price  */}
         <div className="flex items-center gap-2">

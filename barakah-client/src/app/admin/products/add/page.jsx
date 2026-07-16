@@ -24,6 +24,7 @@ export default function AddProductPage() {
       subcategory: "",
       description: "",
       badge: "",
+      productCode: "",
       inStock: true,
       image: "",
     },
@@ -194,17 +195,32 @@ export default function AddProductPage() {
           </div>
         </div>
 
-        <div className="grid gap-5">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
-              Badge
-            </label>
-            <input
-              type="text"
-              placeholder="Example: New / Sale"
-              {...register("badge")}
-              className="w-full rounded-lg border border-[#e5dccf] p-3 outline-none focus:border-[#d4af37]"
-            />
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
+                Discount Badge (Optional)
+              </label>
+              <input
+                type="text"
+                placeholder="Example: 25% Off"
+                {...register("badge")}
+                className="w-full rounded-lg border border-[#e5dccf] p-3 outline-none focus:border-[#d4af37]"
+              />
+            </div>
+          </div>
+          <div className="grid gap-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[#3d2f1f]">
+                Product Code (Optional)
+              </label>
+              <input
+                type="text"
+                placeholder="Example: CWC-121"
+                {...register("productCode")}
+                className="w-full rounded-lg border border-[#e5dccf] p-3 outline-none focus:border-[#d4af37]"
+              />
+            </div>
           </div>
         </div>
 

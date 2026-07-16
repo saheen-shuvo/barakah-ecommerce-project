@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -286,8 +287,17 @@ export default function CheckoutPage() {
                   </label>
                   <input
                     type="text"
+                    maxLength={32}
                     {...register("name", {
                       required: "পূর্ণ নাম আবশ্যক",
+                      minLength: {
+                        value: 2,
+                        message: "নাম কমপক্ষে ২ অক্ষরের হতে হবে",
+                      },
+                      maxLength: {
+                        value: 32,
+                        message: "নাম ৩২ অক্ষরের বেশি হতে পারবে না",
+                      },
                     })}
                     className="w-full rounded-xl border border-[#0f2a44]/15 px-4 py-3 outline-none focus:border-[#d4af37]"
                     placeholder="আপনার পূর্ণ নাম লিখুন"
@@ -505,9 +515,9 @@ export default function CheckoutPage() {
                     className="flex items-center justify-between gap-4 border-b border-[#0f2a44]/10 pb-4"
                   >
                     <div>
-                      <h3 className="font-medium text-[#0f2a44]">
+                      <p className="font-medium text-[#0f2a44]">
                         {item.name}
-                      </h3>
+                      </p>
                       <p className="text-sm text-[#0f2a44]/60">
                         পরিমাণ: {item.quantity}
                       </p>
@@ -551,7 +561,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-3 items-end">
+        <div className="fixed bottom-5 right-5 z-9999 flex flex-col gap-3 items-end">
           {open && (
             <>
               {/* Messenger */}

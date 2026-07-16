@@ -106,9 +106,9 @@ export default async function AdminHomePage() {
                 <p className="text-xs text-stone-500 font-medium uppercase tracking-wider">
                   Total Products
                 </p>
-                <h3 className="text-4xl font-bold text-stone-800 mt-2">
+                <p className="text-4xl font-semibold text-stone-600 mt-2">
                   {totalProducts}
-                </h3>
+                </p>
               </div>
             </div>
           </div>
@@ -122,9 +122,9 @@ export default async function AdminHomePage() {
                 <p className="text-xs text-stone-500 font-medium uppercase tracking-wider">
                   Total Orders
                 </p>
-                <h3 className="text-4xl font-bold text-stone-800 mt-2">
+                <p className="text-4xl font-semibold text-stone-600 mt-2">
                   {totalOrders}
-                </h3>
+                </p>
               </div>
             </div>
           </div>

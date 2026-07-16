@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
@@ -436,7 +437,7 @@ const StatCard = ({ label, value, subValue, icon, color, badge }) => {
         <p className="text-stone-500 text-xs font-medium uppercase tracking-wider mb-1">
           {label}
         </p>
-        <h3 className="text-3xl font-bold text-stone-800 mb-2">{value}</h3>
+        <p className="text-3xl font-semibold text-stone-600 mb-2">{value}</p>
 
         {/* Revenue */}
         {subValue !== undefined && !isModerator && (

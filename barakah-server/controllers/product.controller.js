@@ -105,6 +105,7 @@ exports.createProduct = async (req, res) => {
       oldPrice,
       image,
       badge,
+      productCode,
       inStock,
     } = req.body;
 
@@ -117,6 +118,7 @@ exports.createProduct = async (req, res) => {
       oldPrice: Number(oldPrice) || 0,
       image: image?.trim() || "",
       badge: badge?.trim() || "",
+      productCode: productCode?.trim() || "",
       inStock: typeof inStock === "boolean" ? inStock : true,
       createdAt: new Date(),
     };
@@ -136,6 +138,7 @@ exports.createProduct = async (req, res) => {
   }
 };
 
+// UPDATE product
 exports.updateProduct = async (req, res) => {
   try {
     const db = await connectDB();
@@ -152,6 +155,7 @@ exports.updateProduct = async (req, res) => {
       oldPrice,
       image,
       badge,
+      productCode,
       inStock,
     } = req.body;
 
@@ -176,6 +180,7 @@ exports.updateProduct = async (req, res) => {
         oldPrice !== undefined ? Number(oldPrice) : existingProduct.oldPrice,
       image: image?.trim() || existingProduct.image,
       badge: badge?.trim() || "",
+      productCode: productCode?.trim() || "",
       inStock: typeof inStock === "boolean" ? inStock : existingProduct.inStock,
       updatedAt: new Date(),
     };
@@ -198,6 +203,7 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
+// DELETE product
 exports.deleteProduct = async (req, res) => {
   try {
     const db = await connectDB();

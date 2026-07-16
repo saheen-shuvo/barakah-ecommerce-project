@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -1552,7 +1553,7 @@ ${productNames}
                         <p className="font-semibold mb-2">
                           Steadfast Tracking:
                         </p>
-                        <p>
+                        <p className="capitalize">
                           <span className="font-medium">Account:</span>{" "}
                           {selectedOrder.steadfast.account || "Not Found"}
                         </p>
