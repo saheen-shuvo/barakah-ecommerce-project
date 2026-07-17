@@ -354,6 +354,31 @@ export default function OrdersPage() {
     }
   };
 
+  const handleSelectSteadfastAccount = async (id) => {
+    const { value: account } = await Swal.fire({
+      title: "Select Steadfast Account",
+      input: "radio",
+      inputOptions: {
+        narayanganj: "Narayanganj",
+        badda: "Badda",
+        jamalpur: "Jamalpur",
+      },
+      inputValidator: (value) => {
+        if (!value) {
+          return "Please select a Steadfast account.";
+        }
+      },
+      showCancelButton: true,
+      confirmButtonText: "Continue",
+      confirmButtonColor: "#d4af37",
+      cancelButtonColor: "#6b7280",
+    });
+
+    if (!account) return;
+
+    handleSendToSteadfast(id, account);
+  };
+
   const handleSendToSteadfast = async (id, account) => {
     const currentOrder = orders.find((order) => order._id === id);
     if (steadfastLoadingId === `${id}-${account}`) return;
@@ -2013,55 +2038,16 @@ ${productNames}
               {/* Footer Action */}
               <div className="grid md:flex grid-cols-2 gap-2 justify-center md:justify-end">
                 {selectedOrder.status !== "delivered" &&
-                  selectedOrder.status !== "cancelled" &&
-                  (selectedOrder.steadfast?.account === "narayanganj" ? (
-                    <button
-                      className="btn btn-xs md:btn-sm cursor-not-allowed"
-                      disabled
-                    >
-                      Sent to Steadfast (N)
-                    </button>
-                  ) : (
+                  selectedOrder.status !== "cancelled" && (
                     <button
                       onClick={() =>
-                        handleSendToSteadfast(selectedOrder._id, "narayanganj")
+                        handleSelectSteadfastAccount(selectedOrder._id)
                       }
                       className="btn btn-xs md:btn-sm bg-[#01B795] text-white border-none hover:bg-[#00886f]"
-                      disabled={
-                        steadfastLoadingId ===
-                        `${selectedOrder._id}-narayanganj`
-                      }
                     >
-                      {steadfastLoadingId === `${selectedOrder._id}-narayanganj`
-                        ? "Sending..."
-                        : "Send To Steadfast (N)"}
+                      Send To Steadfast
                     </button>
-                  ))}
-
-                {selectedOrder.status !== "delivered" &&
-                  selectedOrder.status !== "cancelled" &&
-                  (selectedOrder.steadfast?.account === "badda" ? (
-                    <button
-                      className="btn btn-xs md:btn-sm cursor-not-allowed"
-                      disabled
-                    >
-                      Sent to Steadfast (B)
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() =>
-                        handleSendToSteadfast(selectedOrder._id, "badda")
-                      }
-                      className="btn btn-xs md:btn-sm bg-[#01a8b7] text-white border-none hover:bg-[#026c6d]"
-                      disabled={
-                        steadfastLoadingId === `${selectedOrder._id}-badda`
-                      }
-                    >
-                      {steadfastLoadingId === `${selectedOrder._id}-badda`
-                        ? "Sending..."
-                        : "Send To Steadfast (B)"}
-                    </button>
-                  ))}
+                  )}
 
                 {selectedOrder.status !== "delivered" &&
                   selectedOrder.status !== "cancelled" &&

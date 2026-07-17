@@ -31,6 +31,11 @@ const callSteadfast = async (payload, account) => {
       secretKey = process.env.STEADFAST_SECRET_KEY_BADDA;
       break;
 
+    case "jamalpur":
+      apiKey = process.env.STEADFAST_API_KEY_JAMALPUR;
+      secretKey = process.env.STEADFAST_SECRET_KEY_JAMALPUR;
+      break;
+
     default:
       throw new Error("Invalid Steadfast account.");
   }
@@ -49,14 +54,7 @@ const callSteadfast = async (payload, account) => {
     body: JSON.stringify(payload),
   });
 
-  console.log("Steadfast Status:", response.status);
-  console.log("Content-Type:", response.headers.get("content-type"));
-
   const rawResponse = await response.text();
-
-  console.log("========== STEADFAST RAW RESPONSE ==========");
-  console.log(rawResponse);
-  console.log("============================================");
 
   let data;
 
