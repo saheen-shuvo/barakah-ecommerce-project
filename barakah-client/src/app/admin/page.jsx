@@ -1,6 +1,6 @@
 import AnalyticsCard from "@/components/admin/AnalyticsCard";
 import DateAnalyticsCard from "@/components/admin/DateAnalyticsCard";
-import ModeratorActivityCard from "@/components/admin/ModeratorActivityCard";
+import ModeratorSectionForAdmin from "@/components/admin/ModeratorSectionForAdmin";
 import AdminRoute from "@/components/auth/AdminRoute";
 import { Layers, Package } from "lucide-react";
 import Image from "next/image";
@@ -156,7 +156,7 @@ export default async function AdminHomePage() {
 
           <DateAnalyticsCard />
 
-          <ModeratorActivityCard />
+          <ModeratorSectionForAdmin />
         </div>
 
         {/* Quick Actions */}

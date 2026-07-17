@@ -355,6 +355,7 @@ export default function OrdersPage() {
   };
 
   const handleSendToSteadfast = async (id, account) => {
+    const currentOrder = orders.find((order) => order._id === id);
     if (steadfastLoadingId === `${id}-${account}`) return;
 
     const result = await Swal.fire({
@@ -400,14 +401,23 @@ export default function OrdersPage() {
         Swal.fire({
           icon: "success",
           title: "Sent to Steadfast!",
-          html: `<div class="text-left">
-          <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
-          ${
-            data.data.trackingUrl
-              ? `<p><a href="${data.data.trackingUrl}" target="_blank" class="text-[#d4af37] underline">View Tracking</a></p>`
-              : ""
-          }
-        </div>`,
+          html: `
+    <div class="text-left">
+          <p><strong>Product Code:</strong> ${
+            currentOrder?.items
+              ?.map((item) => item.productCode)
+              .filter(Boolean)
+              .join(", ") || "Not Found"
+          }</p>
+      <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
+
+      ${
+        data.data.trackingUrl
+          ? `<p><a href="${data.data.trackingUrl}" target="_blank" class="text-[#d4af37] underline">View Tracking</a></p>`
+          : ""
+      }
+    </div>
+  `,
           confirmButtonColor: "#d4af37",
         });
 
@@ -437,6 +447,7 @@ export default function OrdersPage() {
   };
 
   const handleSendToPathao = async (id) => {
+    const currentOrder = orders.find((order) => order._id === id);
     if (pathaoLoadingId === id) return;
 
     const result = await Swal.fire({
@@ -480,11 +491,20 @@ export default function OrdersPage() {
           icon: "success",
           title: "Sent to Pathao!",
           html: `
-  <div class="text-left">
-    <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
-    <p><strong>Merchant Order ID:</strong> ${data.data.merchantOrderId}</p>
-  </div>
-`,
+    <div class="text-left">
+          <p>
+        <strong>Product Code:</strong>
+        ${
+          currentOrder?.items
+            ?.map((item) => item.productCode)
+            .filter(Boolean)
+            .join(", ") || "Not Found"
+        }
+      </p>
+      <p><strong>Consignment ID:</strong> ${data.data.consignmentId}</p>
+      <p><strong>Merchant Order ID:</strong> ${data.data.merchantOrderId}</p>
+    </div>
+  `,
           confirmButtonColor: "#eb7029",
         });
 
@@ -1605,15 +1625,15 @@ ${productNames}
                           <span className="text-[#d4af37]">Sent</span>
                         </p>
                         <p>
-                          <span className="font-medium">Consignment ID:</span>{" "}
-                          {selectedOrder.steadfast.consignmentId}
-                        </p>
-                        <p>
                           <span className="font-medium">Product Code:</span>{" "}
                           {selectedOrder.items
                             .map((item) => item.productCode)
                             .filter(Boolean)
                             .join(", ") || "Not Found"}
+                        </p>
+                        <p>
+                          <span className="font-medium">Consignment ID:</span>{" "}
+                          {selectedOrder.steadfast.consignmentId}
                         </p>
                         {selectedOrder.steadfast.trackingUrl && (
                           <p>
@@ -1652,6 +1672,13 @@ ${productNames}
                         <p>
                           <span className="font-medium">Status:</span>{" "}
                           <span className="text-[#eb7029]">Sent</span>
+                        </p>
+                        <p>
+                          <span className="font-medium">Product Code:</span>{" "}
+                          {selectedOrder.items
+                            .map((item) => item.productCode)
+                            .filter(Boolean)
+                            .join(", ") || "Not Found"}
                         </p>
 
                         <p>

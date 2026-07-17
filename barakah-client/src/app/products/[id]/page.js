@@ -82,9 +82,9 @@ export default async function ProductDetails({ params }) {
               </span>
             )}
 
-            <h1 className="text-3xl font-bold text-[#0f2a44] mt-2">
+            <p className="text-3xl font-bold text-[#0f2a44] mt-2">
               {product.name}
-            </h1>
+            </p>
 
             {/* Price */}
             <div className="mt-4 flex items-center gap-3">

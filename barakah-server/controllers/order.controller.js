@@ -1045,6 +1045,90 @@ exports.getModeratorActivity = async (req, res) => {
   }
 };
 
+// This API is called by the admin panel to get moderator performance for the last 30 days
+exports.getModeratorPerformance = async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ordersCollection = db.collection("orders");
+
+    const moderators = ["Moderator 1", "Moderator 2", "Shahneaz Rashid"];
+
+    const from = new Date();
+    from.setDate(from.getDate() - 30);
+
+    const to = new Date();
+
+    const result = await Promise.all(
+      moderators.map(async (moderator) => {
+        const [verified, delivered, cancelled, calls, whatsapp] =
+          await Promise.all([
+            ordersCollection.countDocuments({
+              verifiedBy: moderator,
+              verifiedAt: {
+                $gte: from,
+                $lte: to,
+              },
+            }),
+
+            ordersCollection.countDocuments({
+              deliveredBy: moderator,
+              deliveredAt: {
+                $gte: from,
+                $lte: to,
+              },
+            }),
+
+            ordersCollection.countDocuments({
+              cancelledBy: moderator,
+              cancelledAt: {
+                $gte: from,
+                $lte: to,
+              },
+            }),
+
+            ordersCollection.countDocuments({
+              "call.updatedBy": moderator,
+              "call.updatedAt": {
+                $gte: from,
+                $lte: to,
+              },
+            }),
+
+            ordersCollection.countDocuments({
+              "whatsapp.updatedBy": moderator,
+              "whatsapp.updatedAt": {
+                $gte: from,
+                $lte: to,
+              },
+            }),
+          ]);
+
+        return {
+          moderator,
+          verified,
+          delivered,
+          cancelled,
+          calls,
+          whatsapp,
+          totalActions: verified + delivered + cancelled + calls + whatsapp,
+        };
+      }),
+    );
+
+    result.sort((a, b) => b.totalActions - a.totalActions);
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // This API is called by the admin panel to send an order to Steadfast for delivery
 exports.sendToSteadfast = async (req, res) => {
   try {

@@ -12,6 +12,7 @@ const {
   getOrdersByDate,
   getOrderCounts,
   getModeratorActivity,
+  getModeratorPerformance,
   verifyOrder,
   saveAbandonedOrder,
   getAbandonedOrders,
@@ -35,6 +36,7 @@ router.get("/analytics", getDeliveredAnalytics);
 router.get("/export", getOrdersForExport);
 router.get("/by-date", getOrdersByDate);
 router.get("/moderator-activity", getModeratorActivity);
+router.get("/moderator-performance", getModeratorPerformance);
 router.patch("/:id/deliver", markOrderDelivered);
 router.patch("/:id/steadfast", sendToSteadfast);
 router.patch("/:id/pathao", sendToPathao);
