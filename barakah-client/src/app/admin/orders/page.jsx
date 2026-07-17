@@ -1575,6 +1575,21 @@ ${productNames}
                           )}
                         </p>
                       )}
+                    {selectedOrder.status === "delivered" &&
+                      selectedOrder.deliveredBy && (
+                        <p>
+                          <span className="font-semibold">Delivered By:</span>{" "}
+                          {selectedOrder.deliveredBy}
+                        </p>
+                      )}
+
+                    {selectedOrder.status === "delivered" &&
+                      selectedOrder.verifiedBy && (
+                        <p>
+                          <span className="font-semibold">Verified By:</span>{" "}
+                          {selectedOrder.verifiedBy}
+                        </p>
+                      )}
 
                     {selectedOrder.status === "cancelled" &&
                       selectedOrder.cancelledAt && (
@@ -1591,6 +1606,14 @@ ${productNames}
                               hour12: true,
                             },
                           )}
+                        </p>
+                      )}
+
+                    {selectedOrder.status === "cancelled" &&
+                      selectedOrder.cancelledBy && (
+                        <p>
+                          <span className="font-semibold">Cancelled By:</span>{" "}
+                          {selectedOrder.cancelledBy}
                         </p>
                       )}
 
